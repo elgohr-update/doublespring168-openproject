@@ -45,6 +45,14 @@ class ModelContract < Reform::Contract
       @attribute_validations ||= []
     end
 
+    def attribute_aliases
+      @attribute_aliases ||= {}
+    end
+
+    def attribute_alias(db, outside)
+      attribute_aliases[db] = outside
+    end
+
     def attribute(attribute, options = {}, &block)
       property attribute
 
@@ -90,13 +98,19 @@ class ModelContract < Reform::Contract
   end
 
   def writable_attributes
-    writable = collect_ancestor_attributes(:writable_attributes)
+    @writable_attributes ||= begin
+      writable = collect_ancestor_attributes(:writable_attributes)
 
-    collect_ancestor_attributes(:writable_conditions).each do |attribute, condition|
-      writable -= [attribute, "#{attribute}_id"] unless instance_exec(&condition)
+      collect_ancestor_attributes(:writable_conditions).each do |attribute, condition|
+        writable -= [attribute, "#{attribute}_id"] unless instance_exec(&condition)
+      end
+
+      writable
     end
+  end
 
-    writable
+  def writable?(attribute)
+    writable_attributes.include?(attribute.to_s)
   end
 
   def validate
@@ -104,6 +118,10 @@ class ModelContract < Reform::Contract
     run_attribute_validations
 
     super
+
+    # Allow subclasses to check only contract errors
+    return errors.empty? unless validate_model?
+
     model.valid?
 
     # We need to merge the contract errors with the model errors in
@@ -133,13 +151,27 @@ class ModelContract < Reform::Contract
   end
   # end Methods required to get ActiveModel error messages working
 
+  protected
+
+  ##
+  # Allow subclasses to disable model validation
+  # during contract validation.
+  #
+  # This is necessary during, e.g., deletion contract validations
+  # to ensure invalid models can be deleted when allowed.
+  def validate_model?
+    true
+  end
+
   private
 
   def readonly_attributes_unchanged
     invalid_changes = model.changed - writable_attributes
 
     invalid_changes.each do |attribute|
-      errors.add attribute, :error_readonly
+      outside_attribute = collect_ancestor_attributes(:attribute_aliases)[attribute] || attribute
+
+      errors.add outside_attribute, :error_readonly
     end
   end
 
@@ -154,13 +186,26 @@ class ModelContract < Reform::Contract
   # Traverse ancestor hierarchy to collect contract information.
   # This allows to define attributes on a common base class of two or more contracts.
   def collect_ancestor_attributes(attribute_to_collect)
-    attributes = []
+    combination_method, cleanup_method = if self.class.send(attribute_to_collect).is_a?(Hash)
+                                           %i[merge with_indifferent_access]
+                                         else
+                                           %i[concat uniq]
+                                         end
+
+    collect_ancestor_attributes_by(attribute_to_collect, combination_method, cleanup_method)
+  end
+
+  def collect_ancestor_attributes_by(attribute_to_collect, combination_method, cleanup_method)
     klass = self.class
-    while klass != ModelContract
+    attributes = klass.send(attribute_to_collect)
+
+    while klass.superclass != ModelContract
       # Collect all the attribute_to_collect from ancestors
-      attributes += klass.send(attribute_to_collect)
       klass = klass.superclass
+
+      attributes = attributes.send(combination_method, klass.send(attribute_to_collect))
     end
-    attributes.uniq
+
+    attributes.send(cleanup_method)
   end
 end

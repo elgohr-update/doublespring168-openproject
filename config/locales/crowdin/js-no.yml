@@ -18,11 +18,24 @@
     close_popup_title: Lukk sprettoppvindu
     close_filter_title: Close filter
     close_form_title: Close form
+    boards:
+      upsale:
+        boards: Need to freely structure your work in a board view?
+        check_out_link: Check out the Enterprise Edition.
+      lists:
+        delete: Delete list
+    card:
+      add_new: Add new card
+      highlighting:
+        inline: 'Highlight inline:'
+        entire_card_by: Entire card by
+      remove_from_list: Remove card from list
     clipboard:
       browser_error: Nettleseren støtter ikke kopiering til utklippstavle. Kopier
         den merkede teksten manuelt.
       copied_successful: Kopiert til utklippstavlen!
     button_add_watcher: Legg til overvåker
+    button_back: Tilbake
     button_back_to_list_view: Back to list view
     button_cancel: Avbryt
     button_close: Lukk
@@ -38,6 +51,7 @@
     button_duplicate: Kopier
     button_edit: Rediger
     button_filter: Filter
+    button_advanced_filter: Advanced filter
     button_list_view: Listevisning
     button_show_view: Fullskjermvisning
     button_log_time: Logg tid
@@ -146,13 +160,43 @@
     general_text_yes: ja
     general_text_No: Nei
     general_text_Yes: Ja
+    grid:
+      add_modal:
+        choose_widget: Choose widget
+      widgets:
+        documents:
+          title: Dokumenter
+          no_results: No documents yet.
+        news:
+          title: Nyheter
+          at: at
+          no_results: Nothing new to report.
+        time_entries_current_user:
+          title: Spent time (last 7 days)
+          no_results: No time entries for the last 7 days.
+        work_packages_accountable:
+          title: Work packages I am accountable for
+        work_packages_assigned:
+          title: Arbeidspakker tildelt meg
+        work_packages_created:
+          title: Work packages created by me
+        work_packages_watched:
+          title: Work packages watched by me
+        work_packages_table:
+          title: Arbeidspakker
+        work_packages_calendar:
+          title: Kalender
     label_activate: Aktiver
     label_activity_no: Activity entry number %{activityNo}
     label_activity_with_comment_no: Activity entry number %{activityNo}. Has a user
       comment.
+    label_add_column_after: Add column after
+    label_add_column_before: Add column before
     label_add_columns: Add columns
     label_add_comment: Legg til kommentar
     label_add_comment_title: Comment and type @ to notify other people
+    label_add_row_after: Add row after
+    label_add_row_before: Add row before
     label_add_selected_columns: Legg til valgte kolonner
     label_added_by: lagt til av
     label_added_time_by: Lagt inn av %{author} %{age}
@@ -163,7 +207,9 @@
     label_ascending: Stigende
     label_author: 'Author: %{user}'
     label_between: mellom
+    label_board: Board
     label_board_locked: Låst
+    label_board_plural: Boards
     label_board_sticky: Sticky
     label_create_work_package: Opprett ny arbeidspakke
     label_created_by: Created by
@@ -209,6 +255,7 @@
     label_menu_collapse: skjul
     label_menu_expand: utvid
     label_more_than_ago: mer enn dager siden
+    label_my_page: Min side
     label_next: Neste
     label_no_data: Ingen data å vise
     label_no_due_date: ingen sluttdato
@@ -227,7 +274,9 @@
     label_visibility_settings: Visibility settings
     label_quote_comment: Quote this comment
     label_reset: Nullstill
+    label_remove_column: Remove column
     label_remove_columns: Fjern valgte kolonner
+    label_remove_row: Remove row
     label_save_as: Lagre som
     label_select_watcher: Velg en overvåker...
     label_selected_filter_list: Valgte filtre
@@ -249,6 +298,7 @@
     label_activity_show_only_comments: Show activities with comments only
     label_activity_show_all: Show all activities
     label_total_progress: "%{percent}% utført"
+    label_total_amount: 'Total: %{amount}'
     label_updated_on: updated on
     label_warning: Advarsel
     label_work_package: Arbeidspakke
@@ -281,6 +331,7 @@
     label_upload_notification: Uploading files...
     label_work_package_upload_notification: 'Uploading files for Work package #%{id}:
       %{subject}'
+    label_wp_id_added_by: "#%{id} added by %{author}"
     label_files_to_upload: 'These files will be uploaded:'
     label_rejected_files: 'These files cannot be uploaded:'
     label_rejected_files_reason: These files cannot be uploaded as their size is greater
@@ -297,46 +348,54 @@
         next: Neste
         got_it: Got it
       steps:
-        welcome: Take a three minutes introduction tour to learn the most <b>important
-          features</b>. <br> We recommend completing the steps until the end. You
-          can restart the tour any time.
+        help_menu: In the <b>Help</b> menu you will find a user guide and additional
+          help resources. <br> Enjoy your work with OpenProject!
+        members: Invite new <b>Members</b> to join your project.
         project_selection: Please select one of the projects with useful demo data
           to get started. <br> The <b>Demo project</b> suits best for classical project
           management, while the <b>Scrum project</b> is better for Agile project management.
         sidebar_arrow: With the arrow you can navigate back to the project's <b>Main
           menu</b>.
-        members: Invite new <b>Members</b> to join your project.
+        welcome: Take a three minutes introduction tour to learn the most <b>important
+          features</b>. <br> We recommend completing the steps until the end. You
+          can restart the tour any time.
         wiki: Within the <b>Wiki</b> you can document and share knowledge together
           with your team.
-        backlogs_overview: Manage your work in the <b>Backlogs</b> view. <br> On the
-          right you have the Product Backlog or a Bug Backlog, on the left you will
-          have the respective sprints. Here you can create <b>epics, user stories,
-          and bugs</b>, prioritize via drag'n'drop and add them to a sprint.
-        backlogs_task_board_arrow: To see your <b>Task board</b>, open the Sprint
-          drop-down...
-        backlogs_task_board_select: "... and select the <b>Task board</b> entry."
-        backlogs_task_board: The <b>Task board</b> visualizes the progress for this
-          sprint. Add new tasks or impediments with the + icon next to a user story.
-          Via drag'n'drop you can update the status.
-        wp_toggler: Now let's have a look at the <b>Work package</b> section, which
-          gives you a more detailed view of your work.
-        wp_list: This is the <b>Work package</b> list with the important work within
-          your project, such as tasks, features, milestones, bugs, and more. <br>
-          You can create or edit a work package directly within this list. To see
-          its details you can double click on a row.
-        wp_full_view: Within the <b>Work package details</b> you find all relevant
-          information, such as description, status and priority, activities, dependencies
-          or comments.
-        wp_back_button: With the arrow you can navigate back to the work package list.
-        wp_create_button: The <b>Create</b> button will add a new work package to
-          your project.
-        wp_timeline_button: You can activate the <b>Gantt chart</b> to create a timeline
-          for your project.
-        wp_timeline: Here you can edit your project plan. Create new phases, milestones,
-          and add dependencies. All team members can see and update the latest plan
-          at any time.
-        help_menu: In the <b>Help</b> menu you will find a user guide and additional
-          help resources. <br> Enjoy your work with OpenProject!
+        backlogs:
+          overview: Manage your work in the <b>Backlogs</b> view. <br> On the right
+            you have the Product Backlog or a Bug Backlog, on the left you will have
+            the respective sprints. Here you can create <b>epics, user stories, and
+            bugs</b>, prioritize via drag'n'drop and add them to a sprint.
+          task_board_arrow: To see your <b>Task board</b>, open the Sprint drop-down...
+          task_board_select: "... and select the <b>Task board</b> entry."
+          task_board: The <b>Task board</b> visualizes the progress for this sprint.
+            Add new tasks or impediments with the + icon next to a user story. Via
+            drag'n'drop you can update the status.
+        boards:
+          overview: Manage your work within an intuitive <b>Boards</b> view.
+          lists: You can create multiple lists (columns) within one Board view, e.g.
+            to create a KANBAN board.
+          add: Click the + will <b>add a new card</b> to the list within a Board.
+          drag: Drag & Drop your cards within a list to re-order, or the another list.
+            A double click will open the details view.
+        wp:
+          toggler: Now let's have a look at the <b>Work package</b> section, which
+            gives you a more detailed view of your work.
+          list: This is the <b>Work package</b> list with the important work within
+            your project, such as tasks, features, milestones, bugs, and more. <br>
+            You can create or edit a work package directly within this list. To see
+            its details you can double click on a row.
+          full_view: Within the <b>Work package details</b> you find all relevant
+            information, such as description, status and priority, activities, dependencies
+            or comments.
+          back_button: With the arrow you can navigate back to the work package list.
+          create_button: The <b>Create</b> button will add a new work package to your
+            project.
+          timeline_button: You can activate the <b>Gantt chart</b> to create a timeline
+            for your project.
+          timeline: Here you can edit your project plan. Create new phases, milestones,
+            and add dependencies. All team members can see and update the latest plan
+            at any time.
     password_confirmation:
       field_description: You need to enter your account password to confirm this change.
       title: Confirm your password to continue
@@ -389,6 +448,10 @@
           includes: including
           requires: requiring
           required: required by
+    time_entry:
+      activity: Aktivitet
+      comment: Kommentar
+      hours: Timer
     watchers:
       label_loading: loading watchers...
       label_error_loading: An error occurred while loading the watchers
@@ -447,14 +510,14 @@
     select2:
       input_too_short:
         one: Angi mer enn {{count}} tegn
-        other: Please enter {{count}} more characters
+        other: Vennligst skriv {{count}} flere tegn
         zero: Please enter more characters
       load_more: Laster inn flere resultater...
       no_matches: Ingen treff
       searching: Søker ...
       selection_too_big:
         one: Du kan bare velge ett element
-        other: You can only select {{limit}} items
+        other: Du kan bare velge {{limit}} elementer
         zero: You cannot select any items
     project_menu_details: Detaljer
     sort:
@@ -471,6 +534,7 @@
       view?
     text_attachment_destroy_confirmation: Are you sure you want to delete the attachment?
     timelines:
+      quarter_label: Q%{quarter_number}
       gantt_chart: Gantt chart
       labels:
         title: Label configuration
@@ -539,14 +603,6 @@
     tl_toolbar:
       zooms: Zoom-nivå
       outlines: Nivå
-    unsupported_browser:
-      title: Din nettleserversjon er ikke støttet
-      message: The browser version you are using is no longer supported by OpenProject.
-      update_message: Please update your browser.
-      update_ie_user: Please switch to Mozilla Firefox or Google Chrome, or upgrade
-        to Microsoft Edge.
-      learn_more: Mer informasjon
-      close_warning: Ignore this warning.
     upsale:
       ee_only: Enterprise Edition only feature
     wiki_formatting:
@@ -583,9 +639,9 @@
       error:
         update_conflict_refresh: Click here to refresh the work package and update
           to the newest version.
-        edit_prohibited: Editing %{attribute} is blocked for this work package. Either
-          this attribute is derived from relations (e.g, children) or otherwise not
-          configurable.
+        edit_prohibited: Redigering av %{attribute} er blokkert for denne arbeidespakken.
+          Enten er attributtet avledet fra en relasjon (f.eks, barn) eller den kan
+          ikke konfigureres.
         format:
           date: "%{attribute} is no valid date - YYYY-MM-DD expected."
         general: En feil har oppstått.
@@ -598,8 +654,6 @@
       label_options: Alternativer
       label_column_multiselect: 'Kombinert nedtrekksfelt: velg med piltastene, bekreft
         valg med enter, slette med tilbaketasten'
-      label_switch_to_single_select: Switch to single select
-      label_switch_to_multi_select: Switch to multi select
       message_error_during_bulk_delete: Det oppstod en feil undersletting av arbeidspakker.
       message_successful_bulk_delete: Arbeidspakkene ble slettet.
       message_successful_show_in_fullscreen: Klikk her for å åpne denne arbeidspakken
@@ -798,6 +852,7 @@
           work packages will be recursively removed.
         deletes_children: All child work packages and their descendants will also
           be recursively deleted.
+    notice_no_results_to_display: No visible results to display.
     notice_successful_create: Opprettelsen var vellykket.
     notice_successful_delete: Slettingen var vellykket.
     notice_successful_update: Oppdateringen var vellykket.
@@ -824,7 +879,7 @@
         messages_on_field: 'This field is invalid: %{messages}'
     error_could_not_resolve_version_name: Kunne ikke slå opp versjonsnavnet
     error_could_not_resolve_user_name: Kunne ikke slå opp brukernavn
-    error_attachment_upload: 'File ''%{name}'' failed to upload: %{error}'
+    error_attachment_upload: 'File failed to upload: %{error}'
     error_attachment_upload_permission: You don't have the permission to upload files
       on this resource.
     units:
@@ -836,8 +891,18 @@
         other: "%{count} work package children"
       hour:
         one: 1 time
-        other: "%{count} hours"
+        other: "%{count} timer"
         zero: 0 hours
     zen_mode:
       button_activate: Activate zen mode
       button_deactivate: Deactivate zen mode
+    global_search:
+      all_projects: In all projects
+      search: Søk
+      close_search: Close search
+      current_project: In this project
+      current_project_and_all_descendants: In this project + subprojects
+      title:
+        all_projects: all projects
+        project_and_subprojects: and all subprojects
+        search_for: Search for

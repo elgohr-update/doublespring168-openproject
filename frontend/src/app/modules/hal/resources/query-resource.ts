@@ -44,7 +44,7 @@ export interface QueryResourceEmbedded {
   filters:QueryFilterInstanceResource[];
 }
 
-export type TimelineZoomLevel = 'days'|'weeks'|'months'|'quarters'|'years';
+export type TimelineZoomLevel = 'days'|'weeks'|'months'|'quarters'|'years'|'auto';
 
 export interface TimelineLabels {
   left:string|null;
@@ -54,7 +54,6 @@ export interface TimelineLabels {
 
 export class QueryResource extends HalResource {
   public $embedded:QueryResourceEmbedded;
-  public id:number;
   public results:WorkPackageCollectionResource;
   public columns:QueryColumn[];
   public groupBy:QueryGroupByResource|undefined;
@@ -70,6 +69,7 @@ export class QueryResource extends HalResource {
   public timelineLabels:TimelineLabels;
   public showHierarchies:boolean;
   public public:boolean;
+  public hidden:boolean;
   public project:ProjectResource;
 
   public $initialize(source:any) {
@@ -87,3 +87,11 @@ export class QueryResource extends HalResource {
       );
   }
 }
+
+export interface QueryResourceLinks {
+  updateImmediately?(attributes:any):Promise<any>;
+}
+
+export interface QueryResource extends QueryResourceLinks {
+}
+

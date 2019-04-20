@@ -37,6 +37,9 @@ import {Apiv3QueriesPaths} from 'core-app/modules/common/path-helper/apiv3/queri
 import {Apiv3ProjectPaths} from 'core-app/modules/common/path-helper/apiv3/projects/apiv3-project-paths';
 import {ApiV3FilterBuilder} from "core-components/api/api-v3/api-v3-filter-builder";
 import {Apiv3TypesPaths} from "core-app/modules/common/path-helper/apiv3/types/apiv3-types-paths";
+import {Apiv3GridsPaths} from "core-app/modules/common/path-helper/apiv3/grids/apiv3-grids-paths";
+import {Apiv3NewsesPaths} from "core-app/modules/common/path-helper/apiv3/news/apiv3-newses-paths";
+import {Apiv3TimeEntriesPaths} from "core-app/modules/common/path-helper/apiv3/time-entries/apiv3-time-entries-paths";
 
 export class ApiV3Paths {
   // Base path
@@ -60,6 +63,12 @@ export class ApiV3Paths {
   // /api/v3/priorities
   public readonly priorities = new SimpleResourceCollection(this.apiV3Base, 'priorities');
 
+  // /api/v3/time_entries
+  public readonly time_entries = new Apiv3TimeEntriesPaths(this.apiV3Base);
+
+  // /api/v3/news
+  public readonly news = new Apiv3NewsesPaths(this.apiV3Base);
+
   // /api/v3/types
   public readonly types = new Apiv3TypesPaths(this.apiV3Base);
 
@@ -78,6 +87,9 @@ export class ApiV3Paths {
   // /api/v3/help_texts
   public readonly help_texts = new SimpleResourceCollection(this.apiV3Base, 'help_texts');
 
+  // /api/v3/grids
+  public readonly grids = new Apiv3GridsPaths(this.apiV3Base);
+
   constructor(readonly appBasePath:string) {
   }
 
@@ -87,12 +99,24 @@ export class ApiV3Paths {
    * @param {string | number} projectIdentifier
    * @returns {Apiv3ProjectPaths | this}
    */
-  public withOptionalProject(projectIdentifier?:string|number):Apiv3ProjectPaths|this {
+  public withOptionalProject(projectIdentifier:string|number|null|undefined):Apiv3ProjectPaths|this {
     if (_.isNil(projectIdentifier)) {
       return this;
     } else {
       return this.projects.id(projectIdentifier);
     }
+  }
+
+  /**
+   * returns a resource segment from (/base)/api/v3/(resource)
+   * @param segment
+   */
+  public resource(segment:string) {
+    if (!segment.startsWith('/')) {
+      segment = '/' + segment;
+    }
+
+    return this.apiV3Base + segment;
   }
 
   public previewMarkup(context:string) {

@@ -1,5 +1,5 @@
 require "spec_helper"
-require "support/pages/abstract_work_package"
+require "support/pages/work_packages/abstract_work_package"
 
 describe "multi select custom values", js: true do
   let(:type) { FactoryBot.create :type }
@@ -13,6 +13,12 @@ describe "multi select custom values", js: true do
       types: [type],
       projects: [project]
     )
+  end
+
+  let(:cf_edit_field) do
+    field = wp_page.edit_field "customField#{custom_field.id}"
+    field.field_type = 'ng-select'
+    field
   end
 
   let(:member_names) { ["Billy Nobbler", "Cooper Quatermaine", "Anton Lupin"] }
@@ -70,10 +76,8 @@ describe "multi select custom values", js: true do
 
       page.find("div.custom-option", text: "Billy Nobbler").click
 
-      sel = page.find(:select)
-
-      sel.unselect "Anton Lupin"
-      sel.select "Cooper Quatermaine"
+      cf_edit_field.unset_value "Anton Lupin", true
+      cf_edit_field.set_value "Cooper Quatermaine"
 
       click_on "Reviewer: Save"
 

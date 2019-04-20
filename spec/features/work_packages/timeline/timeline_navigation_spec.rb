@@ -95,20 +95,20 @@ RSpec.feature 'Work package timeline navigation', js: true, selenium: true do
 
       wp_timeline.expect_timeline!(open: true)
       wp_timeline.expect_work_package_listed work_package2
-      wp_timeline.expect_work_package_not_listed work_package
+      wp_timeline.ensure_work_package_not_listed! work_package
 
       # Select other query
       query_menu.select query
       wp_timeline.expect_timeline!(open: false)
       wp_timeline.expect_work_package_listed work_package
-      wp_timeline.expect_work_package_not_listed work_package2
+      wp_timeline.ensure_work_package_not_listed! work_package2
 
       # Select first query again
       query_menu.select query_tl
 
       wp_timeline.expect_timeline!(open: true)
       wp_timeline.expect_work_package_listed work_package2
-      wp_timeline.expect_work_package_not_listed work_package
+      wp_timeline.ensure_work_package_not_listed! work_package
     end
   end
 
@@ -126,8 +126,13 @@ RSpec.feature 'Work package timeline navigation', js: true, selenium: true do
     # Should have an active element rendered
     wp_timeline.expect_timeline_element(work_package)
 
-    # Expect zoom at days
+    # Expect zoom out from auto to days
+    wp_timeline.expect_zoom_at :auto
+
+    # Zooming in = days
+    wp_timeline.zoom_in
     wp_timeline.expect_zoom_at :days
+    # From there, zoom behaves normally
     wp_timeline.zoom_out
     wp_timeline.expect_zoom_at :weeks
 
@@ -138,6 +143,7 @@ RSpec.feature 'Work package timeline navigation', js: true, selenium: true do
     # Check the query
     query = Query.last
     expect(query.timeline_visible).to be_truthy
+    expect(query.timeline_zoom_level).to eq 'weeks'
 
     # Revisit page
     wp_timeline.visit_query query
@@ -145,8 +151,19 @@ RSpec.feature 'Work package timeline navigation', js: true, selenium: true do
     wp_timeline.expect_timeline!(open: true)
     wp_timeline.expect_timeline_element(work_package)
 
-    # Expect zoom at days
-    expect(page).to have_selector('#work-packages-timeline-zoom-auto-button.-disabled')
+    # Expect zoom at weeks
+    wp_timeline.expect_zoom_at :weeks
+
+    # Go back to autozoom
+    wp_timeline.autozoom
+    wp_timeline.expect_zoom_at :auto
+
+    # Save
+    wp_timeline.save
+    wp_timeline.expect_and_dismiss_notification message: 'Successful update'
+
+    query.reload
+    expect(query.timeline_zoom_level).to eq 'auto'
   end
 
   describe 'with a hierarchy being shown' do
@@ -243,7 +260,7 @@ RSpec.feature 'Work package timeline navigation', js: true, selenium: true do
       # Collapse Foo section
       header = find('.wp-table--group-header', text: 'Foo (1)')
       header.find('.expander').click
-      wp_timeline.expect_work_package_not_listed(wp_cat1)
+      wp_timeline.ensure_work_package_not_listed!(wp_cat1)
 
       # Relation should be hidden
       wp_timeline.expect_no_timeline_relation(wp_cat1, wp_cat2)

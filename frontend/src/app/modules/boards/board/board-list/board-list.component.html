@@ -1,0 +1,60 @@
+<div #loadingIndicator
+     [attr.data-query-name]="listName"
+     class="board-list--container loading-indicator--location"
+     [ngClass]="{ '-action-list': board.isAction }">
+  <ng-container *ngIf="query">
+
+    <div *ngIf="board.isAction"
+         class="board-list--action-bar"
+         [ngClass]="boardListActionColorClass(query)">
+    </div>
+
+    <div class="board-list--header">
+      <editable-toolbar-title [title]="query.name"
+                              [inFlight]="inFlight"
+                              (onSave)="renameQuery(query, $event)"
+                              [editable]="canRename"
+                              [initialFocus]="initiallyFocused"
+                              class="-small">
+      </editable-toolbar-title>
+
+      <div class="board-list--menu">
+        <a boardListDropdown>
+          <op-icon icon-classes="icon-show-more-horizontal"></op-icon>
+        </a>
+      </div>
+    </div>
+
+    <div class="board-list--query-container"
+         [ngClass]="queryContainerClass">
+      <button [title]="text.addCard"
+              *ngIf="board.isAction && showAddButton"
+              (accessibleClick)="addNewCard()"
+              class="board-list--add-button board-list--card-add-button button">
+        <op-icon icon-classes="icon-small icon-add"></op-icon>
+      </button>
+      <button [title]="text.addCard"
+              *ngIf="!board.isAction && showAddButton"
+              class="board-list--add-button board-list--card-dropdown-button button"
+              addCardDropdown>
+        <op-icon icon-classes="icon-small icon-add"></op-icon>
+      </button>
+
+      <wp-card-view [dragAndDropEnabled]="dragAndDropEnabled"
+                    [workPackageAddedHandler]="workPackageAddedHandler"
+                    [cardsRemovable]="board.isFree && canManage"
+                    [highlightingMode]="board.highlightingMode"
+                    [showStatusButton]="board.isFree">
+      </wp-card-view>
+    </div>
+  </ng-container>
+  <div class="notification-box -error" *ngIf="loadingError">
+    <p>
+      <span [textContent]="errorMessage"></span>
+      &ngsp;
+      <a role="button" (accessibleClick)="onRemove.emit()">
+        <span [textContent]="text.click_to_remove"></span>
+      </a>
+    </p>
+  </div>
+</div>

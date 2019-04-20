@@ -118,7 +118,7 @@ describe PermittedParams, type: :model do
     let(:attribute) { :pref }
 
     let(:hash) do
-      acceptable_params = %w(hide_mail time_zone impaired
+      acceptable_params = %w(hide_mail time_zone
                              comments_sorting warn_on_leaving_unsaved)
 
       acceptable_params.map { |x| [x, 'value'] }.to_h
@@ -245,7 +245,7 @@ describe PermittedParams, type: :model do
 
     context 'no instance passed' do
       let(:allowed_params) do
-        %w(subject content board_id).map { |x| [x, 'value'] }.to_h
+        %w(subject content forum_id).map { |x| [x, 'value'] }.to_h
       end
 
       let(:hash) do
@@ -266,7 +266,7 @@ describe PermittedParams, type: :model do
       let(:allowed_params) do
         { 'subject' => 'value',
           'content' => 'value',
-          'board_id' => 'value',
+          'forum_id' => 'value',
           'sticky' => 'true',
           'locked' => 'true' }
       end

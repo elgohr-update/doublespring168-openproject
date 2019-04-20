@@ -63,10 +63,13 @@ class WorkPackages::MovesController < ApplicationController
 
       if service_call.success?
         moved_work_packages << service_call.result
+      elsif @copy
+        unsaved_work_package_ids.concat dependent_error_ids(work_package.id, service_call)
       else
         unsaved_work_package_ids << work_package.id
       end
     end
+
 
     set_flash_from_bulk_work_package_save(@work_packages, unsaved_work_package_ids)
 
@@ -92,6 +95,22 @@ class WorkPackages::MovesController < ApplicationController
     end
   end
 
+  ##
+  # When copying, add work package ids that are failing
+  def dependent_error_ids(parent_id, service_call)
+    ids = service_call
+      .results_with_errors(include_self: false)
+      .map { |result| result.context[:copied_from]&.id }
+      .compact
+
+    if ids.present?
+      joined = ids.map {|id| "##{id}" }.join(" ")
+      ["#{parent_id} (+ children errors: #{joined})"]
+    else
+      [parent_id]
+    end
+  end
+
   def default_breadcrumb
     l(:label_move_work_package)
   end
@@ -102,7 +121,7 @@ class WorkPackages::MovesController < ApplicationController
   def check_project_uniqueness
     unless @project
       # TODO: let users bulk move/copy work packages from different projects
-      render_error I18n.t('work_packages.move.unsupported_for_multiple_projects')
+      render_error message: :'work_packages.move.unsupported_for_multiple_projects', status: 400
       return false
     end
   end

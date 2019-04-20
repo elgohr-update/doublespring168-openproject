@@ -26,10 +26,14 @@
         var storageKey = 'openProject-onboardingTour';
         var currentTourPart = sessionStorage.getItem(storageKey);
         var url = new URL(window.location.href);
+        var isMobile = document.body.classList.contains('-browser-mobile');
+        var demoProjectsAvailable = $('meta[name=demo_projects_available]').attr('content') === "true";
+        var boardsDemoDataAvailable = $('meta[name=boards_demo_data_available]').attr('content') === "true"
+        var eeTokenAvailable = !$('body').hasClass('ee-banners-visible');
 
         // ------------------------------- Initial start -------------------------------
         // Do not show the tutorial on mobile or when the demo data has been deleted
-        if(!(bowser.mobile || bowser.ios || bowser.android) && $('meta[name=demo_projects_available]').attr('content') == "true") {
+        if(!isMobile && demoProjectsAvailable) {
 
             // Start after the intro modal (language selection)
             // This has to be changed once the project selection is implemented
@@ -49,8 +53,8 @@
             }
 
             // ------------------------------- Tutorial WP page -------------------------------
-            if (currentTourPart === "startWpTour" || url.searchParams.get("start_onboarding_tour")) {
-                workPackageTour();
+            if (currentTourPart === "startMainTourFromBacklogs" || url.searchParams.get("start_onboarding_tour")) {
+                mainTour();
             }
 
             // ------------------------------- Tutorial Backlogs page -------------------------------
@@ -110,15 +114,25 @@
         }
 
         function taskboardTour() {
-            initializeTour('startWpTour');
+            initializeTour('startMainTourFromBacklogs');
             startTour(scrumTaskBoardTourSteps);
         }
 
-        function workPackageTour() {
-            initializeTour('wpFinished');
+        function mainTour() {
+            initializeTour('mainTourFinished');
 
-            waitForElement('.work-package--results-tbody', '.work-packages-split-view--tabletimeline-side', function() {
-                startTour(wpOnboardingTourSteps);
+            waitForElement('.work-package--results-tbody', '#content', function() {
+                var steps;
+
+                // Check for EE edition, available seed data of boards, and correct project.
+                // Then add boards to the tour, otherwise skip it.
+                if (eeTokenAvailable && boardsDemoDataAvailable && currentTourPart !== 'startMainTourFromBacklogs') {
+                    steps = wpOnboardingTourSteps.concat(boardTourSteps).concat(menuTourSteps);
+                } else {
+                    steps = wpOnboardingTourSteps.concat(menuTourSteps);
+                }
+
+                startTour(steps);
             });
         }
     });

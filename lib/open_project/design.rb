@@ -60,14 +60,14 @@ module OpenProject
       'list-nested-margin'                                   => "30px",
       'header-height'                                        => "55px",
       'header-height-mobile'                                 => "55px",
-      'header-bg-color'                                      => "$primary-color",
+      'header-bg-color'                                      => "#1A67A3",
       'header-home-link-bg'                                  => '#{image-url("logo_openproject_white_big.png") no-repeat 20px 0}',
       'header-border-bottom-color'                           => "$primary-color",
       'header-border-bottom-width'                           => "0",
       'header-item-font-size'                                => "14px",
-      'header-item-font-color'                               => "$font-color-on-primary",
-      'header-item-font-hover-color'                         => "$font-color-on-primary-dark",
-      'header-item-bg-hover-color'                           => "$primary-color-dark",
+      'header-item-font-color'                               => "#FFFFFF",
+      'header-item-font-hover-color'                         => "#FFFFFF",
+      'header-item-bg-hover-color'                           => "#175A8E",
       'header-drop-down-bg-color'                            => "#FFFFFF",
       'header-drop-down-border-color'                        => "#DDDDDD",
       'header-drop-down-item-font-color'                     => "$body-font-color",
@@ -86,7 +86,6 @@ module OpenProject
       'main-menu-item-height'                                => "40px",
       'main-menu-item-border-color'                          => "$primary-color",
       'main-menu-item-border-width'                          => "1px",
-      'main-menu-enable-toggle-highlighting'                 => "false",
       'main-menu-bg-color'                                   => "#333739",
       'main-menu-bg-selected-background'                     => "#175A8E",
       'main-menu-bg-hover-background'                        => "#124E7C",
@@ -139,8 +138,6 @@ module OpenProject
       'drop-down-hover-bg-color'                             => "#EFEFEF",
       'context-menu-unselected-font-color'                   => "$drop-down-unselected-font-color",
       'context-menu-hover-font-color'                        => "$drop-down-hover-font-color",
-      'content-box-border'                                   => "1px solid $content-default-border-color",
-      'content-box-bg-color'                                 => "#FFFFFF",
       'action-menu-bg-color'                                 => "#FFFFFF",
       'wiki-default-font-size'                               => "1rem",
       'wiki-toc-header-font-size'                            => "calc($wiki-default-font-size * 0.6)",
@@ -153,6 +150,7 @@ module OpenProject
       'user-avatar-mini-border-radius'                       => "50%",
       'user-avatar-mini-width'                               => "20px",
       'user-avatar-mini-height'                              => "20px",
+      'user-avatar-default-bg-color'                         => "#090952",
       'select-element-padding'                               => "3px, 24px, 3px, 3px",
       'widget-box-content-bg-color'                          => "$body-background",
       'widget-box-block-bg-color'                            => "$body-background",
@@ -200,7 +198,8 @@ module OpenProject
       'timeline--separator'                                  => '3px solid #E7E7E7',
       'table-timeline--row-height'                           => '40px',
       'status-selector-bg-color'                             => '#F99601',
-      'status-selector-bg-hover-color'                       => '#E08600'
+      'status-selector-bg-hover-color'                       => '#E08600',
+      'card-font-size'                                       => '14px'
     }.freeze
 
     # Regular expression for references of other variables.

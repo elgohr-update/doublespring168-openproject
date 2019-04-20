@@ -194,15 +194,22 @@
 
   > .toolbar-container
     margin: 10px 0 5px 0
+    padding-right: 15px
 
 .work-packages--subject-type-row
   display: flex
+  position: relative
 
   // Fix: align and size hover border like buttons in toolbar.
   .wp-edit-field.-no-label:not(.-active) .wp-table--cell-span
     padding-top: 3px
     padding-bottom: 3px
     margin-top: 2px
+
+    .work-packages--type-selector:not(.wp-new-top-row--element)
+      [class*='__hl_dot_']::before
+        vertical-align: 1px
+        margin-right: 6px
 
 .work-packages--type-selector:not(.wp-new-top-row--element)
   .wp-table--cell-span
@@ -213,11 +220,6 @@
   // Remove left padding from type
   .wp-edit-field--display-field
     padding-left: 0 !important
-
-  [class*='__hl_dot_']::before
-    vertical-align: 1px
-    margin-right: 6px
-
 
   @media only screen and (min-width: 679px)
     .wp-edit-field--container.-active

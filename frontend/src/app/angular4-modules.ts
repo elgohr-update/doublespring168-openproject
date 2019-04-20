@@ -42,7 +42,6 @@ import {OpModalService} from 'core-components/op-modals/op-modal.service';
 import {CurrentProjectService} from 'core-components/projects/current-project.service';
 import {ProjectCacheService} from 'core-components/projects/project-cache.service';
 import {States} from 'core-components/states.service';
-import {ExpandableSearchComponent} from 'core-components/expandable-search/expandable-search.component';
 import {PaginationService} from 'core-components/table-pagination/pagination-service';
 import {UserCacheService} from 'core-components/user/user-cache.service';
 import {MainMenuResizerComponent} from 'core-components/resizer/main-menu-resizer.component';
@@ -61,8 +60,6 @@ import {OpDragScrollDirective} from "core-app/modules/common/ui/op-drag-scroll.d
 import {OpenprojectPluginsModule} from "core-app/modules/plugins/openproject-plugins.module";
 import {ConfirmFormSubmitController} from "core-components/modals/confirm-form-submit/confirm-form-submit.directive";
 import {ProjectMenuAutocompleteComponent} from "core-components/projects/project-menu-autocomplete/project-menu-autocomplete.component";
-import {MainMenuToggleComponent} from "core-components/resizer/main-menu-toggle.component";
-import {MainMenuToggleService} from "core-components/resizer/main-menu-toggle.service";
 import {OpenProjectFileUploadService} from "core-components/api/op-file-upload/op-file-upload.service";
 import {AttributeHelpTextModal} from "./modules/common/help-texts/attribute-help-text.modal";
 import {LinkedPluginsModule} from "core-app/modules/plugins/linked-plugins.module";
@@ -74,11 +71,18 @@ import {CurrentUserService} from 'core-components/user/current-user.service';
 import {OpenprojectWorkPackagesModule} from 'core-app/modules/work_packages/openproject-work-packages.module';
 import {OpenprojectAttachmentsModule} from 'core-app/modules/attachments/openproject-attachments.module';
 import {OpenprojectEditorModule} from 'core-app/modules/editor/openproject-editor.module';
+import {OpenprojectGridsModule} from "core-app/modules/grids/openproject-grids.module";
 import {OpenprojectRouterModule} from "core-app/modules/router/openproject-router.module";
 import {OpenprojectWorkPackageRoutesModule} from "core-app/modules/work_packages/openproject-work-package-routes.module";
 import {BrowserModule} from "@angular/platform-browser";
 import {OpenprojectCalendarModule} from "core-app/modules/calendar/openproject-calendar.module";
 import {FullCalendarModule} from "ng-fullcalendar";
+import {OpenprojectBoardsModule} from "core-app/modules/boards/openproject-boards.module";
+import {OpenprojectGlobalSearchModule} from "core-app/modules/global_search/openproject-global-search.module";
+import {DeviceService} from "core-app/modules/common/browser/device.service";
+import {MainMenuToggleService} from "core-components/main-menu/main-menu-toggle.service";
+import {MainMenuToggleComponent} from "core-components/main-menu/main-menu-toggle.component";
+import {MainMenuNavigationService} from "core-components/main-menu/main-menu-navigation.service";
 
 @NgModule({
   imports: [
@@ -90,12 +94,14 @@ import {FullCalendarModule} from "ng-fullcalendar";
     OpenprojectRouterModule,
     // Hal Module
     OpenprojectHalModule,
+    // Boards module
+    OpenprojectBoardsModule,
 
     // CKEditor
     OpenprojectEditorModule,
     // Display + Edit field functionality
     OpenprojectFieldsModule,
-
+    OpenprojectGridsModule,
     OpenprojectAttachmentsModule,
 
     // Work packages and their routes
@@ -105,6 +111,9 @@ import {FullCalendarModule} from "ng-fullcalendar";
     // Calendar module
     OpenprojectCalendarModule,
     FullCalendarModule,
+
+    // Global Search
+    OpenprojectGlobalSearchModule,
 
     // Plugin hooks and modules
     OpenprojectPluginsModule,
@@ -130,6 +139,7 @@ import {FullCalendarModule} from "ng-fullcalendar";
     PaginationService,
     OpenProjectFileUploadService,
     CurrentProjectService,
+    DeviceService,
     // Split view
     CommentService,
     // Context menus
@@ -140,15 +150,13 @@ import {FullCalendarModule} from "ng-fullcalendar";
 
     // Main Menu
     MainMenuToggleService,
+    MainMenuNavigationService,
 
     // Augmenting Rails
     ModalWrapperAugmentService,
   ],
   declarations: [
     OpContextMenuTrigger,
-
-    // Searchbar
-    ExpandableSearchComponent,
 
     // Modals
     ConfirmDialogModal,
@@ -167,9 +175,6 @@ import {FullCalendarModule} from "ng-fullcalendar";
     ConfirmFormSubmitController,
   ],
   entryComponents: [
-    // Searchbar
-    ExpandableSearchComponent,
-
     // Project Auto completer
     ProjectMenuAutocompleteComponent,
 
@@ -211,6 +216,9 @@ export function initializeServices(injector:Injector) {
     const ExternalRelationQueryConfiguration = injector.get(ExternalRelationQueryConfigurationService);
     const ModalWrapper = injector.get(ModalWrapperAugmentService);
     const EditorMacros = injector.get(EditorMacrosService);
+    const mainMenuNavigationService = injector.get(MainMenuNavigationService);
+
+    mainMenuNavigationService.register();
 
     // Setup modal wrapping
     ModalWrapper.setupListener();

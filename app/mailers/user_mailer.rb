@@ -237,7 +237,7 @@ class UserMailer < BaseMailer
     references @message.parent, user if @message.parent
 
     with_locale_for(user) do
-      subject = "[#{@message.board.project.name} - #{@message.board.name} - msg#{@message.root.id}] #{@message.subject}"
+      subject = "[#{@message.forum.project.name} - #{@message.forum.name} - msg#{@message.root.id}] #{@message.subject}"
       mail_for_author author, to: user.mail, subject: subject
     end
   end
@@ -313,9 +313,8 @@ class UserMailer < BaseMailer
 
   private
 
-  def subject_for_work_package(work_package)
-    subject =  "[#{work_package.project.name} - #{work_package.type.name} ##{work_package.id}] "
-    subject << "(#{work_package.status.name}) " << work_package.subject
+  def subject_for_work_package(wp)
+    "#{wp.project.name} - #{wp.status.name} #{wp.type.name} ##{wp.id}: #{wp.subject}"
   end
 
   # like #mail, but contains special author based filters

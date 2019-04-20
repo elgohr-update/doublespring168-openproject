@@ -18,11 +18,24 @@ lt:
     close_popup_title: Užverti iškylantį langą
     close_filter_title: Užverti filtrą
     close_form_title: Užverti formą
+    boards:
+      upsale:
+        boards: Need to freely structure your work in a board view?
+        check_out_link: Patikrinkite Enterprise Edition.
+      lists:
+        delete: Delete list
+    card:
+      add_new: Add new card
+      highlighting:
+        inline: 'Highlight inline:'
+        entire_card_by: Entire card by
+      remove_from_list: Remove card from list
     clipboard:
       browser_error: Jūsų naršyklė nepalaiko kopijavimo į mainų sritį. Prašome rankiniu
         būdu nukopijuoti pažymėtą tekstą.
       copied_successful: Sėkmingai nukopijuotas į mainų sritį!
     button_add_watcher: Pridėti stebėtojų
+    button_back: Atgal
     button_back_to_list_view: Atgal į sąrašo peržiūrą
     button_cancel: Atšaukti
     button_close: Uždaryti
@@ -38,6 +51,7 @@ lt:
     button_duplicate: Dublikuoti
     button_edit: Redaguoti
     button_filter: Filtras
+    button_advanced_filter: Advanced filter
     button_list_view: Sąrašo rodinys
     button_show_view: Viso ekrano rodinys
     button_log_time: Registruoti laiką
@@ -147,14 +161,44 @@ lt:
     general_text_yes: taip
     general_text_No: Ne
     general_text_Yes: Taip
+    grid:
+      add_modal:
+        choose_widget: Choose widget
+      widgets:
+        documents:
+          title: Dokumentai
+          no_results: No documents yet.
+        news:
+          title: Naujienos
+          at: at
+          no_results: Nėra jokių ataskaitų.
+        time_entries_current_user:
+          title: Spent time (last 7 days)
+          no_results: No time entries for the last 7 days.
+        work_packages_accountable:
+          title: Work packages I am accountable for
+        work_packages_assigned:
+          title: Man priskirti darbų paketai
+        work_packages_created:
+          title: Work packages created by me
+        work_packages_watched:
+          title: Work packages watched by me
+        work_packages_table:
+          title: Darbų paketai
+        work_packages_calendar:
+          title: Kalendorius
     label_activate: Aktyvuoti
     label_activity_no: Veiklos įrašo numeris %{activityNo}
     label_activity_with_comment_no: Veiklos įrašo numeris %{activityNo}. Turintis
       vartotojo komentarą.
+    label_add_column_after: Add column after
+    label_add_column_before: Add column before
     label_add_columns: Pridėti stulpelių
     label_add_comment: Pridėti komentarą
     label_add_comment_title: Komentuokite ir įveskite @, kad praneštumėte kitiems
       žmonėms
+    label_add_row_after: Add row after
+    label_add_row_before: Add row before
     label_add_selected_columns: Pridėti pažymėtus stulpelius
     label_added_by: pridėta
     label_added_time_by: Pridėta %{author} %{age}
@@ -165,7 +209,9 @@ lt:
     label_ascending: Didėjančia tvarka
     label_author: 'Autorius: %{user}'
     label_between: tarp
+    label_board: Board
     label_board_locked: Užrakinta
+    label_board_plural: Boards
     label_board_sticky: Lipnus
     label_create_work_package: Sukurti naują darbų paketą
     label_created_by: Sukurta
@@ -211,6 +257,7 @@ lt:
     label_menu_collapse: suskleisti
     label_menu_expand: išskleisti
     label_more_than_ago: daugiau nei prieš dieną
+    label_my_page: Mano puslapis
     label_next: Kitas
     label_no_data: Nėra rodytinų duomenų
     label_no_due_date: nėra pabaigos datos
@@ -229,7 +276,9 @@ lt:
     label_visibility_settings: Matomumo nustatymai
     label_quote_comment: Cituoti šį komentarą
     label_reset: Nustatyti iš naujo
+    label_remove_column: Remove column
     label_remove_columns: Pašalinti pažymėtus stulpelius
+    label_remove_row: Remove row
     label_save_as: Išsaugoti kaip
     label_select_watcher: Parinkti stebėtoją...
     label_selected_filter_list: Parinkti filtrus
@@ -251,6 +300,7 @@ lt:
     label_activity_show_only_comments: Rodyti veiklą tik su komentarais
     label_activity_show_all: Rodyti visus atributus
     label_total_progress: "%{percent} % įvykdyta"
+    label_total_amount: 'Total: %{amount}'
     label_updated_on: atnaujintas
     label_warning: Įspėjimas
     label_work_package: Darbų paketas
@@ -282,6 +332,7 @@ lt:
     label_add_description: Pridėti %{file} aprašymą
     label_upload_notification: Įkeliu failus...
     label_work_package_upload_notification: 'Įkelti failus darbų paketui #%{id}: %{subject}'
+    label_wp_id_added_by: "#%{id} added by %{author}"
     label_files_to_upload: 'Šie failai bus įkelti:'
     label_rejected_files: 'Negalima įkelti šių failų:'
     label_rejected_files_reason: Šių failų neįmanoma nusiųsti, nes jų dydis yra didesnis
@@ -297,43 +348,51 @@ lt:
         next: Kitas
         got_it: Supratau
       steps:
-        welcome: Paskirkite tris minutes įvadinei kelionei ir išmokite daugumą <b>svarbių
-          sistemos galimybių</b>. <br>Rekomenduojame atlikti visus veiksmus iki pabaigos.
-          Ekskursiją galite paleisti iš naujo bet kuriuo metu.
+        help_menu: Meniu <b>Žinynas</b> rasite vartotojo vadovą ir papildomos pagalbos
+          šaltinius. <br>Mėgaukitės darbu su OpenProject!
+        members: Pakvieskite naujus <b>Narius</b> prisijungti prie projekto.
         project_selection: Prašome pasirinkti vieną iš projektų su įdėtais naudingais
           demonstraciniais duomenimis. <br> <b>Demo project</b> geriausiai tinka klasikiniam
           projektų valdymui, o <b>Scrum project</b> labiau tinka Agile projektų valdymui.
         sidebar_arrow: Rodykle galite pereiti atgal į projekto <b>Pagrindinį meniu</b>.
-        members: Pakvieskite naujus <b>Narius</b> prisijungti prie projekto.
+        welcome: Paskirkite tris minutes įvadinei kelionei ir išmokite daugumą <b>svarbių
+          sistemos galimybių</b>. <br>Rekomenduojame atlikti visus veiksmus iki pabaigos.
+          Ekskursiją galite paleisti iš naujo bet kuriuo metu.
         wiki: "<b>Wiki</b>'yje galite dokumentuoti ir dalintis žiniomis su savo komandos
           nariais."
-        backlogs_overview: Manage your work in the <b>Backlogs</b> view. <br> On the
-          right you have the Product Backlog or a Bug Backlog, on the left you will
-          have the respective sprints. Here you can create <b>epics, user stories,
-          and bugs</b>, prioritize via drag'n'drop and add them to a sprint.
-        backlogs_task_board_arrow: To see your <b>Task board</b>, open the Sprint
-          drop-down...
-        backlogs_task_board_select: "... ir pasirinkite <b>Task board</b> elementą."
-        backlogs_task_board: "<b>Darbo lenta</b> rodo pažangą šiame sprinte. Pridėkite
-          naujas užduotis ar kliūtis spausdami + piktogramą šalia vartotojo istorija.
-          Naudodami drag'n'drop, jūs galite pakeisti būseną."
-        wp_toggler: Dabar žvilgtelėkime į <b>Darbų paketų</b> skyrių, kuris suteikia
-          išsamesnį vaizdą apie jūsų darbus.
-        wp_list: 'Tai <b>Darbų paketų</b> sąrašas su svarbiomis jūsų projektui veiksmais:
-          tasks, features, milestones, bugs, ir pan. <br> Jūs galite kurti ir redaguoti
-          darbų paketus tiesiai šiame sąraše. Norėdami pamatyti detaliau, du kart
-          spustelkite pele ant pasirinktos eilutės.'
-        wp_full_view: "<b>Darbo paketo detalių</b> lange rasite visą reikalingą informaciją,
-          pvz., aprašymą, būseną ir prioritetą, veiklą, priklausomybes ar komentarus."
-        wp_back_button: Su rodykle galite pereiti atgal į darbo paketų sąrašą.
-        wp_create_button: Mygtukas <b>Sukurti</b> pridės naują darbą į jūsų projektą.
-        wp_timeline_button: Jūs galite aktyvuoti <b>Gantto diagramą</b> norėdami matyti
-          savo projekto laiko planavimo juostą.
-        wp_timeline: Čia jūs galite redaguoti savo projekto planą. Kurti naujus etapus,
-          etapai, ir pridėti priklausomybių. Visi komandos nariai gali peržiūrėti
-          ir keisti naujausią planą bet kuriuo metu.
-        help_menu: Meniu <b>Žinynas</b> rasite vartotojo vadovą ir papildomos pagalbos
-          šaltinius. <br>Mėgaukitės darbu su OpenProject!
+        backlogs:
+          overview: Manage your work in the <b>Backlogs</b> view. <br> On the right
+            you have the Product Backlog or a Bug Backlog, on the left you will have
+            the respective sprints. Here you can create <b>epics, user stories, and
+            bugs</b>, prioritize via drag'n'drop and add them to a sprint.
+          task_board_arrow: To see your <b>Task board</b>, open the Sprint drop-down...
+          task_board_select: "... ir pasirinkite <b>Task board</b> elementą."
+          task_board: "<b>Darbo lenta</b> rodo pažangą šiame sprinte. Pridėkite naujas
+            užduotis ar kliūtis spausdami + piktogramą šalia vartotojo istorija. Naudodami
+            drag'n'drop, jūs galite pakeisti būseną."
+        boards:
+          overview: Manage your work within an intuitive <b>Boards</b> view.
+          lists: You can create multiple lists (columns) within one Board view, e.g.
+            to create a KANBAN board.
+          add: Click the + will <b>add a new card</b> to the list within a Board.
+          drag: Drag & Drop your cards within a list to re-order, or the another list.
+            A double click will open the details view.
+        wp:
+          toggler: Dabar žvilgtelėkime į <b>Darbų paketų</b> skyrių, kuris suteikia
+            išsamesnį vaizdą apie jūsų darbus.
+          list: 'Tai <b>Darbų paketų</b> sąrašas su svarbiomis jūsų projektui veiksmais:
+            tasks, features, milestones, bugs, ir pan. <br> Jūs galite kurti ir redaguoti
+            darbų paketus tiesiai šiame sąraše. Norėdami pamatyti detaliau, du kart
+            spustelkite pele ant pasirinktos eilutės.'
+          full_view: "<b>Darbo paketo detalių</b> lange rasite visą reikalingą informaciją,
+            pvz., aprašymą, būseną ir prioritetą, veiklą, priklausomybes ar komentarus."
+          back_button: Su rodykle galite pereiti atgal į darbo paketų sąrašą.
+          create_button: Mygtukas <b>Sukurti</b> pridės naują darbą į jūsų projektą.
+          timeline_button: Jūs galite aktyvuoti <b>Gantto diagramą</b> norėdami matyti
+            savo projekto laiko planavimo juostą.
+          timeline: Čia jūs galite redaguoti savo projekto planą. Kurti naujus etapus,
+            etapai, ir pridėti priklausomybių. Visi komandos nariai gali peržiūrėti
+            ir keisti naujausią planą bet kuriuo metu.
     password_confirmation:
       field_description: Norėdami patvirtinti šį pakeitimą turite įvesti savo paskyros
         slaptažodį.
@@ -387,6 +446,10 @@ lt:
           includes: įskaitant
           requires: reikalauja
           required: reikalingas
+    time_entry:
+      activity: Veikla
+      comment: Komentaras
+      hours: Valandų
     watchers:
       label_loading: Įkeliami stebėtojai...
       label_error_loading: Įkeliant stebėtojus įvyko klaida
@@ -449,7 +512,7 @@ lt:
         other: Prašome įvesti dar {{count}} simbolius (-į, -ių)
         zero: Please enter more characters
         few: Prašome įvesti dar {{count}} simbolius (-į, -ių)
-        many: Please enter {{count}} more characters
+        many: Įveskite dar {{count}} simbolių
       load_more: Įkeliama daugiau rezultatų ...
       no_matches: Atitikmenų nerasta
       searching: Ieškoma ...
@@ -458,7 +521,7 @@ lt:
         other: Jūs galite pasirinkti tik {{limit}} elementus (-ą, -ų)
         zero: You cannot select any items
         few: Jūs galite pasirinkti tik {{limit}} elementus (-ą, -ų)
-        many: You can only select {{limit}} items
+        many: Jūs galite pasirinkti iki {{limit}} elementų
     project_menu_details: Detali informacija
     sort:
       sorted_asc: 'Pritaikyta didėjimo tvarka, '
@@ -473,6 +536,7 @@ lt:
     text_query_destroy_confirmation: Ar tikrai norite panaikinti pasirinktą vaizdą?
     text_attachment_destroy_confirmation: Ar tikrai norite panaikinti priedą?
     timelines:
+      quarter_label: Q%{quarter_number}
       gantt_chart: Ganto grafikas
       labels:
         title: Žymės konfigūracija
@@ -541,15 +605,6 @@ lt:
     tl_toolbar:
       zooms: Didinimo lygis
       outlines: Hierarchinis lygmuo
-    unsupported_browser:
-      title: Jūsų naršyklės versija nepalaikoma
-      message: Jūsų naudojama naršyklės versija daugiau nebepalaikoma OpenProject
-        sistemos.
-      update_message: Prašome atnaujinti savo naršyklę.
-      update_ie_user: Prašome pasikeisti į Mozilla Firefox ar Google Chrome arba atsinaujinti
-        į Microsoft Edge.
-      learn_more: Sužinoti daugiau
-      close_warning: Ignoruoti šį perspėjimą.
     upsale:
       ee_only: Galimybė tik Enterprise Edition
     wiki_formatting:
@@ -602,8 +657,6 @@ lt:
       label_column_multiselect: 'Kombinuotas išplečiamojo sąrašo laukas: pasirinkite
         rodyklių mygtukais, patvirtinkite pasirinkimą su Enter mygtuku, ištrinkite
         su Backspace'
-      label_switch_to_single_select: Perjungti į žymėjimą po vieną
-      label_switch_to_multi_select: Perjungti į žymėjimą po daug
       message_error_during_bulk_delete: Įvyko klaida bandant naikinti darbų paketą.
       message_successful_bulk_delete: Darbų paketai sėkmingai ištrinti.
       message_successful_show_in_fullscreen: Paspauskite čia, kad atvertumėte darbų
@@ -805,6 +858,7 @@ lt:
           bus rekursiškai ištrinti.
         deletes_children: Visi darbų paketo vaikai ir jų palikuoniai taip pat bus
           rekursiškai ištrinti.
+    notice_no_results_to_display: No visible results to display.
     notice_successful_create: Sėkmingas sukūrimas.
     notice_successful_delete: Sėkmingas panaikinimas.
     notice_successful_update: Sėkmingas atnaujinimas.
@@ -831,7 +885,7 @@ lt:
         messages_on_field: 'Šio laukelio reikšmė netinkama: %{messages}'
     error_could_not_resolve_version_name: Nepavyko nustatyti versijos pavadinimo
     error_could_not_resolve_user_name: Nepavyko nustatyti vartotojo vardo
-    error_attachment_upload: 'Failo ''%{name}'' nepavyko įkelti: %{error}'
+    error_attachment_upload: 'File failed to upload: %{error}'
     error_attachment_upload_permission: Jūs neturite teisės įkelti failus į šį resursą.
     units:
       workPackage:
@@ -849,7 +903,17 @@ lt:
         other: "%{count} valandos (-a, -ų)"
         zero: 0 hours
         few: "%{count} valandos (-a, -ų)"
-        many: "%{count} hours"
+        many: "%{count} valandų"
     zen_mode:
       button_activate: Įjungti Zen režimą
       button_deactivate: Išjungti Zen režimą
+    global_search:
+      all_projects: In all projects
+      search: Paieška
+      close_search: Close search
+      current_project: In this project
+      current_project_and_all_descendants: In this project + subprojects
+      title:
+        all_projects: all projects
+        project_and_subprojects: and all subprojects
+        search_for: Search for

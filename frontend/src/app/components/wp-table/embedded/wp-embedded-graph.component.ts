@@ -1,27 +1,7 @@
-import {AfterViewInit, Component, Injector, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {CurrentProjectService} from 'core-components/projects/current-project.service';
-import {TableState} from 'core-components/wp-table/table-state/table-state';
-import {WorkPackageStatesInitializationService} from 'core-components/wp-list/wp-states-initialization.service';
-import {WorkPackageTableRelationColumnsService} from 'core-components/wp-fast-table/state/wp-table-relation-columns.service';
-import {WorkPackageTableHierarchiesService} from 'core-components/wp-fast-table/state/wp-table-hierarchy.service';
-import {WorkPackageTableTimelineService} from 'core-components/wp-fast-table/state/wp-table-timeline.service';
-import {WorkPackageTablePaginationService} from 'core-components/wp-fast-table/state/wp-table-pagination.service';
-import {WorkPackageTableGroupByService} from 'core-components/wp-fast-table/state/wp-table-group-by.service';
-import {WorkPackageTableSortByService} from 'core-components/wp-fast-table/state/wp-table-sort-by.service';
-import {WorkPackageTableFiltersService} from 'core-components/wp-fast-table/state/wp-table-filters.service';
-import {WorkPackageTableColumnsService} from 'core-components/wp-fast-table/state/wp-table-columns.service';
-import {WorkPackageTableSumService} from 'core-components/wp-fast-table/state/wp-table-sum.service';
-import {WorkPackageTableAdditionalElementsService} from 'core-components/wp-fast-table/state/wp-table-additional-elements.service';
-import { WorkPackageTableConfiguration } from 'core-components/wp-table/wp-table-configuration';
-import {WorkPackageTableRefreshService} from 'core-components/wp-table/wp-table-refresh-request.service';
-import {OpTableActionsService} from 'core-components/wp-table/table-actions/table-actions.service';
-import {LoadingIndicatorService} from 'core-app/modules/common/loading-indicator/loading-indicator.service';
-import {WorkPackageTableSelection} from 'core-components/wp-fast-table/state/wp-table-selection.service';
-import {QueryDmService} from 'core-app/modules/hal/dm-services/query-dm.service';
+import {AfterViewInit, Component, Injector, Input, OnDestroy, OnInit, SimpleChanges} from '@angular/core';
+import {WorkPackageTableConfiguration} from 'core-components/wp-table/wp-table-configuration';
 import {GroupObject} from 'core-app/modules/hal/resources/wp-collection-resource';
-import {UrlParamsHelperService} from 'core-components/wp-query/url-params-helper';
-import {I18nService} from "core-app/modules/common/i18n/i18n.service";
-import { Chart } from 'chart.js';
+import {Chart} from 'chart.js';
 import {WorkPackageEmbeddedBaseComponent} from "core-components/wp-table/embedded/wp-embedded-base.component";
 
 export interface WorkPackageEmbeddedGraphDataset {
@@ -33,30 +13,11 @@ export interface WorkPackageEmbeddedGraphDataset {
 
 @Component({
   selector: 'wp-embedded-graph',
-  templateUrl: './wp-embedded-graph.html',
-  providers: [
-    TableState,
-    OpTableActionsService,
-    WorkPackageStatesInitializationService,
-    WorkPackageTableRelationColumnsService,
-    WorkPackageTablePaginationService,
-    WorkPackageTableGroupByService,
-    WorkPackageTableHierarchiesService,
-    WorkPackageTableSortByService,
-    WorkPackageTableColumnsService,
-    WorkPackageTableFiltersService,
-    WorkPackageTableTimelineService,
-    WorkPackageTableSelection,
-    WorkPackageTableSumService,
-    WorkPackageTableAdditionalElementsService,
-    WorkPackageTableRefreshService,
-  ]
+  templateUrl: './wp-embedded-graph.html'
 })
-
 export class WorkPackageEmbeddedGraphComponent extends WorkPackageEmbeddedBaseComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() public datasets:WorkPackageEmbeddedGraphDataset[];
 
-  public tableInformationLoaded = false;
   public showTablePagination = false;
   public configuration:WorkPackageTableConfiguration;
   public error:string|null = null;
@@ -85,27 +46,24 @@ export class WorkPackageEmbeddedGraphComponent extends WorkPackageEmbeddedBaseCo
     }
   };
 
-  constructor(readonly QueryDm:QueryDmService,
-              readonly tableState:TableState,
-              readonly I18n:I18nService,
-              readonly urlParamsHelper:UrlParamsHelperService,
-              readonly loadingIndicatorService:LoadingIndicatorService,
-              readonly wpStatesInitialization:WorkPackageStatesInitializationService,
-              readonly currentProject:CurrentProjectService) {
-    super(QueryDm, tableState, I18n, urlParamsHelper, loadingIndicatorService, wpStatesInitialization, currentProject);
+  constructor(injector:Injector) {
+    super(injector);
   }
 
-  public refresh(visible:boolean = true):Promise<any> {
-    return super.refresh(visible).then(() => this.updateChartData());
+  ngOnChanges(changes:SimpleChanges) {
+    if (this.initialized && (changes.datasets)) {
+      this.loadQuery(false);
+    }
   }
 
   private updateChartData() {
     let uniqLabels = _.uniq(this.datasets.reduce((array, dataset) => {
-      return array.concat(dataset.groups!.map((group) => group.value) as any);
+      let groups = (dataset.groups || []).map((group) => group.value) as any;
+      return array.concat(groups);
     }, [])) as string[];
 
     let labelCountMaps = this.datasets.map((dataset) => {
-      let countMap = dataset.groups!.reduce((hash, group) => {
+      let countMap = (dataset.groups || []).reduce((hash, group) => {
         hash[group.value] = group.count;
         return hash;
       }, {} as any);
@@ -130,7 +88,7 @@ export class WorkPackageEmbeddedGraphComponent extends WorkPackageEmbeddedBaseCo
     this.chartData = labelCountMaps;
   }
 
-  protected loadQuery(visible:boolean = false) {
+  public loadQuery(visible:boolean = false) {
     this.error = null;
 
     let queries = this.datasets.map((dataset:any) => {
@@ -150,6 +108,7 @@ export class WorkPackageEmbeddedGraphComponent extends WorkPackageEmbeddedBaseCo
     const promise = Promise.all(queries)
       .then((datasets) => {
         this.setLoaded();
+        this.updateChartData();
         return datasets;
       })
       .catch((error) => {

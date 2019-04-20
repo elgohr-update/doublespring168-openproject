@@ -28,18 +28,20 @@
 
 source 'https://rubygems.org'
 
-ruby '~> 2.5.1'
+ruby '~> 2.6.1'
 
 gem 'actionpack-xml_parser', '~> 2.0.0'
 gem 'activemodel-serializers-xml', '~> 1.0.1'
+gem 'activerecord-import', '~> 0.28.1'
 gem 'activerecord-session_store', '~> 1.1.0'
-gem 'listen', '~> 3.1' # Use for event-based reloaders
-gem 'rails', '~> 5.2.2'
+gem 'rails', '~> 5.2.2.1'
 gem 'responders', '~> 2.4'
 
 gem 'rdoc', '>= 2.4.2'
 
-gem 'omniauth', git: 'https://github.com/oliverguenther/omniauth', ref: '40c6f5f751d2da7cce5444bbd96c390c450440a9'
+# Maintain our own omniauth due to relative URL root issues
+# see upstream PR: https://github.com/omniauth/omniauth/pull/903
+gem 'omniauth', git: 'https://github.com/opf/omniauth', ref: 'fe862f986b2e846e291784d2caa3d90a658c67f0'
 gem 'doorkeeper', git: 'https://github.com/doorkeeper-gem/doorkeeper', ref: 'ce969eee6c16aa8082b0c77ebb5968d9e9b6a57b'
 gem 'request_store', '~> 1.4.1'
 
@@ -56,7 +58,7 @@ gem 'awesome_nested_set', '~> 3.1.3'
 gem 'rubytree', git: 'https://github.com/dr0verride/RubyTree.git', ref: '06f53ee'
 gem 'typed_dag', '~> 2.0.2'
 
-gem 'addressable', '~> 2.5.2'
+gem 'addressable', '~> 2.6.0'
 
 # Provide timezone info for TZInfo used by AR
 gem 'tzinfo-data', '~> 1.2018.9'
@@ -92,7 +94,7 @@ gem 'date_validator', '~> 0.9.0'
 gem 'ruby-duration', '~> 3.2.0'
 
 # provide compatible filesystem information for available storage
-gem 'sys-filesystem', '~> 1.1.4', require: false
+gem 'sys-filesystem', '~> 1.2.0', require: false
 
 # Faster posix-compliant spawns for 8.0. conversions with pandoc
 gem 'posix-spawn', '~> 0.3.13', require: false
@@ -121,14 +123,20 @@ gem 'rack-attack', '~> 5.4.2'
 # CSP headers
 gem 'secure_headers', '~> 6.0.0'
 
+# Browser detection for incompatibility checks
+gem 'browser', '~> 2.5.3'
+
 # Providing health checks
 gem 'okcomputer', '~> 1.17.3'
 
 gem 'gon', '~> 6.2.1'
 
+# Lograge to provide sane and non-verbose logging
+gem 'lograge', '~> 0.10.0'
+
 # catch exceptions and send them to any airbrake compatible backend
 # don't require by default, instead load on-demand when actually configured
-gem 'airbrake', '~> 7.4.0', require: false
+gem 'airbrake', '~> 8.0.1', require: false
 
 gem 'transactional_lock', git: 'https://github.com/finnlabs/transactional_lock.git',
                           branch: 'master'
@@ -139,23 +147,26 @@ gem 'prawn-table', '~> 0.2.2'
 gem 'cells-erb', '~> 0.1.0'
 gem 'cells-rails', '~> 0.0.9'
 
-gem 'meta-tags', '~> 2.6.0'
+gem 'meta-tags', '~> 2.11.0'
 
 group :production do
   # we use dalli as standard memcache client
   # requires memcached 1.4+
   # see https://github.clientom/mperham/dalli
-  gem 'dalli', '~> 2.7.6'
+  gem 'dalli',
+      git: 'https://github.com/petergoldstein/dalli',
+      ref: '0ff39199b5e91c6dbdaabc7c085b81938d0f08d2'
 
   # Unicorn worker killer to restart unicorn child workers
   gem 'unicorn-worker-killer', require: false
 end
 
 gem 'autoprefixer-rails', '~> 9.4.5'
-gem 'bourbon', '~> 4.3.4'
+# use until proper release no longer requiring sass exists
+gem 'bourbon', git: 'https://github.com/sikachu/bourbon', ref: 'a12ca168e74d3468c80500b21b525a4e12a19ef9'
 gem 'i18n-js', '~> 3.2.0'
-gem 'sass', '3.7.3'
-gem 'sass-rails', '~> 5.0.6'
+gem 'sass-rails'
+gem 'sassc-rails', '~> 2.1.0'
 gem 'sprockets', '~> 3.7.0'
 
 # required by Procfile, for deployment on heroku or packaging with packager.io.
@@ -167,7 +178,7 @@ gem 'nokogiri', '~> 1.10.0'
 gem 'carrierwave', '~> 1.3.1'
 gem 'fog-aws'
 
-gem 'aws-sdk-core', '~> 3.45.0'
+gem 'aws-sdk-core', '~> 3.46.0'
 # File upload via fog + screenshots on travis
 gem 'aws-sdk-s3', '~> 1.30.1'
 
@@ -213,7 +224,7 @@ group :test do
   # brings back testing for 'assigns' and 'assert_template' extracted in rails 5
   gem 'rails-controller-testing', '~> 1.0.2'
 
-  gem 'capybara', '~> 3.12.0'
+  gem 'capybara', '~> 3.13.0'
   gem 'capybara-screenshot', '~> 1.0.17'
   gem 'capybara-select2', git: 'https://github.com/goodwill/capybara-select2', ref: '585192e'
   gem 'chromedriver-helper', '~> 2.1.0'
@@ -221,7 +232,7 @@ group :test do
 
   gem 'fuubar', '~> 2.3.2'
   gem 'timecop', '~> 0.9.0'
-  gem 'webmock', '~> 3.1.0', require: false
+  gem 'webmock', '~> 3.5.0', require: false
 
   gem 'equivalent-xml', '~> 0.6'
   gem 'json_spec', '~> 1.1.4'
@@ -262,10 +273,10 @@ group :development, :test do
   gem 'pry-stack_explorer', '~> 0.4.9.2'
 end
 
-gem 'bootsnap', '~> 1.3.2', require: true
+gem 'bootsnap', '~> 1.3.2', require: false
 
 # API gems
-gem 'grape', '~> 1.1'
+gem 'grape', '~> 1.2.3'
 
 gem 'reform', '~> 2.2.0'
 gem 'reform-rails', '~> 0.1.7'
@@ -279,6 +290,9 @@ platforms :mri, :mingw, :x64_mingw do
   group :postgres do
     gem 'pg', '~> 1.1.0'
   end
+
+  # Support application loading when no database exists yet.
+  gem 'activerecord-nulldb-adapter', '~> 0.3.9'
 end
 
 group :opf_plugins do
@@ -292,7 +306,6 @@ group :docker, optional: true do
   gem 'health_check', require: !!ENV['HEROKU']
   gem 'newrelic_rpm', require: !!ENV['HEROKU']
   gem 'rails_12factor', require: !!ENV['HEROKU']
-  gem 'sqlite3', require: false
 end
 
 # Load Gemfile.local, Gemfile.plugins, plugins', and custom Gemfiles

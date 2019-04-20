@@ -45,9 +45,24 @@ zh:
     index:
       no_results_content_title: 目前是非身份验证模式。
       no_results_content_text: 创建一个新的身份验证模式
-  boards:
+  ldap_auth_sources:
+    connection_encryption: 连接加密
+    tls_mode:
+      plain: 无
+      simple_tls: simple_tls
+      start_tls: start_tls
+      plain_description: 明文不加密的连接，无TLS协商。
+      simple_tls_description: Implicit TLS encryption, but no certificate validation.
+        Use with caution and implicit trust of the LDAP connection.
+      start_tls_description: Explicit TLS encryption with full validation. Use for
+        LDAP over TLS/SSL.
+      section_more_info_link_html: '此部分涉及此LDAP认证源的连接安全。更多信息，访问 <a href="%{link}">网络::LDAP
+        文档</a>。
+
+'
+  forums:
     show:
-      no_results_title_text: 目前没有发布内容。
+      no_results_title_text: 论坛中目前无发贴。
   colors:
     index:
       no_results_title_text: 目前没有颜色。
@@ -89,6 +104,10 @@ zh:
       further_information_after: ''
     calendar:
       removal: '请注意: 这个模块将与OpenProject 8.0一起移除。'
+  global_search:
+    overwritten_tabs:
+      wiki_pages: 维基
+      messages: 论坛
   groups:
     index:
       no_results_title_text: 目前没有组。
@@ -97,15 +116,20 @@ zh:
       no_results_title_text: 这个组目前没有用户。
     memberships:
       no_results_title_text: 这个组目前没有项目。
+  incoming_mails:
+    ignore_filenames: 'Specify a list of names to ignore when processing attachments
+      for incoming mails (e.g., signatures or icons). Enter one filename per line.
+
+'
   projects:
     delete:
       scheduled: Deletion has been scheduled and is perfomed in the background. You
         will be notified of the result.
-      schedule_failed: 'Project cannot be deleted: %{errors}'
-      failed: Deletion of project %{name} has failed
+      schedule_failed: '项目不能删除: %{errors}'
+      failed: 项目 %{name} 删除失败
       failed_text: The request to delete project %{name} has failed. The project was
         left archived.
-      completed: Deletion of project %{name} completed
+      completed: 项目 %{name} 删除完成
       completed_text: The request to delete project '%{name}' has been completed.
     index:
       no_results_title_text: 目前没有项目。
@@ -113,9 +137,9 @@ zh:
     settings:
       activities:
         no_results_title_text: 目前有可用的任何活动。
-      boards:
-        no_results_title_text: 这个项目目前没有公告板。
-        no_results_content_text: 创建一个新的公告板
+      forums:
+        no_results_title_text: 此项目当前无论坛。
+        no_results_content_text: 创建新论坛
       categories:
         no_results_title_text: 目前没有工作包类别。
         no_results_content_text: 创建一个新的工作包类别
@@ -198,6 +222,8 @@ zh:
     x_descendants:
       one: One descendant work package
       other: "%{count} 个子工作包"
+    bulk:
+      could_not_be_saved: 无法保存以下工作包：
     move:
       no_common_statuses_exists: 所有选中的工作包都没有可用的状态，因此无法更改其状态。
       unsupported_for_multiple_projects: 不支持多个项目工作包的大批量移动/复制
@@ -310,6 +336,11 @@ zh:
         subscriber: 订阅者
         encoded_token: 企业版支持令牌
         active_user_count_restriction: 最大活动用户数
+      grids/grid:
+        page: 页
+        row_count: 行数
+        column_count: 列数
+        widgets: 小部件
       relation:
         delay: 延迟
         from: 工作包
@@ -399,13 +430,13 @@ zh:
         type: 类型
         watcher: 关注者
       doorkeeper/application:
-        uid: Client ID
-        secret: Client secret
-        owner: Owner
-        redirect_uri: Redirect URI
-        client_credentials_user_id: Client Credentials User ID
-        scopes: Scopes
-        confidential: Confidential
+        uid: 客户端 ID
+        secret: 客户端密钥
+        owner: 所有者
+        redirect_uri: 重定向 URI
+        client_credentials_user_id: 客户端证书用户 ID
+        scopes: 范围
+        confidential: 保密
     errors:
       messages:
         accepted: 必须接受。
@@ -446,6 +477,7 @@ zh:
         too_long: 太长 (最多 %{count} 个字符)。
         too_short: 太短 (最低是 %{count} 个字符)。
         unchangeable: 不能更改。
+        unremovable: 不能删除。
         wrong_length: 长度不正确 (应该是 %{count} 个字符)。
       models:
         custom_field:
@@ -461,15 +493,19 @@ zh:
         doorkeeper/application:
           attributes:
             redirect_uri:
-              fragment_present: cannot contain a fragment.
-              invalid_uri: must be a valid URI.
-              relative_uri: must be an absolute URI.
-              secured_uri: must be an HTTPS/SSL URI.
-              forbidden_uri: is forbidden by the server.
+              fragment_present: 不能包含片段。
+              invalid_uri: 必须是有效的 URI。
+              relative_uri: 必须是绝对URI。
+              secured_uri: 必须是 HTTPS/SSL URI。
+              forbidden_uri: 被服务器禁止。
             scopes:
-              not_match_configured: doesn't match available scopes.
+              not_match_configured: 与可用范围不匹配。
         enterprise_token:
           unreadable: 无法读取。是否确定为支持令牌？
+        grids/grid:
+          overlaps: 重叠.
+          outside: 不在网格内。
+          end_before_start: end value needs to be larger than the start value.
         parse_schema_filter_params_service:
           attributes:
             base:
@@ -567,7 +603,7 @@ zh:
     models:
       attachment: 文件
       attribute_help_text: 属性帮助文本
-      board: 论坛
+      forum: 论坛
       comment: 评论
       custom_action: 自定义操作
       custom_field: 自定义字段
@@ -588,7 +624,7 @@ zh:
       wiki_page: 维基页面
       workflow: 工作流
       work_package: 工作包
-      doorkeeper/application: OAuth application
+      doorkeeper/application: OAuth应用程序
   errors:
     header_invalid_fields: 以下字段有问题：
     field_erroneous_label: |-
@@ -664,7 +700,7 @@ zh:
   button_change_password: 更改密码
   button_check_all: 全选
   button_clear: 清除
-  button_click_to_reveal: Click to reveal
+  button_click_to_reveal: 单击以显示
   button_close: 关闭
   button_collapse_all: 全部折叠
   button_configure: 配置
@@ -692,10 +728,9 @@ zh:
   button_print: 打印
   button_quote: 引用
   button_remove: 移除
-  button_remove_widget: 删除部件
   button_rename: 重命名
   button_replace: 替换
-  button_revoke: Revoke
+  button_revoke: 撤消
   button_reply: 答复
   button_reset: 重置
   button_rollback: 回滚到此版本
@@ -941,6 +976,7 @@ zh:
   error_can_not_invite_user: 无法向用户发送邀请。
   error_can_not_remove_role: 该角色正在使用，无法删除。
   error_can_not_reopen_work_package_on_closed_version: 不能重新打开一个已经分配给已关闭版本的工作包
+  error_can_not_find_all_resources: Could not find all related resources to this request.
   error_check_user_and_role: 请选择用户和角色。
   error_cookie_missing: OpenProject cookie 丢失。请确保已启用 cookie，因为如果不启用，此应用程序将无法正常运行。
   error_custom_option_not_found: 选项不存在。
@@ -1038,9 +1074,8 @@ zh:
       faq: 常见问题
       glossary: 术语表
       shortcuts: 快捷方式
-      forums: 论坛
       blog: OpenProject 博客
-      boards: 社区论坛
+      forums: 社区论坛
       newsletter: 安全警报/通信
   links:
     configuration_guide: 配置指南
@@ -1083,7 +1118,6 @@ zh:
   label_all_open_wps: 全部打开
   label_always_visible: 总是显示
   label_announcement: 公告
-  label_and_its_subprojects: "%{value} 及其子项目"
   label_api_access_key: API 访问键
   label_api_access_key_created_on: API 访问密钥创建于 %{value} 前
   label_api_access_key_type: API
@@ -1103,7 +1137,7 @@ zh:
   label_authentication: 身份验证
   label_available_project_work_package_categories: 可用的工作包类别
   label_available_project_work_package_types: 可用的工作包类型
-  label_available_project_boards: 可用的公告板
+  label_available_project_forums: 可用论坛
   label_available_project_versions: 可用版本
   label_available_project_repositories: 可用存储库
   label_api_documentation: API 文档
@@ -1111,14 +1145,15 @@ zh:
   label_blocked_by: 阻止于
   label_blocks: 阻止
   label_blog: 博客
-  label_board_locked: 锁定
-  label_board_new: 新论坛
-  label_board_plural: 论坛
-  label_board_sticky: 置顶
+  label_forums_locked: 锁定
+  label_forum_new: 新论坛
+  label_forum_plural: 论坛
+  label_forum_sticky: 置顶
   label_boolean: 布尔值
   label_branch: 分支
   label_browse: 浏览
   label_bulk_edit_selected_work_packages: 批量编辑所选工作包
+  label_bundled: "(捆绑包)"
   label_calendar: 日历
   label_calendar_show: 显示日历
   label_category: 类别
@@ -1215,8 +1250,9 @@ zh:
   label_environment: 环境
   label_estimates_and_time: 预估成本和时间
   label_equals: 是
-  label_everywhere: everywhere
+  label_everywhere: 任何位置
   label_example: 示例
+  label_import: 导入
   label_export_to: 在其中也可用：
   label_expanded_click_to_collapse: 展开。点击折叠
   label_f_hour: "%{value} 小时"
@@ -1252,7 +1288,8 @@ zh:
   label_history: 历史
   label_hierarchy_leaf: 层次结构叶
   label_home: 首页
-  label_subject_or_id: Subject or ID
+  label_subject_or_id: 主题或ID
+  label_impressum: Impressum
   label_in: 在
   label_in_less_than: 在小于
   label_in_more_than: 在多于
@@ -1326,7 +1363,6 @@ zh:
   label_my_account: 我的账户
   label_my_account_data: 我的账户数据
   label_my_page: 我的页面
-  label_my_page_block: 我的页块
   label_my_projects: 我的项目
   label_my_queries: 我的自定义查询
   label_never: 永不
@@ -1379,6 +1415,7 @@ zh:
   label_planning: 规划
   label_please_login: 请登录
   label_plugins: 插件
+  label_modules_and_plugins: 模块和插件
   label_precedes: 之前
   label_preferences: 首选项
   label_preview: 预览
@@ -1386,6 +1423,7 @@ zh:
   label_previous_week: 前一周
   label_principal_invite_via_email: " 或通过电子邮件邀请新用户"
   label_principal_search: 添加现有用户或组
+  label_privacy_policy: 数据隐私和安全政策
   label_product_version: 产品版本
   label_professional_support: 专业支持
   label_profile: 配置文件
@@ -1433,7 +1471,6 @@ zh:
   label_repository_plural: 代码库
   label_required: 必填
   label_requires: 要求
-  label_responsible_for_work_packages: 我负责的工作包
   label_result_plural: 结果
   label_reverse_chronological_order: 在相反的顺序
   label_revision: 修订
@@ -1450,7 +1487,6 @@ zh:
   label_role_search: 将角色分配给新成员
   label_scm: SCM
   label_search: 搜索
-  label_search_titles_only: 仅搜索标题
   label_send_information: 将帐户信息发送给用户
   label_send_test_email: 发送测试电子邮件
   label_settings: 设置
@@ -1530,6 +1566,7 @@ zh:
   label_view_diff: 查看差异
   label_view_revisions: 查看修订版本
   label_watched_work_packages: 受关注的工作包
+  label_what_is_this: 这是什么?
   label_week: 周
   label_wiki_content_added: 添加 Wiki 页面
   label_wiki_content_updated: 更新 Wiki 页面
@@ -1620,7 +1657,6 @@ zh:
   label_keyboard_shortcut_go_preview: 转到预览当前编辑 （仅在编辑页)
   label_keyboard_shortcut_focus_previous_item: 聚焦前面的列表元素 （只有某些列表)
   label_keyboard_shortcut_focus_next_item: 聚焦下一个的列表元素 （只有某些列表)
-  label_visible_elements: 可见的元素
   auth_source:
     using_abstract_auth_source: 无法使用抽象的验证源。
     ldap_error: LDAP 错误：%{error_message}
@@ -1687,6 +1723,8 @@ zh:
   notice_account_unknown_email: 未知用户。
   notice_account_update_failed: 帐户设置无法保存。请看查看您的帐户页面。
   notice_account_updated: 帐户已成功更新。
+  notice_account_other_session_expired: All other sessions tied to your account have
+    been invalidated.
   notice_account_wrong_password: 密码错误
   notice_account_registered_and_logged_in: 欢迎，您的帐户已激活。您现在已登录。
   notice_activation_failed: 无法激活该帐户。
@@ -1799,7 +1837,7 @@ zh:
   permission_export_wiki_pages: 导出 wiki 页面
   permission_list_attachments: 列出附件
   permission_log_time: 记录消耗时间
-  permission_manage_boards: 管理论坛
+  permission_manage_forums: 管理论坛
   permission_manage_categories: 管理工作包类别
   permission_manage_work_package_relations: 管理工作包的关系
   permission_manage_members: 管理成员
@@ -1845,7 +1883,7 @@ zh:
     archive:
       are_you_sure: 是否确定想要存档项目 '%{name}'？
   project_module_activity: 活动
-  project_module_boards: 论坛
+  project_module_forums: 论坛
   project_module_calendar: 日历
   project_module_work_package_tracking: 工作包跟踪
   project_module_news: 新闻
@@ -2026,12 +2064,10 @@ zh:
   setting_log_requesting_user: 记录所有请求的用户帐户，名称和邮件地址
   setting_login_required: 需要身份验证
   setting_mail_from: 发出的电子邮件地址
-  setting_mail_handler_api_enabled: 启用接收电子邮件 web 服务
-  setting_mail_handler_api_description: 电子邮件 web 处理程序启用 OpenProject来接收包含特定命令的电子邮件作为一种工作机制
-    (例如，可以创建和更新工作包)。
   setting_mail_handler_api_key: API 密钥
   setting_mail_handler_body_delimiters: 在这些行之后截断电子邮件
   setting_mail_handler_body_delimiter_regex: 清空符合此正则表达式的电子邮件
+  setting_mail_handler_ignore_filenames: 忽略的邮件附件
   setting_new_project_user_role_id: 给创建项目的非管理员用户的角色
   setting_password_active_rules: 激活支付类型
   setting_password_count_former_banned: 禁止重复使用最近使用密码的数量
@@ -2041,6 +2077,7 @@ zh:
   setting_per_page_options: 每页对象选项
   setting_plain_text_mail: 纯文本邮件 (没有 HTML)
   setting_protocol: 协议
+  setting_security_badge_displayed: 显示安全徽章
   setting_registration_footer: 注册页脚
   setting_repositories_automatic_managed_vendor: 自动存储库供应商类型
   setting_repositories_encodings: 代码库的编码
@@ -2176,6 +2213,16 @@ zh:
   text_no_configuration_data: 角色、 类型、 工作包状态和工作流有尚未配置。 \n强烈建议加载默认配置。加载完成后你将能够修改它。
   text_no_notes: 没有注释可用于此工作包。
   text_notice_too_many_values_are_inperformant: 注意： 每个页面显示超过 100 个项目会增加页面加载时间。
+  text_notice_security_badge_displayed_html: 'Note: if enabled, this will display
+    a badge with your installation status in the <a href="%{information_panel_path}">%{information_panel_label}</a>
+    administration panel, and on the home page. It is displayed to administrators
+    only. <br/> The badge will check your current OpenProject version against the
+    official OpenProject release database to alert you of any updates or known vulnerabilities.
+    For more information on what the check provides, what data is needed to provide
+    available updates, and how to disable this check, please visit <a href="%{more_info_url}">the
+    configuration documentation</a>.
+
+'
   text_own_membership_delete_confirmation: 您将要删除部分或全部的权限，可能不能够在那之后编辑此项目。 \n您确定要继续吗？
   text_plugin_assets_writable: 插件资产目录可写
   text_powered_by: Powered by %{link}
@@ -2223,7 +2270,6 @@ zh:
       color: 颜色
       colors: 颜色
     associations: 依赖项
-    board_could_not_be_saved: 面板不能被保存
     button_delete_all: 删除所有
     change: 更改计划
     children: 子元素
@@ -2502,7 +2548,7 @@ zh:
       schema: 方案
   doorkeeper:
     pre_authorization:
-      status: Pre-authorization
+      status: 预授权
     errors:
       messages:
         invalid_request: The request is missing a required parameter, includes an
@@ -2512,7 +2558,7 @@ zh:
         unauthorized_client: The client is not authorized to perform this request
           using this method.
         access_denied: The resource owner or authorization server denied the request.
-        invalid_scope: The requested scope is invalid, unknown, or malformed.
+        invalid_scope: 申请范围无效、未知或形式错误
         invalid_code_challenge_method: The code challenge method must be plain or
           S256.
         server_error: The authorization server encountered an unexpected condition
@@ -2535,15 +2581,20 @@ zh:
         unsupported_grant_type: The authorization grant type is not supported by the
           authorization server.
         invalid_token:
-          revoked: The access token was revoked
-          expired: The access token expired
-          unknown: The access token is invalid
+          revoked: 访问令牌已被撤销
+          expired: 访问令牌已过期
+          unknown: 访问令牌无效
+  unsupported_browser:
+    title: 您的浏览器已经过时，或不被支持。
+    message: 此页面可能会发生运行错误和不良用户体验。
+    update_message: 请升级您的浏览器。
+    close_warning: 请忽略这个警告。
   oauth:
     application:
-      singular: OAuth application
-      plural: OAuth applications
+      singular: OAuth应用程序
+      plural: OAuth应用程序
       named: OAuth application '%{name}'
-      new: New OAuth application
+      new: 新的 OAuth 应用程序
       default_scopes: "(Default scopes)"
       instructions:
         name: The name of your application. This will be displayed to other users
@@ -2561,15 +2612,15 @@ zh:
         register_intro: If you are developing an OAuth API client application for
           OpenProject, you can register it using this form for all users to use.
         default_scopes: ''
-    client_id: Client ID
+    client_id: 客户端 ID
     client_secret_notice: 'This is the only time we can print the client secret, please
       note it down and keep it secure. It should be treated as a password and cannot
       be retrieved by OpenProject at a later time.
 
 '
     authorization_dialog:
-      authorize: Authorize
-      cancel: Cancel and deny authorization.
+      authorize: 授权
+      cancel: 取消并拒绝授权。
       prompt_html: Authorize <strong>%{application_name}</strong> to use your account
         <em>%{login}</em>?
       title: Authorize %{application_name}
@@ -2578,12 +2629,12 @@ zh:
 
 '
     scopes:
-      api_v3: Full API access
+      api_v3: 完全 API 访问
       api_v3_text: Application will receive full read & write access to the OpenProject
         API to perform actions on your behalf.
     grants:
       created_date: Approved on
-      scopes: Permissions
+      scopes: 权限
       successful_application_revocation: Revocation of application %{application_name}
         successful.
       none_given: No OAuth applications have been granted access to your user account.
@@ -2592,7 +2643,7 @@ zh:
       other: "%{count} active token"
     flows:
       authorization_code: Authorization code flow
-      client_credentials: Client credentials flow
+      client_credentials: 客户端凭据流
     client_credentials: User used for Client credentials
     client_credentials_impersonation_set_to: Client credentials user set to
     client_credentials_impersonation_warning: 'Note: Clients using the ''Client credentials''
@@ -2603,7 +2654,7 @@ zh:
       requests will be performed.
 
 '
-    authorization_error: An authorization error has occurred.
+    authorization_error: 发生了验证错误。
     revoke_my_application_confirmation: Do you really want to remove this application?
       This will revoke %{token_count} active for it.
-    my_registered_applications: Registered OAuth applications
+    my_registered_applications: 已注册的 OAuth 应用程序

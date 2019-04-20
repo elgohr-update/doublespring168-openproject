@@ -28,8 +28,8 @@
 
 // Right part of the split view
 // Visible only in the details ui-view
-body.action-details,
-body.action-create
+body.router--work-packages-split-view,
+body.router--work-packages-split-view-new
 
   .work-packages-split-view--details-side
     overflow-x: hidden
@@ -97,7 +97,6 @@ body.action-create
     .wp-inline-edit--field
       height: 38px
       line-height: 36px
-      padding: 0 0.375rem
 
 .work-packages--type-selector
   flex-shrink: 0
@@ -108,6 +107,9 @@ body.action-create
 
 .work-package--new-state
   margin-bottom: 55px
+
+  .title-container
+    overflow: visible
 
   .work-packages--attachments
     margin-bottom: 25px

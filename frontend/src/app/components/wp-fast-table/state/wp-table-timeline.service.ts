@@ -29,26 +29,33 @@
 import {Injectable} from '@angular/core';
 import {QueryResource, TimelineLabels, TimelineZoomLevel} from 'core-app/modules/hal/resources/query-resource';
 import {WorkPackageResource} from 'core-app/modules/hal/resources/work-package-resource';
-import {TableState} from 'core-components/wp-table/table-state/table-state';
+import {IsolatedQuerySpace} from "core-app/modules/work_packages/query-space/isolated-query-space";
 import {InputState} from 'reactivestates';
 import {zoomLevelOrder} from '../../wp-table/timeline/wp-timeline';
 import {WorkPackageTableTimelineState} from './../wp-table-timeline';
 import {WorkPackageQueryStateService, WorkPackageTableBaseService} from './wp-table-base.service';
 
 @Injectable()
-export class WorkPackageTableTimelineService extends WorkPackageTableBaseService<WorkPackageTableTimelineState> implements WorkPackageQueryStateService {
+export class WorkPackageTableTimelineService extends WorkPackageQueryStateService<WorkPackageTableTimelineState> {
 
-  public constructor(tableState:TableState) {
-    super(tableState);
+  /** Remember the computed zoom level to correct zooming after leaving autozoom */
+  public appliedZoomLevel:TimelineZoomLevel|undefined = undefined;
+
+  public constructor(protected readonly querySpace:IsolatedQuerySpace) {
+    super(querySpace);
   }
 
-
   public get state():InputState<WorkPackageTableTimelineState> {
-    return this.tableState.timeline;
+    return this.querySpace.timeline;
   }
 
   public valueFromQuery(query:QueryResource) {
-    return new WorkPackageTableTimelineState(query);
+    return {
+      ...this.defaultState,
+      visible: query.timelineVisible,
+      zoomLevel: query.timelineZoomLevel,
+      labels: query.timelineLabels
+    };
   }
 
   public hasChanged(query:QueryResource) {
@@ -69,18 +76,15 @@ export class WorkPackageTableTimelineService extends WorkPackageTableBaseService
 
   public toggle() {
     let currentState = this.current;
-    this.setVisible(!currentState.isVisible);
+    this.setVisible(!currentState.visible);
   }
 
   public setVisible(value:boolean) {
-    let currentState = this.current;
-    currentState.visible = value;
-
-    this.state.putValue(currentState);
+    this.state.putValue({...this.current, visible: value});
   }
 
   public get isVisible() {
-    return this.current.isVisible;
+    return this.current.visible;
   }
 
   public get zoomLevel() {
@@ -89,20 +93,18 @@ export class WorkPackageTableTimelineService extends WorkPackageTableBaseService
 
   public get labels() {
     if (_.isEmpty(this.current.labels)) {
-      return this.current.defaultLabels;
+      return this.defaultLabels;
     }
 
     return this.current.labels;
   }
 
   public updateLabels(labels:TimelineLabels) {
-    let currentState = this.current;
-    currentState.labels = labels;
-    this.state.putValue(currentState);
+    this.modify({ labels: labels });
   }
 
   public getNormalizedLabels(workPackage:WorkPackageResource) {
-    let labels:TimelineLabels = _.clone(this.current.defaultLabels);
+    let labels:TimelineLabels = this.defaultLabels;
 
     _.each(this.current.labels, (attribute:string | null, positionAsString:string) => {
       // RR: Lodash typings declare the position as string. However, it is save to cast
@@ -121,17 +123,53 @@ export class WorkPackageTableTimelineService extends WorkPackageTableBaseService
   }
 
   public setZoomLevel(level:TimelineZoomLevel) {
-    let currentState = this.current;
-    currentState.zoomLevel = level;
-    this.state.putValue(currentState);
+    this.modify({ zoomLevel: level });
   }
 
-  public updateZoomWithDelta(delta:number) {
-    if (this.isAutoZoomEnabled()) {
-      this.toggleAutoZoom();
+  public updateZoomWithDelta(delta:number):void {
+    let level = this.current.zoomLevel;
+    if (level !== 'auto') {
+      return this.applyZoomLevel(level, delta);
     }
 
-    let idx = zoomLevelOrder.indexOf(this.current.zoomLevel);
+    if (this.appliedZoomLevel && this.appliedZoomLevel !== 'auto') {
+      // When we have a real zoom value, use delta on that one
+      this.applyZoomLevel(this.appliedZoomLevel, delta);
+    } else {
+      // Use the maximum zoom value
+      const target = delta < 0 ? 'days' : 'years';
+      this.setZoomLevel(target);
+    }
+  }
+
+  public isAutoZoom():boolean {
+    return this.current.zoomLevel === 'auto';
+  }
+
+  public enableAutozoom() {
+    this.modify({ zoomLevel: "auto" });
+  }
+
+  public get current():WorkPackageTableTimelineState {
+    return this.state.getValueOr(this.defaultState);
+  }
+
+  /**
+   * Modify the state, updating with parts of properties
+   * @param update
+   */
+  private modify(update:Partial<WorkPackageTableTimelineState>) {
+    this.update({ ...this.current, ...update });
+  }
+
+  /**
+   * Apply a zoom level
+   *
+   * @param level Any zoom level except auto.
+   * @param delta The delta (e.g., 1, -1) to apply.
+   */
+  private applyZoomLevel(level:Exclude<TimelineZoomLevel, 'auto'>, delta:number) {
+    let idx = zoomLevelOrder.indexOf(level);
     idx += delta;
 
     if (idx >= 0 && idx < zoomLevelOrder.length) {
@@ -139,17 +177,19 @@ export class WorkPackageTableTimelineService extends WorkPackageTableBaseService
     }
   }
 
-  public toggleAutoZoom(value = !this.current.autoZoom) {
-    let currentState = this.current;
-    currentState.autoZoom = value;
-    this.state.putValue(currentState);
+  private get defaultLabels():TimelineLabels {
+    return {
+      left: '',
+      right: '',
+      farRight: 'subject'
+    };
   }
 
-  public isAutoZoomEnabled():boolean {
-    return this.current.autoZoom;
-  }
-
-  public get current():WorkPackageTableTimelineState {
-    return this.state.value as WorkPackageTableTimelineState;
+  private get defaultState():WorkPackageTableTimelineState {
+    return {
+      zoomLevel: 'auto',
+      visible: false,
+      labels: this.defaultLabels
+    };
   }
 }

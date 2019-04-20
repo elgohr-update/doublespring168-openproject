@@ -18,11 +18,24 @@ ro:
     close_popup_title: Închidere pop-up
     close_filter_title: Închide filtrul
     close_form_title: Închide formularul
+    boards:
+      upsale:
+        boards: Need to freely structure your work in a board view?
+        check_out_link: Check out the Enterprise Edition.
+      lists:
+        delete: Delete list
+    card:
+      add_new: Add new card
+      highlighting:
+        inline: 'Highlight inline:'
+        entire_card_by: Entire card by
+      remove_from_list: Remove card from list
     clipboard:
       browser_error: Browser-ul nu acceptă copierea în ecranul tampon. Vă rugăm să
         copiaţi textul selectat manual.
       copied_successful: Copiere în ecranul tampon reușită!
     button_add_watcher: Adăugare observator
+    button_back: Înapoi
     button_back_to_list_view: Înapoi la listă
     button_cancel: Anulare
     button_close: Închide
@@ -38,6 +51,7 @@ ro:
     button_duplicate: Duplicare
     button_edit: Editare
     button_filter: Filtrare
+    button_advanced_filter: Filtru avansat
     button_list_view: Vizualizare listă
     button_show_view: Vizualizare pe tot ecranul
     button_log_time: Consum timp
@@ -148,13 +162,43 @@ ro:
     general_text_yes: da
     general_text_No: Nu
     general_text_Yes: Da
+    grid:
+      add_modal:
+        choose_widget: Choose widget
+      widgets:
+        documents:
+          title: Documents
+          no_results: No documents yet.
+        news:
+          title: Noutăţi
+          at: at
+          no_results: Nimic nou de raportat.
+        time_entries_current_user:
+          title: Spent time (last 7 days)
+          no_results: No time entries for the last 7 days.
+        work_packages_accountable:
+          title: Work packages I am accountable for
+        work_packages_assigned:
+          title: Pachete de lucru atribuite mie
+        work_packages_created:
+          title: Work packages created by me
+        work_packages_watched:
+          title: Work packages watched by me
+        work_packages_table:
+          title: Pachete de lucru
+        work_packages_calendar:
+          title: Calendar
     label_activate: Activare
     label_activity_no: Acțiunea cu numărul %{activityNo}
     label_activity_with_comment_no: Acțiunea cu numărul %{activityNo}. Are un comentariu
       de utilizator.
+    label_add_column_after: Adauga o coloana dupa
+    label_add_column_before: Adauga o coloana inainte
     label_add_columns: Adaugați coloane
     label_add_comment: Adăugare comentariu
     label_add_comment_title: Comentați şi tastaţi @ pentru a notifica alte persoane
+    label_add_row_after: Adauga un rand dupa
+    label_add_row_before: Adauga un rand inainte
     label_add_selected_columns: Adăugați coloanele selectate
     label_added_by: adăugat de
     label_added_time_by: Adăugat de %{author} %{age}
@@ -165,7 +209,9 @@ ro:
     label_ascending: Crescător
     label_author: 'Autor: %{user}'
     label_between: between
+    label_board: Board
     label_board_locked: Închis
+    label_board_plural: Boards
     label_board_sticky: Lipicios
     label_create_work_package: Creare pachet de lucru nou
     label_created_by: Creat de
@@ -212,6 +258,7 @@ ro:
     label_menu_collapse: restrângere
     label_menu_expand: extindere
     label_more_than_ago: acum mai mult de zile
+    label_my_page: Pagina mea
     label_next: Înainte
     label_no_data: Nu există date de afișat
     label_no_due_date: fără dată sfârșit
@@ -230,7 +277,9 @@ ro:
     label_visibility_settings: Setări de vizibilitate
     label_quote_comment: Citare comentariu
     label_reset: Resetare
+    label_remove_column: Elimina colana
     label_remove_columns: Eliminare coloane selectate
+    label_remove_row: Elimina rand
     label_save_as: Salvare ca
     label_select_watcher: Selectaţi un observator...
     label_selected_filter_list: Filtre selectate
@@ -252,6 +301,7 @@ ro:
     label_activity_show_only_comments: Afișați doar activitățile ce conțin comentarii
     label_activity_show_all: Afișează toate activitățile
     label_total_progress: "%{percent} % Progres total"
+    label_total_amount: 'Total: %{amount}'
     label_updated_on: actualizat la data de
     label_warning: Avertizare
     label_work_package: Pachet de lucru
@@ -285,6 +335,7 @@ ro:
     label_upload_notification: Se încarcă fișierele...
     label_work_package_upload_notification: 'Fişierele pentru pachetul de lucru #%{id}:
       %{subject} sunt în curs de încărcare'
+    label_wp_id_added_by: "#%{id} added by %{author}"
     label_files_to_upload: 'Următoarele fişiere vor fi încărcate:'
     label_rejected_files: 'Următoarele fişiere nu pot fi încărcate:'
     label_rejected_files_reason: Aceste fişiere nu pot fi încărcate deoarece mărimea
@@ -301,46 +352,54 @@ ro:
         next: Înainte
         got_it: Got it
       steps:
-        welcome: Take a three minutes introduction tour to learn the most <b>important
-          features</b>. <br> We recommend completing the steps until the end. You
-          can restart the tour any time.
+        help_menu: In the <b>Help</b> menu you will find a user guide and additional
+          help resources. <br> Enjoy your work with OpenProject!
+        members: Invite new <b>Members</b> to join your project.
         project_selection: Please select one of the projects with useful demo data
           to get started. <br> The <b>Demo project</b> suits best for classical project
           management, while the <b>Scrum project</b> is better for Agile project management.
         sidebar_arrow: With the arrow you can navigate back to the project's <b>Main
           menu</b>.
-        members: Invite new <b>Members</b> to join your project.
+        welcome: Take a three minutes introduction tour to learn the most <b>important
+          features</b>. <br> We recommend completing the steps until the end. You
+          can restart the tour any time.
         wiki: Within the <b>Wiki</b> you can document and share knowledge together
           with your team.
-        backlogs_overview: Manage your work in the <b>Backlogs</b> view. <br> On the
-          right you have the Product Backlog or a Bug Backlog, on the left you will
-          have the respective sprints. Here you can create <b>epics, user stories,
-          and bugs</b>, prioritize via drag'n'drop and add them to a sprint.
-        backlogs_task_board_arrow: To see your <b>Task board</b>, open the Sprint
-          drop-down...
-        backlogs_task_board_select: "... and select the <b>Task board</b> entry."
-        backlogs_task_board: The <b>Task board</b> visualizes the progress for this
-          sprint. Add new tasks or impediments with the + icon next to a user story.
-          Via drag'n'drop you can update the status.
-        wp_toggler: Now let's have a look at the <b>Work package</b> section, which
-          gives you a more detailed view of your work.
-        wp_list: This is the <b>Work package</b> list with the important work within
-          your project, such as tasks, features, milestones, bugs, and more. <br>
-          You can create or edit a work package directly within this list. To see
-          its details you can double click on a row.
-        wp_full_view: Within the <b>Work package details</b> you find all relevant
-          information, such as description, status and priority, activities, dependencies
-          or comments.
-        wp_back_button: With the arrow you can navigate back to the work package list.
-        wp_create_button: The <b>Create</b> button will add a new work package to
-          your project.
-        wp_timeline_button: You can activate the <b>Gantt chart</b> to create a timeline
-          for your project.
-        wp_timeline: Here you can edit your project plan. Create new phases, milestones,
-          and add dependencies. All team members can see and update the latest plan
-          at any time.
-        help_menu: In the <b>Help</b> menu you will find a user guide and additional
-          help resources. <br> Enjoy your work with OpenProject!
+        backlogs:
+          overview: Manage your work in the <b>Backlogs</b> view. <br> On the right
+            you have the Product Backlog or a Bug Backlog, on the left you will have
+            the respective sprints. Here you can create <b>epics, user stories, and
+            bugs</b>, prioritize via drag'n'drop and add them to a sprint.
+          task_board_arrow: To see your <b>Task board</b>, open the Sprint drop-down...
+          task_board_select: "... and select the <b>Task board</b> entry."
+          task_board: The <b>Task board</b> visualizes the progress for this sprint.
+            Add new tasks or impediments with the + icon next to a user story. Via
+            drag'n'drop you can update the status.
+        boards:
+          overview: Manage your work within an intuitive <b>Boards</b> view.
+          lists: You can create multiple lists (columns) within one Board view, e.g.
+            to create a KANBAN board.
+          add: Click the + will <b>add a new card</b> to the list within a Board.
+          drag: Drag & Drop your cards within a list to re-order, or the another list.
+            A double click will open the details view.
+        wp:
+          toggler: Now let's have a look at the <b>Work package</b> section, which
+            gives you a more detailed view of your work.
+          list: This is the <b>Work package</b> list with the important work within
+            your project, such as tasks, features, milestones, bugs, and more. <br>
+            You can create or edit a work package directly within this list. To see
+            its details you can double click on a row.
+          full_view: Within the <b>Work package details</b> you find all relevant
+            information, such as description, status and priority, activities, dependencies
+            or comments.
+          back_button: With the arrow you can navigate back to the work package list.
+          create_button: The <b>Create</b> button will add a new work package to your
+            project.
+          timeline_button: You can activate the <b>Gantt chart</b> to create a timeline
+            for your project.
+          timeline: Here you can edit your project plan. Create new phases, milestones,
+            and add dependencies. All team members can see and update the latest plan
+            at any time.
     password_confirmation:
       field_description: Trebuie să introduceţi parola contului dumneavoastră pentru
         a confirma această schimbare.
@@ -394,6 +453,10 @@ ro:
           includes: including
           requires: requiring
           required: required by
+    time_entry:
+      activity: Activitate
+      comment: Comentariu
+      hours: Ore
     watchers:
       label_loading: se încarcă observatorii...
       label_error_loading: A apărut o eroare în timpul încărcării observatorilor
@@ -478,6 +541,7 @@ ro:
       view?
     text_attachment_destroy_confirmation: Sunteţi sigur că doriţi să ştergeţi atașamentul?
     timelines:
+      quarter_label: Q%{quarter_number}
       gantt_chart: Grafic Gantt
       labels:
         title: Label configuration
@@ -549,14 +613,6 @@ ro:
     tl_toolbar:
       zooms: Orizont de timp
       outlines: Nivel ierarhic
-    unsupported_browser:
-      title: Versiunea dumneavoastră de browser nu este suportată
-      message: Versiunea de browser utilizată nu mai este suportată de OpenProject.
-      update_message: Vă rugăm să actualizaţi browser-ul.
-      update_ie_user: Vă rugăm să folosiți Mozilla Firefox sau Google Chrome, sau
-        faceți un upgrade către Microsoft Edge.
-      learn_more: Aflați mai multe
-      close_warning: Ignoră acest avertisment.
     upsale:
       ee_only: Enterprise Edition only feature
     wiki_formatting:
@@ -605,12 +661,10 @@ ro:
       label_enable_multi_select: Activare selecție multiplă
       label_disable_multi_select: Dezactivare selecție multiplă
       label_filter_add: Adăugare filtru
-      label_filter_by_text: Filter by text
+      label_filter_by_text: Filtreaza dupa text
       label_options: Opțiuni
       label_column_multiselect: 'Câmp desfășurat combinat: selectaţi cu săgețile,
         confirmați alegerea cu enter, ştergeţi cu backspace'
-      label_switch_to_single_select: Activați selecție independentă
-      label_switch_to_multi_select: Activați selecție multiplă
       message_error_during_bulk_delete: A apărut o eroare la ștergerea pachetelor
         de lucru.
       message_successful_bulk_delete: Pachetele de lucru au fost șterse cu succes.
@@ -620,7 +674,7 @@ ro:
       message_work_package_read_only: Work package is locked in this status. No attribute
         other than status can be altered.
       no_value: Nici o valoare
-      placeholder_filter_by_text: Subject, description, comments, ...
+      placeholder_filter_by_text: Subiect, descriere, comentarii, ...
       inline_create:
         title: Click aici pentru a adăuga un nou pachet de lucru în listă
       create:
@@ -811,6 +865,7 @@ ro:
           work packages will be recursively removed.
         deletes_children: All child work packages and their descendants will also
           be recursively deleted.
+    notice_no_results_to_display: No visible results to display.
     notice_successful_create: Creare reuşită.
     notice_successful_delete: Ştergere reuşită.
     notice_successful_update: Actualizare reușită.
@@ -837,7 +892,7 @@ ro:
         messages_on_field: 'Acest câmp este invalid: %{messages}'
     error_could_not_resolve_version_name: Nu a putut fi detectat numele versiunii
     error_could_not_resolve_user_name: Nu a putut fi detectat numele utilizatorului
-    error_attachment_upload: 'File ''%{name}'' failed to upload: %{error}'
+    error_attachment_upload: 'Fisierul nu a putut fi incarcat: %{error}'
     error_attachment_upload_permission: You don't have the permission to upload files
       on this resource.
     units:
@@ -857,3 +912,13 @@ ro:
     zen_mode:
       button_activate: Activați modul zen
       button_deactivate: Dezactivați modul zen
+    global_search:
+      all_projects: In toate proiectele
+      search: Căutare
+      close_search: Inchide cautarea
+      current_project: In acest proiect
+      current_project_and_all_descendants: In acest proiect + subproiecte
+      title:
+        all_projects: toate proiectele
+        project_and_subprojects: si toate subproiectele
+        search_for: Cauta dupa

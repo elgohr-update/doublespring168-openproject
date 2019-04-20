@@ -18,11 +18,24 @@ fil:
     close_popup_title: Isara ang popup
     close_filter_title: Isara ang filter
     close_form_title: Isara ang form
+    boards:
+      upsale:
+        boards: Need to freely structure your work in a board view?
+        check_out_link: Suriin ang Enterprise Edition.
+      lists:
+        delete: Delete list
+    card:
+      add_new: Add new card
+      highlighting:
+        inline: 'Highlight inline:'
+        entire_card_by: Entire card by
+      remove_from_list: Remove card from list
     clipboard:
       browser_error: Ang iyong browser ay hindi suporta ang pagkokopya sa clipboard.
         Mangayaring kopyahin ng manu-mano ang napiling teksto.
       copied_successful: Matagumpay na kinopya sa clipboard!
     button_add_watcher: Magdagdag ng manunuod
+    button_back: Bumalik
     button_back_to_list_view: Bumalik sa listahan ng view
     button_cancel: Kanselahin
     button_close: Isara
@@ -38,6 +51,7 @@ fil:
     button_duplicate: Kapareha
     button_edit: I-edit
     button_filter: Salain
+    button_advanced_filter: Advanced filter
     button_list_view: Tingnan ang listahan
     button_show_view: Tanawin sa buong screen
     button_log_time: Ang oras ng tala
@@ -145,13 +159,43 @@ fil:
     general_text_yes: oo
     general_text_No: Hindi
     general_text_Yes: Oo
+    grid:
+      add_modal:
+        choose_widget: Choose widget
+      widgets:
+        documents:
+          title: Mga dokumento
+          no_results: No documents yet.
+        news:
+          title: Mga balita
+          at: at
+          no_results: Walang bago para ireport.
+        time_entries_current_user:
+          title: Spent time (last 7 days)
+          no_results: No time entries for the last 7 days.
+        work_packages_accountable:
+          title: Work packages I am accountable for
+        work_packages_assigned:
+          title: Ang work package ay nakatakaga sa akin
+        work_packages_created:
+          title: Work packages created by me
+        work_packages_watched:
+          title: Work packages watched by me
+        work_packages_table:
+          title: Ang mga work package
+        work_packages_calendar:
+          title: Kalendaryo
     label_activate: Aktibo
     label_activity_no: Bilang ng aktibidad entry %{activityNo}
     label_activity_with_comment_no: Bilang ng aktibidad entry %{activityNo}. Mayroong
       komento ng gumagamit.
+    label_add_column_after: Add column after
+    label_add_column_before: Add column before
     label_add_columns: Magdagdag ng hanay
     label_add_comment: Magdagdag ng komento
     label_add_comment_title: Mag-komento at mag-type ng @ upang ipaalam sa ibang tao
+    label_add_row_after: Add row after
+    label_add_row_before: Add row before
     label_add_selected_columns: Magdagdag ng napiling hanay
     label_added_by: idinagdag ni
     label_added_time_by: Idinagdag ni %{author} %{age}
@@ -162,7 +206,9 @@ fil:
     label_ascending: Pataas
     label_author: 'May-Akda: %{user}'
     label_between: sa pagitan ng
+    label_board: Board
     label_board_locked: Naka-lock
+    label_board_plural: Boards
     label_board_sticky: Malagkit
     label_create_work_package: Lumikha ng bagong work package
     label_created_by: Nilikha ni
@@ -209,6 +255,7 @@ fil:
     label_menu_collapse: bumagsak
     label_menu_expand: palawakin
     label_more_than_ago: mahigit sa araw nakalipas
+    label_my_page: Ang aking pahina
     label_next: Susunod
     label_no_data: Walang data upang ipakita
     label_no_due_date: walang katapusan petsa
@@ -227,7 +274,9 @@ fil:
     label_visibility_settings: Ang mga setting ng katanyagan
     label_quote_comment: I-quote ang komentong ito
     label_reset: I-reset
+    label_remove_column: Remove column
     label_remove_columns: Tanggalin ang mga napiling hanay
+    label_remove_row: Remove row
     label_save_as: I-save bilang
     label_select_watcher: Pumili ng manunuod...
     label_selected_filter_list: Napiling mga filter
@@ -249,6 +298,7 @@ fil:
     label_activity_show_only_comments: Magpakita ng mga aktibidad sa komento lamang
     label_activity_show_all: Ipakita lahat ang mga aktibidad
     label_total_progress: "%{percent}% Kabuang progreso"
+    label_total_amount: 'Total: %{amount}'
     label_updated_on: i-update sa
     label_warning: Babala
     label_work_package: Work package
@@ -282,6 +332,7 @@ fil:
     label_upload_notification: Uploading files...
     label_work_package_upload_notification: 'Pag-upload ng mga file para sa Work package
       #%{id}: %{subject}'
+    label_wp_id_added_by: "#%{id} added by %{author}"
     label_files_to_upload: 'Itong mga file ay naka-upload:'
     label_rejected_files: 'Itong mga fike ay hindi ma-upload:'
     label_rejected_files_reason: Itong mga file ay hindi ma-upload kung ang laki ay
@@ -298,46 +349,54 @@ fil:
         next: Susunod
         got_it: Got it
       steps:
-        welcome: Take a three minutes introduction tour to learn the most <b>important
-          features</b>. <br> We recommend completing the steps until the end. You
-          can restart the tour any time.
+        help_menu: In the <b>Help</b> menu you will find a user guide and additional
+          help resources. <br> Enjoy your work with OpenProject!
+        members: Invite new <b>Members</b> to join your project.
         project_selection: Please select one of the projects with useful demo data
           to get started. <br> The <b>Demo project</b> suits best for classical project
           management, while the <b>Scrum project</b> is better for Agile project management.
         sidebar_arrow: With the arrow you can navigate back to the project's <b>Main
           menu</b>.
-        members: Invite new <b>Members</b> to join your project.
+        welcome: Take a three minutes introduction tour to learn the most <b>important
+          features</b>. <br> We recommend completing the steps until the end. You
+          can restart the tour any time.
         wiki: Within the <b>Wiki</b> you can document and share knowledge together
           with your team.
-        backlogs_overview: Manage your work in the <b>Backlogs</b> view. <br> On the
-          right you have the Product Backlog or a Bug Backlog, on the left you will
-          have the respective sprints. Here you can create <b>epics, user stories,
-          and bugs</b>, prioritize via drag'n'drop and add them to a sprint.
-        backlogs_task_board_arrow: To see your <b>Task board</b>, open the Sprint
-          drop-down...
-        backlogs_task_board_select: "... and select the <b>Task board</b> entry."
-        backlogs_task_board: The <b>Task board</b> visualizes the progress for this
-          sprint. Add new tasks or impediments with the + icon next to a user story.
-          Via drag'n'drop you can update the status.
-        wp_toggler: Now let's have a look at the <b>Work package</b> section, which
-          gives you a more detailed view of your work.
-        wp_list: This is the <b>Work package</b> list with the important work within
-          your project, such as tasks, features, milestones, bugs, and more. <br>
-          You can create or edit a work package directly within this list. To see
-          its details you can double click on a row.
-        wp_full_view: Within the <b>Work package details</b> you find all relevant
-          information, such as description, status and priority, activities, dependencies
-          or comments.
-        wp_back_button: With the arrow you can navigate back to the work package list.
-        wp_create_button: The <b>Create</b> button will add a new work package to
-          your project.
-        wp_timeline_button: You can activate the <b>Gantt chart</b> to create a timeline
-          for your project.
-        wp_timeline: Here you can edit your project plan. Create new phases, milestones,
-          and add dependencies. All team members can see and update the latest plan
-          at any time.
-        help_menu: In the <b>Help</b> menu you will find a user guide and additional
-          help resources. <br> Enjoy your work with OpenProject!
+        backlogs:
+          overview: Manage your work in the <b>Backlogs</b> view. <br> On the right
+            you have the Product Backlog or a Bug Backlog, on the left you will have
+            the respective sprints. Here you can create <b>epics, user stories, and
+            bugs</b>, prioritize via drag'n'drop and add them to a sprint.
+          task_board_arrow: To see your <b>Task board</b>, open the Sprint drop-down...
+          task_board_select: "... and select the <b>Task board</b> entry."
+          task_board: The <b>Task board</b> visualizes the progress for this sprint.
+            Add new tasks or impediments with the + icon next to a user story. Via
+            drag'n'drop you can update the status.
+        boards:
+          overview: Manage your work within an intuitive <b>Boards</b> view.
+          lists: You can create multiple lists (columns) within one Board view, e.g.
+            to create a KANBAN board.
+          add: Click the + will <b>add a new card</b> to the list within a Board.
+          drag: Drag & Drop your cards within a list to re-order, or the another list.
+            A double click will open the details view.
+        wp:
+          toggler: Now let's have a look at the <b>Work package</b> section, which
+            gives you a more detailed view of your work.
+          list: This is the <b>Work package</b> list with the important work within
+            your project, such as tasks, features, milestones, bugs, and more. <br>
+            You can create or edit a work package directly within this list. To see
+            its details you can double click on a row.
+          full_view: Within the <b>Work package details</b> you find all relevant
+            information, such as description, status and priority, activities, dependencies
+            or comments.
+          back_button: With the arrow you can navigate back to the work package list.
+          create_button: The <b>Create</b> button will add a new work package to your
+            project.
+          timeline_button: You can activate the <b>Gantt chart</b> to create a timeline
+            for your project.
+          timeline: Here you can edit your project plan. Create new phases, milestones,
+            and add dependencies. All team members can see and update the latest plan
+            at any time.
     password_confirmation:
       field_description: Kailangan mong ipasok ang iyong akwant password upang kumpirmahin
         ang pagbabago niito.
@@ -393,6 +452,10 @@ fil:
           includes: including
           requires: requiring
           required: required by
+    time_entry:
+      activity: Aktibidad
+      comment: Komento
+      hours: Mga oras
     watchers:
       label_loading: naglo-load ang mga manunuod...
       label_error_loading: Isang mali ang naganap habang naglo-load ng mga manunuod
@@ -476,6 +539,7 @@ fil:
     text_attachment_destroy_confirmation: Sigurado ka ba na gusto mong burahin ang
       nakalakip?
     timelines:
+      quarter_label: Q%{quarter_number}
       gantt_chart: Gantt tsart
       labels:
         title: Label configuration
@@ -548,14 +612,6 @@ fil:
     tl_toolbar:
       zooms: Zoom level
       outlines: Hierarchy level
-    unsupported_browser:
-      title: Ang iyong bersyong browser ay hindi suportado
-      message: Ang bersyon ng browser na ginagamit mo ay hindi na suportado ng OpenProject.
-      update_message: Magyaring i-update ang iyong broswer.
-      update_ie_user: Mangyaring lumipat sa Mozilla Firefox o Google Chromw, o i-upgrade
-        sa Microsoft Edge.
-      learn_more: Matuto ng higit pa
-      close_warning: Huwag pansinin ang babala ito.
     upsale:
       ee_only: Enterprise Edition only feature
     wiki_formatting:
@@ -608,8 +664,6 @@ fil:
       label_options: Mga opsyon
       label_column_multiselect: 'Pagsamahin ang dropdown na patlang: Piliin na may
         mga arrow key, kumpirmahin ang pinili gamit ang enter, burahin gamit ang backspace'
-      label_switch_to_single_select: Lumipat sa napiling solo
-      label_switch_to_multi_select: Lumipat sa maramihang pagpili
       message_error_during_bulk_delete: Isang mali ang naganap habang sinusubukan
         burahin ang mga work package.
       message_successful_bulk_delete: Matagumpay naibura ang mga work package.
@@ -815,6 +869,7 @@ fil:
           work packages will be recursively removed.
         deletes_children: All child work packages and their descendants will also
           be recursively deleted.
+    notice_no_results_to_display: No visible results to display.
     notice_successful_create: Matagumpay pagkalikha.
     notice_successful_delete: Matagumpay ang pagtanggal.
     notice_successful_update: Matagumpay nai-update.
@@ -842,7 +897,7 @@ fil:
         messages_on_field: 'Ito patlang ay hindi balido: %{messages}'
     error_could_not_resolve_version_name: Hindi ma resolba ang bersyon na pangalan
     error_could_not_resolve_user_name: Hindi mairesolba ang pangalan ng gumagamit
-    error_attachment_upload: 'File ''%{name}'' failed to upload: %{error}'
+    error_attachment_upload: 'File failed to upload: %{error}'
     error_attachment_upload_permission: You don't have the permission to upload files
       on this resource.
     units:
@@ -859,3 +914,13 @@ fil:
     zen_mode:
       button_activate: I-aktibo ang zen mode
       button_deactivate: I-deactive ang zen mode
+    global_search:
+      all_projects: In all projects
+      search: Hanapin
+      close_search: Close search
+      current_project: In this project
+      current_project_and_all_descendants: In this project + subprojects
+      title:
+        all_projects: all projects
+        project_and_subprojects: and all subprojects
+        search_for: Search for

@@ -28,20 +28,15 @@
 
 import {whenDebugging} from 'core-app/helpers/debug_output';
 import {enableReactiveStatesLogging} from "reactivestates";
-
-// Run the browser detection
-require('expose-loader?bowser!bowser');
+import 'hammerjs';
 
 // Global scripts previously part of the application.js
 // Avoid require.context since that crashes angular regularly
 require('./globals/augmenting/modal-wrapper.augment.service');
-require('./globals/browser-specific-flags');
 require('./globals/dynamic-bootstrapper');
 require('./globals/global-listeners');
 require('./globals/openproject');
-require('./globals/top-shelf');
 require('./globals/tree-menu');
-require('./globals/unsupported-browsers');
 
 window.appBasePath = jQuery('meta[name=app_base_path]').attr('content') || '';
 

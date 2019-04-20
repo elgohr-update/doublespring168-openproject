@@ -28,8 +28,6 @@
 
 import {CollectionResource} from 'core-app/modules/hal/resources/collection-resource';
 import {States} from '../states.service';
-import {WorkPackagesListService} from '../wp-list/wp-list.service';
-import {WorkPackagesListChecksumService} from '../wp-list/wp-list-checksum.service';
 import {StateService, TransitionService} from '@uirouter/core';
 import {ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild} from "@angular/core";
 import {QueryDmService} from 'core-app/modules/hal/dm-services/query-dm.service';
@@ -43,8 +41,8 @@ import {QueryResource} from 'core-app/modules/hal/resources/query-resource';
 import {LinkHandling} from "core-app/modules/common/link-handling/link-handling";
 import {CurrentProjectService} from "core-components/projects/current-project.service";
 import {keyCodes} from "../../../../legacy/app/components/keyCodes.enum";
-import {MainMenuToggleService} from "core-components/resizer/main-menu-toggle.service";
-import {WorkPackageStatesInitializationService} from "core-components/wp-list/wp-states-initialization.service";
+import {MainMenuToggleService} from "core-components/main-menu/main-menu-toggle.service";
+import {MainMenuNavigationService} from "core-components/main-menu/main-menu-navigation.service";
 
 export type QueryCategory = 'starred' | 'public' | 'private' | 'default';
 
@@ -66,7 +64,7 @@ export interface IAutocompleteItem {
 }
 
 interface IQueryAutocompleteJQuery extends JQuery {
-  querycomplete({}):void;
+  querycomplete(...args:any[]):void;
 }
 
 
@@ -114,44 +112,26 @@ export class WorkPackageQuerySelectDropdownComponent implements OnInit, OnDestro
               readonly I18n:I18nService,
               readonly states:States,
               readonly CurrentProject:CurrentProjectService,
-              readonly wpListService:WorkPackagesListService,
-              readonly wpListChecksumService:WorkPackagesListChecksumService,
               readonly loadingIndicator:LoadingIndicatorService,
               readonly pathHelper:PathHelperService,
               readonly wpStaticQueries:WorkPackageStaticQueriesService,
-              readonly toggleService:MainMenuToggleService,
-              readonly wpStatesInitialization:WorkPackageStatesInitializationService) {
+              readonly mainMenuService:MainMenuNavigationService,
+              readonly toggleService:MainMenuToggleService) {
   }
 
   public ngOnInit() {
     this.queryResultsContainer = jQuery(this._queryResultsContainerElement.nativeElement);
     this.projectIdentifier = this.element.nativeElement.getAttribute('data-project-identifier');
 
-    jQuery(document).ready(() => {
-      // If we start out outside of the work packages module,
-      // we load the menu once the user clicks on the toggler next to the
-      // work packages menu item.
-      let toggler = jQuery('#main-menu-work-packages-wrapper .toggler');
-      toggler.one('click', event => {
-        this.initializeAutocomplete();
-      });
-      // If we start out on the work package report/summary page
-      // open the menu at once. Rails is instructed to mark
-      // the "work_packages" menu item to be selected.
-      if (jQuery('body').is(this.reportsBodySelector)) {
-        this.initializeAutocomplete();
-      }
-    });
-    // If we start on any work packages page, we open the menu on
-    // a transition, meaning initially.
-    this.unregisterTransitionListener = this.$transitions.onSuccess({}, (transition) => {
-      this.initializeAutocomplete();
-    });
+    // When activating the work packages submenu,
+    // either initially or through click on the toggle, load the results
+    this.mainMenuService
+      .onActivate('work_packages')
+      .subscribe(() => this.initializeAutocomplete());
 
     // Register click handler on results
     this.addClickHandler();
   }
-
 
   ngOnDestroy() {
     this.unregisterTransitionListener();
@@ -167,13 +147,15 @@ export class WorkPackageQuerySelectDropdownComponent implements OnInit, OnDestro
     this.initialized = true;
     this.buttonArrowLeft.focus();
     this.setupAutoCompletion(this.searchInput);
-    this.updateMenuOnChanges(this.searchInput);
+    this.updateMenuOnChanges();
+    this.loadQueries();
   }
 
-  private transformQueries(collection:CollectionResource) {
-    let loadedQueries:IAutocompleteItem[] = _.map(collection.elements, (query:any) => {
-      return {label: query.name, query: query, query_props: null};
-    });
+  private transformQueries(collection:CollectionResource<QueryResource>) {
+    let loadedQueries:IAutocompleteItem[] = collection.elements
+      .map(query => {
+        return {label: query.name, query: query, query_props: null};
+      });
 
     // Add to the loaded set of queries the fixed set of queries for the current project context
     const combinedQueries = loadedQueries.concat(this.wpStaticQueries.all);
@@ -233,7 +215,26 @@ export class WorkPackageQuerySelectDropdownComponent implements OnInit, OnDestro
 
   private loadQueries() {
     return this.loadingPromise = this.QueryDm
-      .all(this.CurrentProject.identifier);
+      .all(this.CurrentProject.identifier)
+      .toPromise()
+      .then(collection => {
+
+      // Update the complete collection
+      this.searchInput.querycomplete("option", {source: this.transformQueries(collection)});
+
+      // To visibly show the changes, we need to search again
+      this.searchInput.querycomplete("search", this.searchInput.val());
+
+      // To search an empty string would expand all categories again every time
+      // Remember all previously hidden categories and set them again after updating the menu
+      _.each(this.hiddenCategories, category => {
+        let thisCategory:string = jQuery(category).attr("category")!;
+        this.expandCollapseCategory(thisCategory);
+      });
+
+      // Update view
+      this.ref.detectChanges();
+    });
   }
 
   private set loadingPromise(promise:Promise<any>) {
@@ -344,7 +345,7 @@ export class WorkPackageQuerySelectDropdownComponent implements OnInit, OnDestro
         if (thisComponent.searchInput.val() === '') {
           let selected = thisComponent.queryResultsContainer.find('.wp-query-menu--item.selected');
           if (selected.length > 0) {
-            setTimeout(() => selected[0].scrollIntoView({behavior: 'instant', block: 'center'}), 20);
+            setTimeout(() => selected[0].scrollIntoView({behavior: 'auto', block: 'center'}), 20);
           }
         }
       }
@@ -396,27 +397,12 @@ export class WorkPackageQuerySelectDropdownComponent implements OnInit, OnDestro
   // Listens on all changes of queries (via an observable in the service), e.g. delete, create, rename, toggle starred
   // Update collection in autocompleter
   // Search again for the current value in input field to update the menu without loosing the current search results
-  private updateMenuOnChanges(input:any) {
-    this.wpListService.queryChanges$
+  private updateMenuOnChanges() {
+    this.states.changes.queries
       .pipe(
         untilComponentDestroyed(this)
       )
-      .subscribe(() => {
-        this.loadQueries().then(collection => {
-          // Update the complete collection
-          input.querycomplete("option", {source: this.transformQueries(collection)});
-          // To visibly show the changes, we need to search again
-          input.querycomplete("search", input.val());
-          // To search an empty string would expand all categories again every time
-          // Remember all previously hidden categories and set them again after updating the menu
-          _.each(this.hiddenCategories, category => {
-            let thisCategory:string = jQuery(category).attr("category")!;
-            this.expandCollapseCategory(thisCategory);
-          });
-          // Update view
-          this.ref.detectChanges();
-        });
-      });
+      .subscribe(() => this.loadQueries());
   }
 
   private expandCollapseCategory(category:string) {
@@ -439,8 +425,6 @@ export class WorkPackageQuerySelectDropdownComponent implements OnInit, OnDestro
 
     // Ensure we're reloading the query
     if (isSameItem) {
-      this.wpStatesInitialization.clearStates();
-      this.wpListChecksumService.clear();
       opts.reload = true;
     }
 

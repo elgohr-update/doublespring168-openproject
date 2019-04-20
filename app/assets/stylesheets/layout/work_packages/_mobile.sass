@@ -26,13 +26,14 @@
 // See docs/COPYRIGHT.rdoc for more details.
 //++
 @media screen and (max-width: 1248px), print
-  body.controller-work_packages
+  .router--work-packages-base
 
     // ------------- FULL SCREEN -------------------
-    &.action-show
+    &.router--work-packages-full-view
 
       #main
         #content-wrapper
+          padding: 10px 20px
           &.nomenus
             top: 0
             padding: 0
@@ -73,20 +74,16 @@
           display: none
 
 @include breakpoint(1248px down)
-  body.controller-work_packages
+  .router--work-packages-base
     // --------------- ALL WP VIEWS ---------------
     .work-packages-tabletimeline--table-side
       contain: none
-
-    .work-packages-list-view--container
-      padding: 0 5px 0 5px
 
     .toolbar-container
       padding-right: 0
 
     .attributes-key-value--key,
     .attributes-key-value--value-container
-      font-size: 1rem
       margin-bottom: 20px
 
       .inplace-edit--read-value
@@ -119,7 +116,6 @@
       font-size: 0.9rem
 
     .work-package--new-state
-      overflow: auto
       height: 100%
       padding-right: 0
 
@@ -133,7 +129,7 @@
 
 
 @include breakpoint(680px down)
-  body.controller-work_packages.action-show
+  .router--work-packages-full-view
     #content
       position: relative
     .work-packages--show-view
@@ -151,7 +147,7 @@
     .work-packages-full-view--split-container
       border-top: none
 
-  body.controller-work_packages.action-details,
-  body.controller-work_packages.action-create
+  .router--work-packages-split-view,
+  .router--work-packages-split-view-new
     .work-packages-split-view--details-side
       overflow-x: auto

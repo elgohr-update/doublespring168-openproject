@@ -17,10 +17,23 @@ zh:
     close_popup_title: 关闭弹出窗口
     close_filter_title: 关闭过滤器
     close_form_title: 关闭表单
+    boards:
+      upsale:
+        boards: Need to freely structure your work in a board view?
+        check_out_link: 签出企业版。
+      lists:
+        delete: Delete list
+    card:
+      add_new: Add new card
+      highlighting:
+        inline: 'Highlight inline:'
+        entire_card_by: Entire card by
+      remove_from_list: Remove card from list
     clipboard:
       browser_error: 您的浏览器不支持复制到剪贴板，请手动复制选定的文本。
       copied_successful: 成功复制到剪贴板!
     button_add_watcher: 添加关注者
+    button_back: 返回
     button_back_to_list_view: 返回列表视图
     button_cancel: 取消
     button_close: 关闭
@@ -36,6 +49,7 @@ zh:
     button_duplicate: 复制
     button_edit: 编辑
     button_filter: 筛选器
+    button_advanced_filter: 高级筛选
     button_list_view: 列表视图
     button_show_view: 全屏视图
     button_log_time: 记录时间
@@ -137,12 +151,42 @@ zh:
     general_text_yes: 是
     general_text_No: 否
     general_text_Yes: 是
+    grid:
+      add_modal:
+        choose_widget: 选择小部件
+      widgets:
+        documents:
+          title: 文档
+          no_results: 没有文档。
+        news:
+          title: 新闻
+          at: at
+          no_results: 没有新消息报告。
+        time_entries_current_user:
+          title: 花费时间 (最近 7天)
+          no_results: 过去7天没有时间记录。
+        work_packages_accountable:
+          title: 我负责的工作包
+        work_packages_assigned:
+          title: 分配给我的工作包
+        work_packages_created:
+          title: 我创建的工作包
+        work_packages_watched:
+          title: 由我汇报的工作包
+        work_packages_table:
+          title: 工作包
+        work_packages_calendar:
+          title: 日历
     label_activate: 激活
     label_activity_no: 活动条目编号 %{activityNo}
     label_activity_with_comment_no: 活动条目编号 %{activityNo}，有用户评论。
+    label_add_column_after: 之后添加列
+    label_add_column_before: 在之前添加列
     label_add_columns: 增添列
     label_add_comment: 添加评论
     label_add_comment_title: 写下评论并输入@ 以通知其他人
+    label_add_row_after: 之后添加行
+    label_add_row_before: 之前添加行
     label_add_selected_columns: 添加所选的列
     label_added_by: 添加人
     label_added_time_by: 由 %{author} %{age} 添加
@@ -153,7 +197,9 @@ zh:
     label_ascending: 升序
     label_author: '作者: %{user}'
     label_between: 介于
+    label_board: 面板
     label_board_locked: 锁定
+    label_board_plural: 面板
     label_board_sticky: 置顶
     label_create_work_package: 创建新的工作包
     label_created_by: 创建者
@@ -199,6 +245,7 @@ zh:
     label_menu_collapse: 折叠
     label_menu_expand: 展开
     label_more_than_ago: 更多天前
+    label_my_page: 我的页面
     label_next: 下一个
     label_no_data: 没有要显示的数据
     label_no_due_date: 没有结束日期
@@ -217,7 +264,9 @@ zh:
     label_visibility_settings: 可见性设置
     label_quote_comment: 引用这个评论
     label_reset: 重置
+    label_remove_column: 删除列
     label_remove_columns: 删除选定的列
+    label_remove_row: 删除行
     label_save_as: 另存为
     label_select_watcher: 选择一位关注者...
     label_selected_filter_list: 所选的筛选器
@@ -239,6 +288,7 @@ zh:
     label_activity_show_only_comments: 仅显示批注的活动
     label_activity_show_all: 显示所有项目
     label_total_progress: "%{percent} %总进度"
+    label_total_amount: '总计: %{amount}'
     label_updated_on: 更新于
     label_warning: 警告
     label_work_package: 工作包
@@ -268,6 +318,7 @@ zh:
     label_add_description: 为%{file} 添加说明
     label_upload_notification: 正在上传文件…
     label_work_package_upload_notification: '正在为 #%{id}: %{subject} 工作包上传文件'
+    label_wp_id_added_by: "#%{id} added by %{author}"
     label_files_to_upload: '这些文件将被上传:'
     label_rejected_files: '这些文件无法上传:'
     label_rejected_files_reason: 这些文件不能上传，因为它们大于 %{maximumFilesize}
@@ -278,28 +329,36 @@ zh:
       show_modal: 显示属性帮助文本项
     onboarding:
       buttons:
-        skip: Skip
+        skip: 跳过
         next: 下一个
         got_it: 知道了
       steps:
-        welcome: 通过三分钟的导览了解<b>最重要的功能</b> 。<br>我们建议您完成所有步骤。您可以随时重新浏览介绍。
+        help_menu: 在<b>帮助</b>菜单中，您可以找到用户指南和其他帮助资源。<br>使用 OpenProject 享受您的工作！
+        members: 邀请新<b>成员</b>加入您的项目。
         project_selection: 请选择包含有用演示数据的项目开始。<br><b>演示项目</b>最适合经典项目管理，而 <b>Scrum 项目</b>更适合敏捷项目管理。
         sidebar_arrow: 使用箭头可以导航回项目的<b>主菜单</b>。
-        members: 邀请新<b>成员</b>加入您的项目。
+        welcome: 通过三分钟的导览了解<b>最重要的功能</b> 。<br>我们建议您完成所有步骤。您可以随时重新浏览介绍。
         wiki: 在 <b>Wiki</b> 中，您可以记录并与您的团队共享知识。
-        backlogs_overview: 在 <b>Backlogs</b> 视图中管理您的工作。右边是产品 Backlog 或错误 Backlog，左边是各自的
-          sprint。<br>在这里，您可以创建<b>长篇故事、用户故事和错误</b>，通过拖放来确定优先级，以及将它们添加到 sprint 中。
-        backlogs_task_board_arrow: 要查看您的<b>任务面板</b>，请打开 Sprint 下拉菜单…
-        backlogs_task_board_select: "…并选择<b>任务面板</b>条目。"
-        backlogs_task_board: "<b>任务面板</b>将此 sprint 的进度可视化。使用用户故事旁边的 + 图标添加新任务或障碍。通过拖放可以更新状态。"
-        wp_toggler: 现在我们来看一下<b>工作包</b>部分，工作包提供了更详细的工作视图。
-        wp_list: 这是<b>工作包</b>列表，包含项目中的重要工作，例如任务、特征、里程碑和错误等。<br>您可以在这个列表中直接创建或编辑工作包。要查看工作包的详细信息，可以双击该行。
-        wp_full_view: 在<b>工作包详细信息</b>中，您可以找到所有相关信息，如描述、状态与优先级、依赖项或评论。
-        wp_back_button: 使用箭头可以导航回工作包列表。
-        wp_create_button: "<b>创建</b>按钮将为您的项目添加一个新工作包。"
-        wp_timeline_button: 您可以激活<b>甘特图</b>来为项目创建时间轴。
-        wp_timeline: 在这里您可以编辑您的项目计划。创建新的阶段、里程碑，并添加依赖项。所有团队成员都可以随时查看和更新最新计划。
-        help_menu: 在<b>帮助</b>菜单中，您可以找到用户指南和其他帮助资源。<br>使用 OpenProject 享受您的工作！
+        backlogs:
+          overview: 在 <b>Backlogs</b> 视图中管理您的工作。右边是产品 Backlog 或错误 Backlog，左边是各自的 sprint。<br>在这里，您可以创建<b>长篇故事、用户故事和错误</b>，通过拖放来确定优先级，以及将它们添加到
+            sprint 中。
+          task_board_arrow: 要查看您的<b>任务面板</b>，请打开 Sprint 下拉菜单…
+          task_board_select: "…并选择<b>任务面板</b>条目。"
+          task_board: "<b>任务面板</b>将此 sprint 的进度可视化。使用用户故事旁边的 + 图标添加新任务或障碍。通过拖放可以更新状态。"
+        boards:
+          overview: Manage your work within an intuitive <b>Boards</b> view.
+          lists: You can create multiple lists (columns) within one Board view, e.g.
+            to create a KANBAN board.
+          add: Click the + will <b>add a new card</b> to the list within a Board.
+          drag: 将卡片拖放到列表或另一列表中进行重新排序。双击将打开详细视图。
+        wp:
+          toggler: 现在我们来看一下<b>工作包</b>部分，工作包提供了更详细的工作视图。
+          list: 这是<b>工作包</b>列表，包含项目中的重要工作，例如任务、特征、里程碑和错误等。<br>您可以在这个列表中直接创建或编辑工作包。要查看工作包的详细信息，可以双击该行。
+          full_view: 在<b>工作包详细信息</b>中，您可以找到所有相关信息，如描述、状态与优先级、依赖项或评论。
+          back_button: 使用箭头可以导航回工作包列表。
+          create_button: "<b>创建</b>按钮将为您的项目添加一个新工作包。"
+          timeline_button: 您可以激活<b>甘特图</b>来为项目创建时间轴。
+          timeline: 在这里您可以编辑您的项目计划。创建新的阶段、里程碑，并添加依赖项。所有团队成员都可以随时查看和更新最新计划。
     password_confirmation:
       field_description: 输入密码以确认更改
       title: 输入密码以继续
@@ -346,6 +405,10 @@ zh:
           includes: 包括
           requires: 要求
           required: 要求于
+    time_entry:
+      activity: 活动
+      comment: 评论
+      hours: 小时
     watchers:
       label_loading: 正在加载关注者...
       label_error_loading: 加载关注者时出错
@@ -426,6 +489,7 @@ zh:
     text_query_destroy_confirmation: 确定要删除所选视图吗？
     text_attachment_destroy_confirmation: 你确定要删除这个附件?
     timelines:
+      quarter_label: Q%{quarter_number}
       gantt_chart: 甘特图
       labels:
         title: 标签配置
@@ -486,13 +550,6 @@ zh:
     tl_toolbar:
       zooms: 缩放级别
       outlines: 层次结构级别
-    unsupported_browser:
-      title: 不支持您的浏览器版本
-      message: OpenProject不再支持您现在所使用的浏览器版本。
-      update_message: 请升级您的浏览器。
-      update_ie_user: 请使用Mozilla Firefox或者Google Chrome浏览器，或者升级到Microsoft Edge浏览器。
-      learn_more: 了解更多信息
-      close_warning: 请忽略这个警告。
     upsale:
       ee_only: 企业版特定功能
     wiki_formatting:
@@ -537,18 +594,16 @@ zh:
       label_enable_multi_select: 启用多选
       label_disable_multi_select: 禁用多选
       label_filter_add: 添加筛选器
-      label_filter_by_text: Filter by text
+      label_filter_by_text: 按文本筛选
       label_options: 选项
       label_column_multiselect: '组合式的下拉字段: 使用箭头键选择，用 enter 键确认选择，用退格键删除'
-      label_switch_to_single_select: 切换为单选
-      label_switch_to_multi_select: 切换为多选
       message_error_during_bulk_delete: 试图删除工作包时出错。
       message_successful_bulk_delete: 已成功删除工作包。
       message_successful_show_in_fullscreen: 单击此处以全屏视图打开此工作包。
       message_view_spent_time: 显示这个工作包所花费的时间
       message_work_package_read_only: 工作包被锁定在此状态。除状态外，其他属性均不可更改。
       no_value: 无值
-      placeholder_filter_by_text: Subject, description, comments, ...
+      placeholder_filter_by_text: 主题, 描述, 评论,..。
       inline_create:
         title: 单击此处将新工作包添加至此列表
       create:
@@ -720,6 +775,7 @@ zh:
         has_children: '工作包有 %{childUnits}:'
         confirm_deletion_children: 我确认所列工作包的全部子工作包都将递归移除。
         deletes_children: 所有子工作包及其子级也将递归删除。
+    notice_no_results_to_display: 无可供显示的结果。
     notice_successful_create: 成功创建。
     notice_successful_delete: 成功删除。
     notice_successful_update: 成功更新。
@@ -746,7 +802,7 @@ zh:
         messages_on_field: 此字段无效：%{messages}
     error_could_not_resolve_version_name: 无法解析版本名称
     error_could_not_resolve_user_name: 不能确定用户名
-    error_attachment_upload: 文件“%{name}”传输失败：%{error}
+    error_attachment_upload: '文件上传失败: %{error}'
     error_attachment_upload_permission: 您没有上传此资源上文件的权限。
     units:
       workPackage:
@@ -762,3 +818,13 @@ zh:
     zen_mode:
       button_activate: 激活 zen 模式
       button_deactivate: 取消激活 zen 模式
+    global_search:
+      all_projects: 在所有项目中
+      search: 搜索
+      close_search: 关闭搜索
+      current_project: 在当前项目中
+      current_project_and_all_descendants: 在当前项目和子项目中
+      title:
+        all_projects: 所有项目
+        project_and_subprojects: 和所有子项目
+        search_for: 搜索

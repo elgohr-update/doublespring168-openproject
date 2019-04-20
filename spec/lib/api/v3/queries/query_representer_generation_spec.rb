@@ -33,7 +33,7 @@ describe ::API::V3::Queries::QueryRepresenter do
 
   let(:query) { FactoryBot.build_stubbed(:query, project: project) }
   let(:project) { FactoryBot.build_stubbed(:project) }
-  let(:user) { double('current_user', allowed_to?: true, admin: true, admin?: true) }
+  let(:user) { double('current_user', allowed_to?: true, admin: true, admin?: true, active?: true) }
   let(:embed_links) { true }
   let(:representer) do
     described_class.new(query, current_user: user, embed_links: embed_links)
@@ -505,6 +505,17 @@ describe ::API::V3::Queries::QueryRepresenter do
 
       it 'should indicate whether the query is publicly visible' do
         is_expected.to be_json_eql(query.is_public.to_json).at_path('public')
+      end
+
+      describe 'hidden' do
+        it 'renders when the value is not set' do
+          is_expected.to be_json_eql(false.to_json).at_path('hidden')
+        end
+
+        it 'renders when the value is set' do
+          query.hidden = true
+          is_expected.to be_json_eql(true.to_json).at_path('hidden')
+        end
       end
 
       describe 'highlighting' do

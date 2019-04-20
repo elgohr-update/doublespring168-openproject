@@ -27,9 +27,7 @@
 // ++
 
 import {MultiInputState, State} from 'reactivestates';
-import {ApiWorkPackagesService} from '../api/api-work-packages/api-work-packages.service';
 import {States} from '../states.service';
-import {WorkPackageNotificationService} from './../wp-edit/wp-notification.service';
 import {StateCacheService} from '../states/state-cache.service';
 import {SchemaCacheService} from './../schemas/schema-cache.service';
 import {WorkPackageCollectionResource} from 'core-app/modules/hal/resources/wp-collection-resource';
@@ -37,9 +35,10 @@ import {SchemaResource} from 'core-app/modules/hal/resources/schema-resource';
 import {WorkPackageResource} from 'core-app/modules/hal/resources/work-package-resource';
 import {Injectable} from '@angular/core';
 import {debugLog} from "core-app/helpers/debug_output";
+import {WorkPackageDmService} from "core-app/modules/hal/dm-services/work-package-dm.service";
 
-function getWorkPackageId(id:number | string):string {
-  return (id || '__new_work_package__').toString();
+function getWorkPackageId(id:string|null):string {
+  return (id || 'new').toString();
 }
 
 @Injectable()
@@ -48,7 +47,7 @@ export class WorkPackageCacheService extends StateCacheService<WorkPackageResour
   /*@ngInject*/
   constructor(private states:States,
               private schemaCacheService:SchemaCacheService,
-              private apiWorkPackages:ApiWorkPackagesService) {
+              private workPackageDmService:WorkPackageDmService) {
     super();
   }
 
@@ -56,14 +55,23 @@ export class WorkPackageCacheService extends StateCacheService<WorkPackageResour
     this.updateWorkPackageList([val], false);
   }
 
-  updateWorkPackage(wp:WorkPackageResource) {
-    this.updateWorkPackageList([wp], false);
+  updateWorkPackage(wp:WorkPackageResource, immediate:boolean = false):Promise<void> {
+    const wpId = getWorkPackageId(wp.id!);
+
+    if (immediate || wp.isNew) {
+      this.multiState.get(wpId).putValue(wp);
+      return Promise.resolve();
+    } else {
+      return this.schemaCacheService.ensureLoaded(wp).then(() => {
+        this.multiState.get(wpId).putValue(wp);
+      });
+    }
   }
 
   updateWorkPackageList(list:WorkPackageResource[], skipOnIdentical = true) {
     for (var i of list) {
       const wp = i;
-      const workPackageId = getWorkPackageId(wp.id);
+      const workPackageId = getWorkPackageId(wp.id!);
       const state = this.multiState.get(workPackageId);
 
       // If the work package is new, ignore the schema
@@ -72,15 +80,15 @@ export class WorkPackageCacheService extends StateCacheService<WorkPackageResour
         continue;
       }
 
-      // Check if the work package has changed
-      if (skipOnIdentical && state.hasValue() && _.isEqual(state.value!.$source, wp.$source)) {
-        debugLog('Skipping identical work package from updating');
-        continue;
-      }
-
       // Ensure the schema is loaded
       // so that no consumer needs to call schema#$load manually
       this.schemaCacheService.ensureLoaded(wp).then(() => {
+        // Check if the work package has changed
+        if (skipOnIdentical && state.hasValue() && _.isEqual(state.value!.$source, wp.$source)) {
+          debugLog('Skipping identical work package from updating');
+          return;
+        }
+
         this.multiState.get(workPackageId).putValue(wp);
       });
     }
@@ -107,7 +115,7 @@ export class WorkPackageCacheService extends StateCacheService<WorkPackageResour
 
   protected loadAll(ids:string[]) {
     return new Promise<undefined>((resolve, reject) => {
-      this.apiWorkPackages
+      this.workPackageDmService
         .loadWorkPackagesCollectionsFor(_.uniq(ids))
         .then((pagedResults:WorkPackageCollectionResource[]) => {
           _.each(pagedResults, (results) => {
@@ -134,7 +142,7 @@ export class WorkPackageCacheService extends StateCacheService<WorkPackageResour
         reject(error);
       };
 
-      this.apiWorkPackages.loadWorkPackageById(id, true)
+      this.workPackageDmService.loadWorkPackageById(id, true)
         .then((workPackage:WorkPackageResource) => {
           this.schemaCacheService.ensureLoaded(workPackage).then(() => {
             this.multiState.get(id).putValue(workPackage);

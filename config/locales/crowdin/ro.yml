@@ -57,14 +57,30 @@ ro:
     index:
       no_results_content_title: În acest moment nu există moduri de autentificare.
       no_results_content_text: Creare mod de autentificare nou
-  boards:
+  ldap_auth_sources:
+    connection_encryption: Connection encryption
+    tls_mode:
+      plain: niciunul
+      simple_tls: simple_tls
+      start_tls: start_tls
+      plain_description: Plain unencrypted connection, no TLS negotiation.
+      simple_tls_description: Implicit TLS encryption, but no certificate validation.
+        Use with caution and implicit trust of the LDAP connection.
+      start_tls_description: Explicit TLS encryption with full validation. Use for
+        LDAP over TLS/SSL.
+      section_more_info_link_html: 'This section concerns the connection security
+        of this LDAP authentication source. For more information, visit <a href="%{link}">the
+        Net::LDAP documentation</a>.
+
+'
+  forums:
     show:
-      no_results_title_text: În acest moment nu există mesaje pentru acest forum.
+      no_results_title_text: There are currently no posts for the forum.
   colors:
     index:
       no_results_title_text: În acest moment nu există culori.
       no_results_content_text: Creare culoare nouă
-    label_no_color: No color
+    label_no_color: Nicio culoare
   custom_actions:
     actions:
       name: Actions
@@ -107,6 +123,10 @@ ro:
       further_information_after: ''
     calendar:
       removal: 'Please note: This module is going to be removed with OpenProject 8.0.'
+  global_search:
+    overwritten_tabs:
+      wiki_pages: Wiki
+      messages: Forum
   groups:
     index:
       no_results_title_text: În acest moment nu există grupuri.
@@ -117,6 +137,11 @@ ro:
     memberships:
       no_results_title_text: În acest moment nu există proiecte care să facă parte
         din acest grup.
+  incoming_mails:
+    ignore_filenames: 'Specify a list of names to ignore when processing attachments
+      for incoming mails (e.g., signatures or icons). Enter one filename per line.
+
+'
   projects:
     delete:
       scheduled: Deletion has been scheduled and is perfomed in the background. You
@@ -133,9 +158,9 @@ ro:
     settings:
       activities:
         no_results_title_text: În acest moment nu există activități disponibile.
-      boards:
-        no_results_title_text: În acest moment nu există forumuri pentru acest proiect.
-        no_results_content_text: Creare forum nou
+      forums:
+        no_results_title_text: There are currently no forums for the project.
+        no_results_content_text: Create a new forum
       categories:
         no_results_title_text: În acest moment nu există categorii de pachete de lucru.
         no_results_content_text: Creare categorie de pachete de lucru nouă
@@ -171,8 +196,8 @@ ro:
   prioritiies:
     edit:
       priority_color_text: |
-        Click to assign or change the color of this priority.
-        It can be used for highlighting work packages in the table.
+        Faceți click pentru a desemna sau schimba culoarea acestui nivel de prioritate.
+        Poate fi utilizate pentru a evidenția pachetele de lucru dintr-un tabel.
   reportings:
     index:
       no_results_title_text: În acest moment nu există rapoarte de stare.
@@ -185,8 +210,8 @@ ro:
         <br/>
         <strong>Note</strong>: Inherited values (e.g., from children or relations) will still apply.
       status_color_text: |
-        Click to assign or change the color of this status.
-        It is shown in the status button and can be used for highlighting work packages in the table.
+        Faceți click pentru a desemna sau schimba culoarea pentru acest flux de lucru.
+        Acesta este afișat în butonul de statut și poate fi folosit pentru a evidenția pachetele de lucru din tabel.
     index:
       no_results_title_text: În acest moment nu există stări pentru pachetele de lucru.
       no_results_content_text: Adăugare stare nouă
@@ -223,6 +248,8 @@ ro:
       one: One descendant work package
       other: "%{count} work package descendants"
       few: "%{count} work package descendants"
+    bulk:
+      could_not_be_saved: 'The following work packages could not be saved:'
     move:
       no_common_statuses_exists: There is no status available for all selected work
         packages. Their status cannot be changed.
@@ -365,6 +392,11 @@ ro:
         subscriber: Subscriber
         encoded_token: Enterprise support token
         active_user_count_restriction: Număr maxim de utilizatori activi
+      grids/grid:
+        page: Page
+        row_count: Number of rows
+        column_count: Number of columns
+        widgets: Widgets
       relation:
         delay: Întârziere
         from: Pachet de lucru
@@ -506,6 +538,7 @@ ro:
         too_long: este prea lung (maximul admis este de %{count} caractere).
         too_short: este prea scurt (minimum admis este de %{count} caractere).
         unchangeable: cannot be changed.
+        unremovable: cannot be removed.
         wrong_length: nu are lungimea corectă (ar trebui să fie de %{count} characters).
       models:
         custom_field:
@@ -531,6 +564,10 @@ ro:
               not_match_configured: doesn't match available scopes.
         enterprise_token:
           unreadable: can't be read. Are you sure it is a support token?
+        grids/grid:
+          overlaps: overlap.
+          outside: is outside of the grid.
+          end_before_start: end value needs to be larger than the start value.
         parse_schema_filter_params_service:
           attributes:
             base:
@@ -642,7 +679,7 @@ ro:
     models:
       attachment: Fișier
       attribute_help_text: Attribute help text
-      board: Forum
+      forum: Forum
       comment: Comentariu
       custom_action: Custom action
       custom_field: Câmp personalizat
@@ -768,7 +805,6 @@ ro:
   button_print: Tipărește
   button_quote: Citare
   button_remove: Eliminare
-  button_remove_widget: Elimină secțiune
   button_rename: Redenumire
   button_replace: Replace
   button_revoke: Revoke
@@ -1046,6 +1082,7 @@ ro:
   error_can_not_remove_role: Acest rol este utilizat și nu poate fi șters.
   error_can_not_reopen_work_package_on_closed_version: Un pachet de lucru atribuit
     la o versiune închisă nu poate fi redeschis
+  error_can_not_find_all_resources: Could not find all related resources to this request.
   error_check_user_and_role: Alegeți un utilizator și un rol.
   error_cookie_missing: Cookie-ul OpenProject lipseşte. Vă rugăm să verificați setările
     referitoare la cookies, această aplicație nu va funcţiona corespunzător fără acestea.
@@ -1161,9 +1198,8 @@ ro:
       faq: Întrebări Frecvente
       glossary: Glosar
       shortcuts: Scurtături
-      forums: Forumuri
       blog: Blog-ul OpenProject
-      boards: Forum comunitate
+      forums: Forum comunitate
       newsletter: Security alerts / Newsletter
   links:
     configuration_guide: Ghid de configurare
@@ -1210,7 +1246,6 @@ ro:
   label_all_open_wps: All open
   label_always_visible: Afișat permanent
   label_announcement: Anunţ
-  label_and_its_subprojects: "%{value} şi subproiectele sale"
   label_api_access_key: Cheie de acces API
   label_api_access_key_created_on: Cheia de acces creată acum %{value}
   label_api_access_key_type: API
@@ -1230,7 +1265,7 @@ ro:
   label_authentication: Autentificare
   label_available_project_work_package_categories: Categorii de pachete de lucru disponibile
   label_available_project_work_package_types: Available work package types
-  label_available_project_boards: Planșe disponibile
+  label_available_project_forums: Available forums
   label_available_project_versions: Versiuni disponibile
   label_available_project_repositories: Arhive disponibile
   label_api_documentation: Documentație API
@@ -1238,14 +1273,15 @@ ro:
   label_blocked_by: blocat de
   label_blocks: blochează
   label_blog: Blog
-  label_board_locked: Închis
-  label_board_new: Forum nou
-  label_board_plural: Forumuri
-  label_board_sticky: Lipicios
+  label_forums_locked: Închis
+  label_forum_new: Forum nou
+  label_forum_plural: Forumuri
+  label_forum_sticky: Lipicios
   label_boolean: Valoare logică
   label_branch: Ramură
   label_browse: Răsfoire
   label_bulk_edit_selected_work_packages: Editare în masă a pachetelor de lucru selectate
+  label_bundled: "(Bundled)"
   label_calendar: Calendar
   label_calendar_show: Afișare calendar
   label_category: Categorie
@@ -1345,6 +1381,7 @@ ro:
   label_equals: este
   label_everywhere: everywhere
   label_example: Exemplu
+  label_import: Import
   label_export_to: 'Disponibil și în:'
   label_expanded_click_to_collapse: Expanded. Click to collapse
   label_f_hour: "%{value} oră"
@@ -1382,6 +1419,7 @@ ro:
   label_hierarchy_leaf: Hierarchy leaf
   label_home: Pagina de start
   label_subject_or_id: Subject or ID
+  label_impressum: Impressum
   label_in: în
   label_in_less_than: în mai puțin de
   label_in_more_than: în mai mult de
@@ -1455,7 +1493,6 @@ ro:
   label_my_account: Contul meu
   label_my_account_data: Datele din contul meu
   label_my_page: Pagina mea
-  label_my_page_block: Bloc pentru pagina mea
   label_my_projects: Proiectele mele
   label_my_queries: Interogările mele
   label_never: Niciodată
@@ -1508,6 +1545,7 @@ ro:
   label_planning: Planificare
   label_please_login: Vă rugăm să vă autentificați
   label_plugins: Module
+  label_modules_and_plugins: Modules and Plugins
   label_precedes: precede
   label_preferences: Preferinţe
   label_preview: Previzualizare
@@ -1515,6 +1553,7 @@ ro:
   label_previous_week: Săptămâna trecută
   label_principal_invite_via_email: " sau invită utilizatori folosind email"
   label_principal_search: Adăugare utilizatori sau grupuri existenți
+  label_privacy_policy: Data privacy and security policy
   label_product_version: Versiune produs
   label_professional_support: Suport profesional
   label_profile: Profil
@@ -1564,7 +1603,6 @@ ro:
   label_repository_plural: Repo-uri
   label_required: required
   label_requires: requires
-  label_responsible_for_work_packages: Work packages I am accountable for
   label_result_plural: Rezultate
   label_reverse_chronological_order: În ordine invers cronologică
   label_revision: Revizie
@@ -1581,7 +1619,6 @@ ro:
   label_role_search: Assign role to new members
   label_scm: SCM
   label_search: Căutare
-  label_search_titles_only: Căutare doar în titluri
   label_send_information: Trimite utilizatorului informațiile despre cont
   label_send_test_email: Trimite e-mail de test
   label_settings: Setări
@@ -1664,6 +1701,7 @@ ro:
   label_view_diff: Afișare diferențe
   label_view_revisions: Afișare revizii
   label_watched_work_packages: Pachete de lucru urmărite
+  label_what_is_this: What is this?
   label_week: Săptămână
   label_wiki_content_added: Pagină wiki adăugată
   label_wiki_content_updated: Pagină wiki actualizată
@@ -1766,7 +1804,6 @@ ro:
     în cadrul anumitor liste)
   label_keyboard_shortcut_focus_next_item: Focalizare pe elementul următor (doar în
     cadrul anumitor liste)
-  label_visible_elements: Elemente vizibile
   auth_source:
     using_abstract_auth_source: Nu poate fi folosită o sursă de autentificare abstractă.
     ldap_error: 'Eroare LDAP: %{error_message}'
@@ -1848,6 +1885,8 @@ ro:
   notice_account_update_failed: Setările contului nu au putut fi salvate. Vă rugăm
     să verificați datele din cont.
   notice_account_updated: Contul a fost actualizat cu succes.
+  notice_account_other_session_expired: All other sessions tied to your account have
+    been invalidated.
   notice_account_wrong_password: Parolă greşită
   notice_account_registered_and_logged_in: Bun venit, contul a fost activat. Sunteți
     autentificat.
@@ -1975,7 +2014,7 @@ ro:
   permission_export_wiki_pages: Export pagini wiki
   permission_list_attachments: Listare atașamente
   permission_log_time: Înregistrare timp consumat
-  permission_manage_boards: Gestionare forumuri
+  permission_manage_forums: Gestionare forumuri
   permission_manage_categories: Gestionare categorii de pachete de lucru
   permission_manage_work_package_relations: Gestionare relații pachete de lucru
   permission_manage_members: Gestionare participanți
@@ -2023,7 +2062,7 @@ ro:
     archive:
       are_you_sure: Sunteţi sigur că doriţi să arhivaţi proiectul '%{name}'?
   project_module_activity: Activitate
-  project_module_boards: Forumuri
+  project_module_forums: Forumuri
   project_module_calendar: Calendar
   project_module_work_package_tracking: Urmărire pachete de lucru
   project_module_news: Noutăţi
@@ -2254,15 +2293,12 @@ ro:
     toate cererile
   setting_login_required: Autentificare obligatorie
   setting_mail_from: Adresa de e-mail a expeditorului
-  setting_mail_handler_api_enabled: Activare serviciu web e-mailuri primite
-  setting_mail_handler_api_description: Procesatorul web pentru e-mail permite OpenProject
-    să primească e-mail-uri care conțin anumite comenzi ca un mecanism de instrumentație
-    (de exemplu, pentru a crea și de a actualiza pachete de lucru).
   setting_mail_handler_api_key: Cheie API
   setting_mail_handler_body_delimiters: Trunchiere e-mail-uri după una dintre aceste
     linii
   setting_mail_handler_body_delimiter_regex: Trunchiaţi email-uri care se potrivesc
     cu acest regex
+  setting_mail_handler_ignore_filenames: Ignored mail attachments
   setting_new_project_user_role_id: Rol atribuit unui utilizator non-administrator
     care crează un proiect
   setting_password_active_rules: Clase de caractere active
@@ -2275,6 +2311,7 @@ ro:
   setting_per_page_options: Opțiuni pentru obiecte pe pagină
   setting_plain_text_mail: Text e-mail simplu (fără HTML)
   setting_protocol: Protocol
+  setting_security_badge_displayed: Display security badge
   setting_registration_footer: Registration footer
   setting_repositories_automatic_managed_vendor: Tipul de furnizor pentru repo-urile
     automate
@@ -2453,6 +2490,16 @@ ro:
   text_no_notes: Nu sunt comentarii disponibile pentru acest pachet de lucru.
   text_notice_too_many_values_are_inperformant: 'Atenție: Afişarea unui număr mai
     mare de 100 de articole pe pagină poate creşte durata de încărcare.'
+  text_notice_security_badge_displayed_html: 'Note: if enabled, this will display
+    a badge with your installation status in the <a href="%{information_panel_path}">%{information_panel_label}</a>
+    administration panel, and on the home page. It is displayed to administrators
+    only. <br/> The badge will check your current OpenProject version against the
+    official OpenProject release database to alert you of any updates or known vulnerabilities.
+    For more information on what the check provides, what data is needed to provide
+    available updates, and how to disable this check, please visit <a href="%{more_info_url}">the
+    configuration documentation</a>.
+
+'
   text_own_membership_delete_confirmation: "Sunteţi cale de a elimina unele sau toate
     permisiunile şi e posibil să nu mai puteți edita acest proiect după aceea. \nSunteţi
     sigur că doriţi să continuaţi?"
@@ -2515,7 +2562,6 @@ ro:
       color: Culoare
       colors: Culori
     associations: Dependenţe
-    board_could_not_be_saved: Forumul nu a putut fi salvat
     button_delete_all: Șterge tot
     change: Schimbare în planificare
     children: Elemente subordonate
@@ -2877,6 +2923,11 @@ ro:
           revoked: The access token was revoked
           expired: The access token expired
           unknown: The access token is invalid
+  unsupported_browser:
+    title: Your browser is outdated and unsupported.
+    message: You may run into errors and degraded experience on this page.
+    update_message: Vă rugăm să actualizaţi browser-ul.
+    close_warning: Ignoră acest avertisment.
   oauth:
     application:
       singular: OAuth application
@@ -2922,13 +2973,14 @@ ro:
         API to perform actions on your behalf.
     grants:
       created_date: Approved on
-      scopes: Permissions
+      scopes: Drepturi
       successful_application_revocation: Revocation of application %{application_name}
         successful.
       none_given: No OAuth applications have been granted access to your user account.
     x_active_tokens:
       one: one active token
       other: "%{count} active token"
+      few: "%{count} active token"
     flows:
       authorization_code: Authorization code flow
       client_credentials: Client credentials flow
