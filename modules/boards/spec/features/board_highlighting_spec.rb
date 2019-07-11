@@ -78,28 +78,31 @@ describe 'Work Package boards spec', type: :feature, js: true do
     board_page = board_index.create_board action: :Status
 
     # See the work packages
-    board_page.expect_query 'Open', editable: true
+    board_page.expect_query 'Open', editable: false
     board_page.expect_card 'Open', wp.subject
     board_page.expect_card 'Open', wp2.subject
 
-    # Highlight inline
-    board_page.change_board_highlighting 'inline'
-    expect(page).to have_selector('.__hl_dot_type_' + type.id.to_s)
-    expect(page).to have_selector('.__hl_dot_type_' + type2.id.to_s)
+    # Highlight type inline is always active
+    expect(page).to have_selector('.__hl_inline_type_' + type.id.to_s)
+    expect(page).to have_selector('.__hl_inline_type_' + type2.id.to_s)
 
     # Highlight whole card by priority
     board_page.change_board_highlighting 'entire-card', 'Priority'
-    expect(page).to have_selector('.__hl_row_priority_' + priority.id.to_s)
-    expect(page).to have_selector('.__hl_row_priority_' + priority2.id.to_s)
+    expect(page).to have_selector('.__hl_background_priority_' + priority.id.to_s)
+    expect(page).to have_selector('.__hl_background_priority_' + priority2.id.to_s)
 
     # Highlight whole card by type
     board_page.change_board_highlighting 'entire-card', 'Type'
-    expect(page).to have_selector('.__hl_row_type_' + type.id.to_s)
-    expect(page).to have_selector('.__hl_row_type_' + type2.id.to_s)
+    expect(page).to have_selector('.__hl_background_type_' + type.id.to_s)
+    expect(page).to have_selector('.__hl_background_type_' + type2.id.to_s)
 
     # Disable highlighting
     board_page.change_board_highlighting 'none'
-    expect(page).not_to have_selector('.__hl_row_priority_' + priority.id.to_s)
-    expect(page).not_to have_selector('.__hl_row_priority_' + priority2.id.to_s)
+    expect(page).not_to have_selector('.__hl_background_type_' + type.id.to_s)
+    expect(page).not_to have_selector('.__hl_background_type_' + type2.id.to_s)
+
+    # Type is still shown highlighted
+    expect(page).to have_selector('.__hl_inline_type_' + type.id.to_s)
+    expect(page).to have_selector('.__hl_inline_type_' + type2.id.to_s)
   end
 end

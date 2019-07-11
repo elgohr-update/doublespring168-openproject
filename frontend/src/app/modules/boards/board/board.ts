@@ -78,4 +78,14 @@ export class Board {
   public set filters(filters:ApiV3Filter[]) {
     this.grid.options.filters = filters;
   }
+
+  public sortWidgets() {
+    this.grid.widgets = this.grid.widgets.sort((a, b) => {
+      return a.startColumn - b.startColumn;
+    });
+  }
+
+  public showStatusButton() {
+    return this.actionAttribute !== 'status';
+  }
 }

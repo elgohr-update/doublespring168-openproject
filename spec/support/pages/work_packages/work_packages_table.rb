@@ -83,9 +83,13 @@ module Pages
     end
 
     def expect_work_package_order(*ids)
-      rows = page.all '.wp-table--row'
-      ids = ids.map { |el| el.is_a?(WorkPackage) ? el.id.to_s : el.to_s }
-      expect(rows.map { |el| el['data-work-package-id'] }).to match_array(ids)
+      retry_block do
+        rows = page.all '.wp-table--row'
+        expected = ids.map { |el| el.is_a?(WorkPackage) ? el.id.to_s : el.to_s }
+        found = rows.map { |el| el['data-work-package-id'] }
+
+        raise "Order is incorrect: #{found.inspect} != #{expected.inspect}" unless found == expected
+      end
     end
 
     def expect_no_work_package_listed
@@ -124,7 +128,7 @@ module Pages
     def create_wp_split_screen(type)
       click_wp_create_button
 
-      find('#types-context-menu .menu-item', text: type, wait: 10).click
+      find('#types-context-menu .menu-item', text: type.name.upcase, wait: 10).click
 
       SplitWorkPackageCreate.new(project: project)
     end
@@ -137,14 +141,14 @@ module Pages
       click_wp_create_button
 
       expect(page)
-        .to have_selector('#types-context-menu .menu-item', text: type.name)
+        .to have_selector('#types-context-menu .menu-item', text: type.name.upcase)
     end
 
     def expect_type_not_available_for_create(type)
       click_wp_create_button
 
       expect(page)
-        .to have_no_selector('#types-context-menu .menu-item', text: type.name)
+        .to have_no_selector('#types-context-menu .menu-item', text: type.name.upcase)
     end
 
     def open_split_view(work_package)
@@ -179,12 +183,40 @@ module Pages
       FullWorkPackage.new(work_package)
     end
 
+    def drag_and_drop_work_package(from:, to:)
+      rows = page.all('.wp-table--row')
+      source = rows[from]
+      target = rows[to]
+
+      scroll_to_element(source)
+      source.hover
+
+      page
+        .driver
+        .browser
+        .action
+        .move_to(source.native)
+        .click_and_hold(source.find('.wp-table--drag-and-drop-handle', visible: false).native)
+        .perform
+
+      scroll_to_element(target)
+
+      page
+        .driver
+        .browser
+        .action
+        .move_to(target.native)
+        .release
+        .perform
+    end
+
     def row(work_package)
       table_container.find(row_selector(work_package))
     end
 
-    def row_selector(work_package)
-      ".wp-row-#{work_package.id}-table"
+    def row_selector(el)
+      id = el.is_a?(WorkPackage) ? el.id.to_s : el.to_s
+      ".wp-row-#{id}-table"
     end
 
     def edit_field(work_package, attribute)

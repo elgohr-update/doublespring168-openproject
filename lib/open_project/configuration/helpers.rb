@@ -41,6 +41,10 @@ module OpenProject
         (self['attachments_storage'] || 'file').to_sym
       end
 
+      def file_storage?
+        attachments_storage == :file
+      end
+
       def attachments_storage_path
         Rails.root.join(self['attachments_storage_path'] || 'files')
       end
@@ -72,6 +76,7 @@ module OpenProject
       def blacklisted_routes
         array self['blacklisted_routes']
       end
+
 
       def available_file_uploaders
         uploaders = {

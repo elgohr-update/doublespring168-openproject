@@ -78,7 +78,7 @@ export class WorkPackageStatusDropdownDirective extends OpContextMenuTrigger {
     const changeset = this.wpEditing.changesetFor(this.workPackage);
     changeset.setValue('status', status);
 
-    if(!this.workPackage.isNew) {
+    if (!this.workPackage.isNew) {
       changeset.save().then(() => {
         this.wpNotificationsService.showSave(this.workPackage);
         this.wpTableRefresh.request('Altered work package status via button');
@@ -93,7 +93,7 @@ export class WorkPackageStatusDropdownDirective extends OpContextMenuTrigger {
         linkText: status.name,
         postIcon: status.isReadonly ? 'icon-locked' : null,
         postIconTitle: this.I18n.t('js.work_packages.message_work_package_read_only'),
-        class: Highlighting.dotClass('status', status.id!),
+        class: Highlighting.inlineClass('status', status.id!),
         onClick: () => {
           this.updateStatus(status);
           return true;

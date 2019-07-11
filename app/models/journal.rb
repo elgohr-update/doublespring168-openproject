@@ -56,23 +56,20 @@ class Journal < ActiveRecord::Base
 
   # Ensure that no INSERT/UPDATE/DELETE statements as well as other code inside :with_write_lock
   # is run concurrently to the code inside this block, by using database locking.
-  # Note for PostgreSQL: If this is called from inside a transaction, the lock will last until the
+  # Note: If this is called from inside a transaction, the lock will last until the
   #   end of that transaction.
-  # Note for MySQL: THis method does not currently change anything (no locking at all)
-  def self.with_write_lock
-    if OpenProject::Database.mysql?
-      Journal.transaction do
-        # MySQL is very weak when combining transactions and locks. Using an emulation layer to
-        # automatically release an advisory lock at the end of the transaction
-        TransactionalLock::AdvisoryLock.new('journals.write_lock').acquire
-        yield
-      end
-    else
-      Journal.transaction do
-        ActiveRecord::Base.connection.execute("LOCK TABLE #{table_name} IN SHARE ROW EXCLUSIVE MODE")
-        yield
-      end
+  def self.with_write_lock(journable)
+    lock_name = "journal.#{journable.class}.#{journable.id}"
+
+    result = Journal.with_advisory_lock_result(lock_name, timeout_seconds: 60) do
+      yield
     end
+
+    unless result.lock_was_acquired?
+      raise "Failed to acquire write lock to journable #{journable.class} #{journable.id}"
+    end
+
+    result.result
   end
 
   def changed_data=(changed_attributes)

@@ -4,6 +4,7 @@ import {
   calculatePositionValueForDayCount,
   calculatePositionValueForDayCountingPx,
   RenderInfo,
+  timelineBackgroundElementClass,
   timelineElementCssClass,
   timelineMarkerSelectionStartClass
 } from '../wp-timeline';
@@ -19,20 +20,16 @@ import {
   classNameShowOnHover,
   WorkPackageCellLabels
 } from './wp-timeline-cell';
-import {
-  classNameBarLabel,
-  classNameLeftHandle,
-  classNameRightHandle
-} from './wp-timeline-cell-mouse-handler';
+import {classNameBarLabel, classNameLeftHandle, classNameRightHandle} from './wp-timeline-cell-mouse-handler';
 import {WorkPackageTimelineTableController} from '../container/wp-timeline-container.directive';
-import {hasChildrenInTable} from '../../../wp-fast-table/helpers/wp-table-hierarchy-helpers';
 import {WorkPackageChangeset} from '../../../wp-edit-form/work-package-changeset';
 import {WorkPackageTableTimelineService} from '../../../wp-fast-table/state/wp-table-timeline.service';
 import {DisplayFieldRenderer} from '../../../wp-edit-form/display-field-renderer';
-import Moment = moment.Moment;
 import {Injector} from '@angular/core';
 import {TimezoneService} from 'core-components/datetime/timezone.service';
 import {Highlighting} from "core-components/wp-fast-table/builders/highlighting/highlighting.functions";
+import {HierarchyRenderPass} from "core-components/wp-fast-table/builders/modes/hierarchy/hierarchy-render-pass";
+import Moment = moment.Moment;
 
 export interface CellDateMovement {
   // Target values to move work package to
@@ -79,12 +76,13 @@ export class TimelineCellRenderer {
 
     const placeholder = document.createElement('div');
     placeholder.style.pointerEvents = 'none';
-    placeholder.style.backgroundColor = '#DDDDDD';
     placeholder.style.position = 'absolute';
     placeholder.style.height = '1em';
     placeholder.style.width = '30px';
     placeholder.style.zIndex = '9999';
     placeholder.style.left = (days * renderInfo.viewParams.pixelPerDay) + 'px';
+
+    this.applyTypeColor(renderInfo, placeholder);
 
     return placeholder;
   }
@@ -204,17 +202,18 @@ export class TimelineCellRenderer {
    * @return true, if the element should still be displayed.
    *         false, if the element must be removed from the timeline.
    */
-  public update(bar:HTMLDivElement, labels:WorkPackageCellLabels|null, renderInfo:RenderInfo):boolean {
+  public update(element:HTMLDivElement, labels:WorkPackageCellLabels|null, renderInfo:RenderInfo):boolean {
     const changeset = renderInfo.changeset;
+    const bar = element.querySelector(`.${timelineBackgroundElementClass}`) as HTMLElement;
 
     const viewParams = renderInfo.viewParams;
     let start = moment(changeset.value('startDate'));
     let due = moment(changeset.value('dueDate'));
 
     if (_.isNaN(start.valueOf()) && _.isNaN(due.valueOf())) {
-      bar.style.visibility = 'hidden';
+      element.style.visibility = 'hidden';
     } else {
-      bar.style.visibility = 'visible';
+      element.style.visibility = 'visible';
     }
 
     // only start date, fade out bar to the right
@@ -232,16 +231,16 @@ export class TimelineCellRenderer {
 
     // offset left
     const offsetStart = start.diff(viewParams.dateDisplayStart, 'days');
-    bar.style.left = calculatePositionValueForDayCount(viewParams, offsetStart);
+    element.style.left = calculatePositionValueForDayCount(viewParams, offsetStart);
 
     // duration
     const duration = due.diff(start, 'days') + 1;
-    bar.style.width = calculatePositionValueForDayCount(viewParams, duration);
+    element.style.width = calculatePositionValueForDayCount(viewParams, duration);
 
     // ensure minimum width
     if (!_.isNaN(start.valueOf()) || !_.isNaN(due.valueOf())) {
       const minWidth = _.max([renderInfo.viewParams.pixelPerDay, 2]);
-      bar.style.minWidth = minWidth + 'px';
+      element.style.minWidth = minWidth + 'px';
     }
 
     // Update labels if any
@@ -251,6 +250,7 @@ export class TimelineCellRenderer {
 
     this.checkForActiveSelectionMode(renderInfo, bar);
     this.checkForSpecialDisplaySituations(renderInfo, bar);
+    this.applyTypeColor(renderInfo, bar);
 
     return true;
   }
@@ -306,24 +306,27 @@ export class TimelineCellRenderer {
    * start to finish date.
    */
   public render(renderInfo:RenderInfo):HTMLDivElement {
+    const container = document.createElement('div');
     const bar = document.createElement('div');
     const left = document.createElement('div');
     const right = document.createElement('div');
 
-    bar.className = timelineElementCssClass + ' ' + this.type;
+    container.className = timelineElementCssClass + ' ' + this.type;
+    bar.className = timelineBackgroundElementClass;
     left.className = classNameLeftHandle;
     right.className = classNameRightHandle;
-    bar.appendChild(left);
-    bar.appendChild(right);
+    container.appendChild(bar);
+    container.appendChild(left);
+    container.appendChild(right);
 
-    return bar;
+    return container;
   }
 
   createAndAddLabels(renderInfo:RenderInfo, element:HTMLElement):WorkPackageCellLabels {
     // create center label
     const labelCenter = document.createElement('div');
     labelCenter.classList.add(classNameBarLabel);
-    this.applyTypeColor(renderInfo.workPackage, labelCenter);
+    this.applyTypeColor(renderInfo, labelCenter);
     element.appendChild(labelCenter);
 
     // create left label
@@ -362,15 +365,24 @@ export class TimelineCellRenderer {
     return labels;
   }
 
-  protected applyTypeColor(wp:WorkPackageResource, element:HTMLElement):void {
+  protected applyTypeColor(renderInfo:RenderInfo, bg:HTMLElement):void {
+    let wp = renderInfo.workPackage;
     let type = wp.type;
+    let selectionMode = renderInfo.viewParams.activeSelectionMode;
 
-    if (!type) {
-      element.style.backgroundColor = this.fallbackColor;
+    if (!type && !selectionMode) {
+      bg.style.backgroundColor = this.fallbackColor;
+    } else {
+      bg.style.backgroundColor = '';
     }
 
+    // Don't apply the class in selection mode or for parents (clamps)
     const id = type.id;
-    element.classList.add(Highlighting.rowClass('type', id!));
+    if (selectionMode || this.isParentWithVisibleChildren(wp)) {
+      bg.classList.remove(Highlighting.backgroundClass('type', id!));
+    } else {
+      bg.classList.add(Highlighting.backgroundClass('type', id!));
+    }
   }
 
   protected assignDate(changeset:WorkPackageChangeset, attributeName:string, value:moment.Moment) {
@@ -387,24 +399,22 @@ export class TimelineCellRenderer {
    */
   checkForSpecialDisplaySituations(renderInfo:RenderInfo, bar:HTMLElement) {
     const wp = renderInfo.workPackage;
+    let selectionMode = renderInfo.viewParams.activeSelectionMode;
 
-    // Cannot eddit the work package if it has children
-    if (!wp.isLeaf) {
+    // Cannot edit the work package if it has children
+    if (!wp.isLeaf && !selectionMode) {
       bar.classList.add('-readonly');
+    } else {
+      bar.classList.remove('-readonly');
     }
 
     // Display the parent as clamp-style when it has children in the table
-    if (this.workPackageTimeline.inHierarchyMode &&
-      hasChildrenInTable(wp, this.workPackageTimeline.workPackageTable)) {
-      // this.applyTypeColor(wp, bar);
+    if (this.isParentWithVisibleChildren(wp)) {
       bar.classList.add('-clamp-style');
       bar.style.borderStyle = 'solid';
       bar.style.borderWidth = '2px';
       bar.style.borderBottom = 'none';
       bar.style.background = 'none';
-    } else {
-      // Apply the background color
-      this.applyTypeColor(renderInfo.workPackage, bar);
     }
   }
 
@@ -460,5 +470,14 @@ export class TimelineCellRenderer {
     } else if (label) {
       label.classList.remove('not-empty');
     }
+  }
+
+  protected isParentWithVisibleChildren(wp:WorkPackageResource):boolean {
+    if (!this.workPackageTimeline.inHierarchyMode) {
+      return false;
+    }
+
+    const renderPass = this.workPackageTimeline.workPackageTable.lastRenderPass! as HierarchyRenderPass;
+    return !!renderPass.parentsWithVisibleChildren[wp.id!];
   }
 }

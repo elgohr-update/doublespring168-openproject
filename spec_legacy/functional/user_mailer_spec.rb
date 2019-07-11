@@ -95,10 +95,6 @@ describe UserMailer, type: :mailer do
                       'This commit fixes #1, #2 and references #1 and #3',
                       text: "r#{changeset.revision}"
       end
-      # link to an attachment
-      assert_select 'a[href=?]',
-                    "https://mydomain.foo/attachments/#{attachment.id}/#{attachment.filename}",
-                    text: "#{attachment.filename}"
     end
   end
 
@@ -139,10 +135,6 @@ describe UserMailer, type: :mailer do
                         'This commit fixes #1, #2 and references #1 and #3',
                         text: "r#{changeset.revision}"
         end
-        # link to an attachment
-        assert_select 'a[href=?]',
-                      "http://mydomain.foo/rdm/attachments/#{attachment.id}/#{attachment.filename}",
-                      text: "#{attachment.filename}"
       end
     end
   end
@@ -396,7 +388,9 @@ describe UserMailer, type: :mailer do
   context 'layout',
           with_settings: {
             available_languages: [:en, :de],
-            localized_emails_header: 'deutscher header'
+            emails_header: {
+              "de" => 'deutscher header'
+            }
           } do
     it 'should include the emails_header depeding on the locale' do
       user = FactoryBot.create(:user, language: :de)

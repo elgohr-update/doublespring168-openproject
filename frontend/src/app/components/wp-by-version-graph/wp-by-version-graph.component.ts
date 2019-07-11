@@ -9,12 +9,13 @@ import {I18nService} from "core-app/modules/common/i18n/i18n.service";
 @Component({
   selector: 'wp-by-version-graph',
   templateUrl: './wp-by-version-graph.template.html',
+  styleUrls: ['./wp-by-version-graph.sass']
 })
 
 export class WorkPackageByVersionGraphComponent implements OnInit {
   @Input() versionId:number;
-  @ViewChild('wpEmbeddedGraphMulti') private embeddedGraphMulti:WorkPackageEmbeddedGraphComponent;
-  @ViewChild('wpEmbeddedGraphSingle') private embeddedGraphSingle:WorkPackageEmbeddedGraphComponent;
+  @ViewChild('wpEmbeddedGraphMulti', { static: false }) private embeddedGraphMulti:WorkPackageEmbeddedGraphComponent;
+  @ViewChild('wpEmbeddedGraphSingle', { static: false }) private embeddedGraphSingle:WorkPackageEmbeddedGraphComponent;
   public groupBy:string = 'status';
   public datasets:WorkPackageEmbeddedGraphDataset[] = [];
   public displayModeSingle = true;

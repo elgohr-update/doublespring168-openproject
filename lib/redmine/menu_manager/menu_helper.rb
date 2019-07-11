@@ -61,6 +61,7 @@ module Redmine::MenuManager::MenuHelper
     links = []
 
     menu_items = first_level_menu_items_for(menu, project) do |node|
+      @menu = menu
       links << render_menu_node(node, project)
     end
 
@@ -145,7 +146,7 @@ module Redmine::MenuManager::MenuHelper
     content_tag :li, html_options do
       # Standard children
       standard_children_list = node.children.map { |child|
-        render_menu_node(child, project)
+        render_menu_node(child, project) if visible_node?(@menu, child)
       }.join.html_safe
 
       # Unattached children
@@ -186,7 +187,6 @@ module Redmine::MenuManager::MenuHelper
   def render_single_menu_node(item, caption, url, selected)
     link_text = ''.html_safe
     link_text << op_icon(item.icon) if item.icon.present?
-    link_text << you_are_here_info(selected)
     link_text << content_tag(:span,
                              class: "menu-item--title ellipsis #{item.badge.present? ? '-has-badge' : ''}",
                              lang: menu_item_locale(item)) do
@@ -320,7 +320,7 @@ module Redmine::MenuManager::MenuHelper
   def badge_for(item)
     badge = ''.html_safe
     if item.badge.present?
-      badge += ' '.html_safe + content_tag('span', I18n.t(item.badge), class: 'main-item--badge')
+      badge += content_tag('span', I18n.t(item.badge), class: 'main-item--badge')
     end
     badge
   end

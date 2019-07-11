@@ -7,7 +7,9 @@ import {
   Injector,
   Input,
   OnInit,
-  ViewChild
+  ViewChild,
+  EventEmitter,
+  Output
 } from "@angular/core";
 import {QueryResource} from 'core-app/modules/hal/resources/query-resource';
 import {IsolatedQuerySpace} from "core-app/modules/work_packages/query-space/isolated-query-space";
@@ -19,10 +21,7 @@ import {CurrentProjectService} from "core-components/projects/current-project.se
 import {WorkPackageInlineCreateService} from "core-components/wp-inline-create/wp-inline-create.service";
 import {IWorkPackageCreateServiceToken} from "core-components/wp-new/wp-create.service.interface";
 import {WorkPackageCreateService} from "core-components/wp-new/wp-create.service";
-import {DragAndDropService} from "core-app/modules/boards/drag-and-drop/drag-and-drop.service";
-import {ReorderQueryService} from "core-app/modules/boards/drag-and-drop/reorder-query.service";
 import {AngularTrackingHelpers} from "core-components/angular/tracking-functions";
-import {DragAndDropHelpers} from "core-app/modules/boards/drag-and-drop/drag-and-drop.helpers";
 import {WorkPackageNotificationService} from "core-components/wp-edit/wp-notification.service";
 import {Highlighting} from "core-components/wp-fast-table/builders/highlighting/highlighting.functions";
 import {WorkPackageChangeset} from "core-components/wp-edit-form/work-package-changeset";
@@ -30,9 +29,13 @@ import {CardHighlightingMode} from "core-components/wp-fast-table/builders/highl
 import {AuthorisationService} from "core-app/modules/common/model-auth/model-auth.service";
 import {StateService} from "@uirouter/core";
 import {States} from "core-components/states.service";
-import {input} from "reactivestates";
-import {switchMap, tap} from "rxjs/operators";
 import {RequestSwitchmap} from "core-app/helpers/rxjs/request-switchmap";
+import {DragAndDropService} from "core-app/modules/common/drag-and-drop/drag-and-drop.service";
+import {ReorderQueryService} from "core-app/modules/common/drag-and-drop/reorder-query.service";
+import {DragAndDropHelpers} from "core-app/modules/common/drag-and-drop/drag-and-drop.helpers";
+import {PathHelperService} from "core-app/modules/common/path-helper/path-helper.service";
+import {filter} from 'rxjs/operators';
+import {CausedUpdatesService} from "core-app/modules/boards/board/caused-updates/caused-updates.service";
 
 
 @Component({
@@ -42,7 +45,8 @@ import {RequestSwitchmap} from "core-app/helpers/rxjs/request-switchmap";
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class WorkPackageCardViewComponent  implements OnInit {
-  @Input() public dragAndDropEnabled:boolean;
+  @Input('dragOutOfHandler') public canDragOutOf:(wp:WorkPackageResource) => boolean;
+  @Input() public dragInto:boolean;
   @Input() public highlightingMode:CardHighlightingMode;
   @Input() public workPackageAddedHandler:(wp:WorkPackageResource) => Promise<unknown>;
   @Input() public showStatusButton:boolean = true;
@@ -72,14 +76,16 @@ export class WorkPackageCardViewComponent  implements OnInit {
   @Input() public cardsRemovable:boolean = false;
 
   /** Container reference */
-  @ViewChild('container') public container:ElementRef;
+  @ViewChild('container', { static: true }) public container:ElementRef;
 
   /** Whether the card view has an active inline created wp */
   public activeInlineCreateWp?:WorkPackageResource;
 
   // We remember when we want to update the query with a given order
   private queryUpdates = new RequestSwitchmap(
-    (order:string[]) => this.reorderService.saveOrderInQuery(this.query, order)
+    (order:string[]) => {
+      return this.reorderService.saveOrderInQuery(this.query, order);
+    }
   );
 
   constructor(readonly querySpace:IsolatedQuerySpace,
@@ -94,7 +100,9 @@ export class WorkPackageCardViewComponent  implements OnInit {
               readonly dragService:DragAndDropService,
               readonly reorderService:ReorderQueryService,
               readonly authorisationService:AuthorisationService,
-              readonly cdRef:ChangeDetectorRef) {
+              readonly causedUpdates:CausedUpdatesService,
+              readonly cdRef:ChangeDetectorRef,
+              readonly pathHelper:PathHelperService) {
   }
 
   ngOnInit() {
@@ -105,9 +113,13 @@ export class WorkPackageCardViewComponent  implements OnInit {
     // Keep query loading requests
     this.queryUpdates
       .observe(componentDestroyed(this))
-      .subscribe({
-        error: (error:any) => this.wpNotifications.handleRawError(error)
-      });
+      .subscribe(
+        (query:QueryResource) => {
+          this.causedUpdates.add(query);
+          this.querySpace.query.putValue((query));
+        },
+        (error:any) => this.wpNotifications.handleRawError(error)
+      );
 
     // Update permission on model updates
     this.authorisationService
@@ -121,7 +133,8 @@ export class WorkPackageCardViewComponent  implements OnInit {
     this.querySpace.query
     .values$()
     .pipe(
-      untilComponentDestroyed(this)
+      untilComponentDestroyed(this),
+      filter((query) => !this.causedUpdates.includes(query))
     ).subscribe((query:QueryResource) => {
       this.query = query;
       this.workPackages = query.results.elements;
@@ -131,10 +144,6 @@ export class WorkPackageCardViewComponent  implements OnInit {
 
   ngOnDestroy():void {
     this.dragService.remove(this.container.nativeElement);
-  }
-
-  public hasAssignee(wp:WorkPackageResource) {
-    return !!wp.assignee;
   }
 
   public handleDblClick(wp:WorkPackageResource) {
@@ -149,11 +158,20 @@ export class WorkPackageCardViewComponent  implements OnInit {
   }
 
   public wpTypeAttribute(wp:WorkPackageResource) {
-    return wp.type.name + ':';
+    return wp.type.name;
   }
 
   public wpSubject(wp:WorkPackageResource) {
     return wp.subject;
+  }
+
+  public bcfSnapshotPath(wp:WorkPackageResource) {
+    let vp = _.get(wp, 'bcf.viewpoints[0]');
+    if (vp) {
+      return this.pathHelper.attachmentDownloadPath(vp.id, vp.file_name);
+    } else {
+      return null;
+    }
   }
 
   public cardHighlightingClass(wp:WorkPackageResource) {
@@ -161,28 +179,31 @@ export class WorkPackageCardViewComponent  implements OnInit {
   }
 
   public typeHighlightingClass(wp:WorkPackageResource) {
-    return this.attributeDotHighlighting('type', wp);
+    return this.attributeHighlighting('type', wp);
   }
 
   private cardHighlighting(wp:WorkPackageResource) {
     if (['status', 'priority', 'type'].includes(this.highlightingMode)) {
-      return Highlighting.rowClass(this.highlightingMode, wp[this.highlightingMode].id);
+      return Highlighting.backgroundClass(this.highlightingMode, wp[this.highlightingMode].id);
     }
     return '';
   }
 
-  private attributeDotHighlighting(type:string, wp:WorkPackageResource) {
-    if (this.highlightingMode === 'inline') {
-      return Highlighting.dotClass(type, wp.type.id!);
-    }
-    return '';
+  private attributeHighlighting(type:string, wp:WorkPackageResource) {
+    return Highlighting.inlineClass(type, wp.type.id!);
   }
 
   registerDragAndDrop() {
     this.dragService.register({
       dragContainer: this.container.nativeElement,
       scrollContainers: [this.container.nativeElement],
-      moves: (card:HTMLElement) => this.dragAndDropEnabled && !card.dataset.isNew,
+      moves: (card:HTMLElement) => {
+        const wpId:string = card.dataset.workPackageId!;
+        const workPackage = this.states.workPackages.get(wpId).value!;
+
+        return this.canDragOutOf(workPackage) && !card.dataset.isNew;
+      },
+      accepts: () => this.dragInto,
       onMoved: (card:HTMLElement) => {
         const wpId:string = card.dataset.workPackageId!;
         const toIndex = DragAndDropHelpers.findIndex(card);
@@ -215,7 +236,7 @@ export class WorkPackageCardViewComponent  implements OnInit {
    */
   private get currentOrder():string[] {
     return this.workPackages
-      .filter(wp => !wp.isNew)
+      .filter(wp => wp && !wp.isNew)
       .map(el => el.id!);
   }
 

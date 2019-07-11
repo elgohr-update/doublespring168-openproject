@@ -47,6 +47,7 @@ $table-timeline--compact-row-height: 28px
   // Allow scrolling in narrow views
   .work-packages-split-view--tabletimeline-content
     overflow: auto
+    @include styled-scroll-bar
 
   // Disable css containment since we have no inner elements
   .work-packages-tabletimeline--table-side,
@@ -96,6 +97,12 @@ $table-timeline--compact-row-height: 28px
     .wp-table--context-menu-td,
     .wp-table--context-menu-th
       width: 25px
+
+  // Ensure embedded timelines share 50% width
+  // with table side
+  .work-packages-tabletimeline--table-side.-timeline-visible
+    max-width: 50%
+    overflow-x: scroll
 
 wp-query-group .wp-relations-create-button
   margin-left: -6px

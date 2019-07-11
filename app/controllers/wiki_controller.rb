@@ -53,8 +53,6 @@ class WikiController < ApplicationController
                                               history
                                               diff
                                               annotate
-                                              add_attachment
-                                              list_attachments
                                               destroy]
   before_action :build_wiki_page_and_content, only: %i[new create]
 
@@ -345,20 +343,6 @@ class WikiController < ApplicationController
     end
   end
 
-  def add_attachment
-    return render_403 unless editable?
-    @page.attach_files(permitted_params.attachments.to_h)
-    @page.save
-    redirect_to action: 'show', id: @page, project_id: @project
-  end
-
-  def list_attachments
-    respond_to do |format|
-      format.json { render 'common/list_attachments', locals: { attachments: @page.attachments } }
-      format.html
-    end
-  end
-
   def current_menu_item_sym(page)
     page = page_for_menu_item(page)
 
@@ -393,7 +377,7 @@ class WikiController < ApplicationController
   end
 
   def wiki_page_title
-    params[:title] || action_name == 'new_child' ? '' : params[:id].to_s.capitalize.tr('-', ' ')
+    params[:title] || (action_name == 'new_child' ? '' : params[:id].to_s.capitalize.tr('-', ' '))
   end
 
   def find_wiki

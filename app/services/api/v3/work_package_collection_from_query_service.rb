@@ -30,17 +30,17 @@ module API
   module V3
     class WorkPackageCollectionFromQueryService
       include Utilities::PathHelper
-      include ::API::Utilities::ParamsHelper
+      include ::API::Utilities::PageSizeHelper
 
       def initialize(query, user)
         self.query = query
         self.current_user = user
       end
 
-      def call(params = {})
+      def call(params = {}, valid_subset: false)
         update = UpdateQueryFromV3ParamsService
                  .new(query, current_user)
-                 .call(params)
+                 .call(params, valid_subset: valid_subset)
 
         if update.success?
           representer = results_to_representer(params)

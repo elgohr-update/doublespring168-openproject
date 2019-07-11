@@ -245,9 +245,7 @@ class PermittedParams
     whitelisted = type_params.permit(*permitted)
 
     if type_params[:attribute_groups]
-      whitelisted[:attribute_groups] = JSON
-                                       .parse(type_params[:attribute_groups])
-                                       .map { |group| [(group[2] ? group[0].to_sym : group[0]), group[1]] }
+      whitelisted[:attribute_groups] = JSON.parse(type_params[:attribute_groups])
     end
 
     whitelisted
@@ -305,12 +303,7 @@ class PermittedParams
                                                 type_ids: [],
                                                 enabled_module_names: [])
 
-    unless params[:project][:custom_field_values].nil?
-      # Permit the sub-hash for custom_field_values
-      whitelist[:custom_field_values] = params[:project][:custom_field_values].permit!
-    end
-
-    whitelist
+    whitelist.merge(custom_field_values(:project))
   end
 
   def time_entry
@@ -611,6 +604,8 @@ class PermittedParams
           :is_milestone,
           :is_default,
           :color_id,
+          :default,
+          :description,
           project_ids: []
         ],
         user: %i(

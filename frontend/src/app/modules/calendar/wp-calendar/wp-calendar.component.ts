@@ -1,4 +1,4 @@
-import {Component, ElementRef, Input, OnDestroy, OnInit, ViewChild, SecurityContext} from "@angular/core";
+import {Component, ElementRef, Input, OnDestroy, OnInit, SecurityContext, ViewChild} from "@angular/core";
 import {CalendarComponent} from 'ng-fullcalendar';
 import {Options} from 'fullcalendar';
 import {States} from "core-components/states.service";
@@ -7,25 +7,25 @@ import {untilComponentDestroyed} from "ng2-rx-componentdestroyed";
 import {WorkPackageResource} from "core-app/modules/hal/resources/work-package-resource";
 import {WorkPackageCollectionResource} from "core-app/modules/hal/resources/wp-collection-resource";
 import {WorkPackageTableFiltersService} from "core-components/wp-fast-table/state/wp-table-filters.service";
+import * as moment from "moment";
 import {Moment} from "moment";
 import {WorkPackagesListService} from "core-components/wp-list/wp-list.service";
 import {StateService} from "@uirouter/core";
 import {UrlParamsHelperService} from "core-components/wp-query/url-params-helper";
-import * as moment from "moment";
 import {I18nService} from "core-app/modules/common/i18n/i18n.service";
 import {NotificationsService} from "core-app/modules/common/notifications/notifications.service";
 import {DomSanitizer} from "@angular/platform-browser";
 import {WorkPackagesListChecksumService} from "core-components/wp-list/wp-list-checksum.service";
-import {QueryFilterInstanceResource} from "core-app/modules/hal/resources/query-filter-instance-resource";
 import {OpTitleService} from "core-components/html/op-title.service";
 
 @Component({
   templateUrl: './wp-calendar.template.html',
+  styleUrls: ['./wp-calendar.sass'],
   selector: 'wp-calendar',
 })
 export class WorkPackagesCalendarController implements OnInit, OnDestroy {
   calendarOptions:Options;
-  @ViewChild(CalendarComponent) ucCalendar:CalendarComponent;
+  @ViewChild(CalendarComponent, { static: false }) ucCalendar:CalendarComponent;
   @Input() projectIdentifier:string;
   @Input() static:boolean = false;
   static MAX_DISPLAYED = 100;
@@ -164,11 +164,14 @@ export class WorkPackagesCalendarController implements OnInit, OnDestroy {
       let startDate = this.eventDate(workPackage, 'start');
       let endDate = this.eventDate(workPackage, 'due');
 
+      let exclusiveEnd = moment(endDate).add(1, 'days');
+
       return {
         title: workPackage.subject,
         start: startDate,
-        end: endDate,
-        className: `__hl_row_type_${workPackage.type.id}`,
+        end: exclusiveEnd,
+        allDay: true,
+        className: `__hl_background_type_${workPackage.type.id}`,
         workPackage: workPackage
       };
     });

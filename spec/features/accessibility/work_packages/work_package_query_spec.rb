@@ -39,9 +39,6 @@ describe 'Work package index accessibility', type: :feature, selenium: true do
 
   def visit_index_page
     work_packages_page.visit_index
-    # ensure the page is loaded before expecting anything
-    expect(page).to have_selector('#operators-status', visible: false),
-                    'Page was not fully loaded'
   end
 
   before do
@@ -51,15 +48,7 @@ describe 'Work package index accessibility', type: :feature, selenium: true do
   end
 
   after do
-    # Ensure that all requests have fired and are answered.  Otherwise one
-    # spec can interfere with the next when a request of the former is still
-    # running in the one process but the other process has already removed
-    # the data in the db to prepare for the next spec.
-    #
-    # Taking an element, that get's activated late in the page setup.
-    expect(page).to have_selector('.advanced-filters--filter label',
-                                  text: I18n.t(:label_status),
-                                  visible: false)
+    work_packages_page.ensure_loaded
   end
 
   describe 'Sort link', js: true do
@@ -126,7 +115,7 @@ describe 'Work package index accessibility', type: :feature, selenium: true do
 
     describe 'id column' do
       let(:link_caption) { 'ID' }
-      let(:column_header_selector) { '.work-package-table--container th:nth-of-type(1)' }
+      let(:column_header_selector) { '.work-package-table--container th:nth-of-type(3)' }
       let(:column_header_link_selector) { column_header_selector + ' a' }
 
       it_behaves_like 'sortable column'
@@ -134,7 +123,7 @@ describe 'Work package index accessibility', type: :feature, selenium: true do
 
     describe 'subject column' do
       let(:link_caption) { 'Subject' }
-      let(:column_header_selector) { '.work-package-table--container th:nth-of-type(2)' }
+      let(:column_header_selector) { '.work-package-table--container th:nth-of-type(4)' }
       let(:column_header_link_selector) { column_header_selector + ' #subject' }
 
       it_behaves_like 'sortable column'
@@ -142,7 +131,7 @@ describe 'Work package index accessibility', type: :feature, selenium: true do
 
     describe 'type column' do
       let(:link_caption) { 'Type' }
-      let(:column_header_selector) { '.work-package-table--container th:nth-of-type(3)' }
+      let(:column_header_selector) { '.work-package-table--container th:nth-of-type(2)' }
       let(:column_header_link_selector) { column_header_selector + ' a' }
 
       it_behaves_like 'sortable column'
@@ -150,7 +139,7 @@ describe 'Work package index accessibility', type: :feature, selenium: true do
 
     describe 'status column' do
       let(:link_caption) { 'Status' }
-      let(:column_header_selector) { '.work-package-table--container th:nth-of-type(4)' }
+      let(:column_header_selector) { '.work-package-table--container th:nth-of-type(5)' }
       let(:column_header_link_selector) { column_header_selector + ' a' }
 
       it_behaves_like 'sortable column'
@@ -158,7 +147,7 @@ describe 'Work package index accessibility', type: :feature, selenium: true do
 
     describe 'assigned to column' do
       let(:link_caption) { 'Assignee' }
-      let(:column_header_selector) { '.work-package-table--container th:nth-of-type(5)' }
+      let(:column_header_selector) { '.work-package-table--container th:nth-of-type(6)' }
       let(:column_header_link_selector) { column_header_selector + ' a' }
 
       it_behaves_like 'sortable column'
@@ -176,10 +165,10 @@ describe 'Work package index accessibility', type: :feature, selenium: true do
 
     context 'focus' do
       let(:first_link_selector) do
-        ".wp-row-#{work_package.id} td.id a"
+        ".wp-row-#{work_package.id} .wp-table--cell-span.type"
       end
       let(:second_link_selector) do
-        ".wp-row-#{another_work_package.id} td.id a"
+        ".wp-row-#{another_work_package.id} .wp-table--cell-span.type"
       end
 
       it 'navigates with J and K' do

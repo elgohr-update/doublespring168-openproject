@@ -89,8 +89,11 @@ module DemoData
 
       statuses.to_a.map do |status|
         Query.new_default(project: project, user: admin).tap do |query|
-          # Hide the query
+          # Hide the query in the main menu
           query.hidden = true
+
+          # Make it public so that new members can see it too
+          query.is_public = true
 
           query.name = status.name
           # Set filter by this status
@@ -107,6 +110,7 @@ module DemoData
     def seed_basic_board
       board = ::Boards::Grid.new project: project
       board.name = project_data_for(key, 'boards.basic.name')
+      board.options = { 'highlightingMode' => 'priority' }
 
       board.widgets = seed_basic_board_queries.each_with_index.map do |query, i|
         Grids::Widget.new start_row: 1, end_row: 2,
@@ -125,12 +129,25 @@ module DemoData
     def seed_basic_board_queries
       admin = User.admin.first
 
-      lists = query_list_work_package_association
+      wps = if project.name === 'Scrum project'
+              scrum_query_work_packages
+            else
+              basic_query_work_packages
+            end
+
+      lists = [{ name: 'Today', wps: wps[0] },
+               { name: 'Tomorrow', wps: wps[1] },
+               { name: 'Later', wps: wps[2] },
+               { name: 'Never', wps: wps[3] }]
 
       lists.map do |list|
         Query.new(project: project, user: admin).tap do |query|
-          # Hide the query
+          # Hide the query in the main menu
           query.hidden = true
+
+          # Make it public so that new members can see it too
+          query.is_public = true
+
           query.name = list[:name]
 
           # Set manual sort filter
@@ -141,25 +158,30 @@ module DemoData
           query.save!
         end
       end
+
     end
 
-    def query_list_work_package_association
-      wps = [
-        [WorkPackage.find_by(subject: 'Plan a hiking trip').id,
-         WorkPackage.find_by(subject: 'Sow flowers').id,
-         WorkPackage.find_by(subject: 'Cut the lawn').id,
-         WorkPackage.find_by(subject: 'Cut trees').id],
-        [WorkPackage.find_by(subject: 'Visit the fire department').id],
-        [WorkPackage.find_by(subject: 'Visit the ocean').id,
-         WorkPackage.find_by(subject: 'Learn how to dive').id],
-        [WorkPackage.find_by(subject: 'Eat more bananas').id,
-         WorkPackage.find_by(subject: 'Buy a parasol').id]
+    def scrum_query_work_packages
+      [
+        [WorkPackage.find_by(subject: 'New website').id,
+         WorkPackage.find_by(subject: 'SSL certificate').id,
+         WorkPackage.find_by(subject: 'Choose a content management system').id],
+        [WorkPackage.find_by(subject: 'New login screen').id],
+        [WorkPackage.find_by(subject: 'Set-up Staging environment').id],
+        [WorkPackage.find_by(subject: 'Wrong hover color').id]
       ]
+    end
 
-      [{ name: 'Green list', wps: wps[0] },
-       { name: 'Red list', wps: wps[1] },
-       { name: 'Blue list', wps: wps[2] },
-       { name: 'Yellow list', wps: wps[3] }]
+    def basic_query_work_packages
+      [
+        [WorkPackage.find_by(subject: 'Create a new project').id,
+         WorkPackage.find_by(subject: 'Edit a work package').id,
+         WorkPackage.find_by(subject: 'Create work packages').id,
+         WorkPackage.find_by(subject: 'Activate further modules').id],
+        [WorkPackage.find_by(subject: 'Create a project plan').id],
+        [WorkPackage.find_by(subject: 'Invite new team members').id],
+        [WorkPackage.find_by(subject: 'Customize project overview page').id]
+      ]
     end
   end
 end

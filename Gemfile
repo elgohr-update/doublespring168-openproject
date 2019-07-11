@@ -103,11 +103,6 @@ gem 'bcrypt', '~> 3.1.6'
 
 gem 'multi_json', '~> 1.13.1'
 gem 'oj', '~> 3.7.0'
-# We rely on this specific version, which is the latest as of now (start of 2019),
-# because we have to apply to it a bugfix which could break things in other versions.
-# This can be removed as soon as said bugfix is integrated into rabl itself.
-# See: config/initializers/rabl_hack.rb
-gem 'rabl', '~> 0.14.0'
 
 gem 'daemons'
 gem 'delayed_job_active_record', '~> 4.1.1'
@@ -138,8 +133,7 @@ gem 'lograge', '~> 0.10.0'
 # don't require by default, instead load on-demand when actually configured
 gem 'airbrake', '~> 8.0.1', require: false
 
-gem 'transactional_lock', git: 'https://github.com/finnlabs/transactional_lock.git',
-                          branch: 'master'
+gem 'with_advisory_lock'
 
 gem 'prawn', '~> 2.2'
 gem 'prawn-table', '~> 0.2.2'
@@ -165,7 +159,6 @@ gem 'autoprefixer-rails', '~> 9.4.5'
 # use until proper release no longer requiring sass exists
 gem 'bourbon', git: 'https://github.com/sikachu/bourbon', ref: 'a12ca168e74d3468c80500b21b525a4e12a19ef9'
 gem 'i18n-js', '~> 3.2.0'
-gem 'sass-rails'
 gem 'sassc-rails', '~> 2.1.0'
 gem 'sprockets', '~> 3.7.0'
 
@@ -173,7 +166,7 @@ gem 'sprockets', '~> 3.7.0'
 # also, better than thin since we can control worker concurrency.
 gem 'unicorn'
 
-gem 'nokogiri', '~> 1.10.0'
+gem 'nokogiri', '~> 1.10.3'
 
 gem 'carrierwave', '~> 1.3.1'
 gem 'fog-aws'
@@ -249,7 +242,7 @@ end
 group :development do
   gem 'faker'
   gem 'letter_opener'
-  gem 'livingstyleguide', '~> 2.0.1'
+  gem 'livingstyleguide', '~> 2.1.0'
 
   gem 'spring'
   gem 'spring-commands-rspec'
@@ -258,7 +251,7 @@ group :development do
 end
 
 group :development, :test do
-  gem 'puma', '~> 3.12.0'
+  gem 'puma', '~> 4.0.0'
   gem 'thin', '~> 1.7.2'
 
   # Tracing and profiling gems
@@ -283,10 +276,6 @@ gem 'reform-rails', '~> 0.1.7'
 gem 'roar', '~> 1.1.0'
 
 platforms :mri, :mingw, :x64_mingw do
-  group :mysql2 do
-    gem 'mysql2', '~> 0.5.0'
-  end
-
   group :postgres do
     gem 'pg', '~> 1.1.0'
   end
@@ -303,7 +292,6 @@ group :docker, optional: true do
   gem 'passenger', '~> 6.0.1'
 
   # Used to easily precompile assets
-  gem 'health_check', require: !!ENV['HEROKU']
   gem 'newrelic_rpm', require: !!ENV['HEROKU']
   gem 'rails_12factor', require: !!ENV['HEROKU']
 end

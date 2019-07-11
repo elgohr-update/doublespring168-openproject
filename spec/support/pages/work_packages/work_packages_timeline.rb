@@ -73,6 +73,16 @@ module Pages
       end
     end
 
+    def expect_work_package_order(*ids)
+      retry_block do
+        rows = page.all('.wp-table-timeline--body .wp--row')
+        expected = ids.map { |el| el.is_a?(WorkPackage) ? el.id.to_s : el.to_s }
+        found = rows.map { |el| el['data-work-package-id'] }
+
+        raise "Order is incorrect: #{found.inspect} != #{expected.inspect}" unless found == expected
+      end
+    end
+
     def expect_timeline!(open: true)
       if open
         expect(page).to have_selector('#work-packages-timeline-toggle-button.-active')
@@ -87,12 +97,20 @@ module Pages
       ::Components::Timelines::TimelineRow.new  page.find(timeline_row_selector(wp_id))
     end
 
+    def zoom_in_button
+      page.find('#work-packages-timeline-zoom-in-button')
+    end
+
     def zoom_in
-      page.find('#work-packages-timeline-zoom-in-button').click
+      zoom_in_button.click
     end
 
     def zoom_out
-      page.find('#work-packages-timeline-zoom-out-button').click
+      zoom_out_button.click
+    end
+
+    def zoom_out_button
+      page.find('#work-packages-timeline-zoom-out-button')
     end
 
     def autozoom

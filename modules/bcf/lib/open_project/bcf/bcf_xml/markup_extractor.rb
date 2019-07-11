@@ -5,11 +5,12 @@
 
 module OpenProject::Bcf::BcfXml
   class MarkupExtractor
-    attr_reader :entry, :markup, :doc
+    attr_reader :entry
+    attr_accessor :markup, :doc
 
     def initialize(entry)
       @markup = entry.get_input_stream.read
-      @doc = Nokogiri::XML markup
+      @doc = Nokogiri::XML markup, nil, 'UTF-8'
     end
 
     def uuid
@@ -28,6 +29,10 @@ module OpenProject::Bcf::BcfXml
       extract_non_empty :@TopicStatus, attribute: true
     end
 
+    def type
+      extract_non_empty :@TopicType, attribute: true
+    end
+
     def description
       extract_non_empty :Description
     end
@@ -44,6 +49,16 @@ module OpenProject::Bcf::BcfXml
       extract_non_empty :ModifiedAuthor
     end
 
+    def creation_date
+      date = extract_non_empty :CreationDate
+      Date.iso8601(date) unless date.nil?
+    end
+
+    def modified_date
+      date = extract_non_empty :ModifiedDate
+      Date.iso8601(date) unless date.nil?
+    end
+
     def due_date
       date = extract_non_empty :DueDate
       Date.iso8601(date) unless date.nil?
@@ -57,7 +72,7 @@ module OpenProject::Bcf::BcfXml
           uuid: node['Guid'],
           viewpoint: node.xpath('Viewpoint/text()').to_s,
           snapshot: node.xpath('Snapshot/text()').to_s
-        }
+        }.with_indifferent_access
       end
     end
 
@@ -68,8 +83,21 @@ module OpenProject::Bcf::BcfXml
           date: node.xpath('Date/text()').to_s,
           author: node.xpath('Author/text()').to_s,
           comment: node.xpath('Comment/text()').to_s
-        }
+        }.with_indifferent_access
       end
+    end
+
+    def mail_addresses
+      people
+        .filter do |person|
+          # person value is an email address
+          person =~ /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/i
+        end
+        .uniq
+    end
+
+    def people
+      ([assignee, author] + comments.map { |comment| comment[:author] }).filter(&:present?).uniq
     end
 
     private

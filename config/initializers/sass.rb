@@ -26,5 +26,8 @@
 # See docs/COPYRIGHT.rdoc for more details.
 #++
 
-Rails.application.config.sass.load_paths << Rails.root.join('frontend', 'node_modules', 'foundation-apps', 'scss')
-Sass.load_paths << Rails.root.join('frontend', 'node_modules', 'foundation-apps', 'scss')
+if defined?(LivingStyleGuide)
+  LivingStyleGuide.default_options[:scss_template] = OpenProject::LivingStyleGuide::Template
+end
+
+Rails.application.config.sass.load_paths << Rails.root.join('app', 'assets', 'stylesheets', 'vendor', 'foundation-apps', 'scss')

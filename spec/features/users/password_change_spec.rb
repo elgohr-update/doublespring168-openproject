@@ -118,11 +118,8 @@ describe 'random password generation',
     end
 
     it 'can configure and enforce password rules', js: true do
-      visit '/settings'
+      visit authentication_settings_path
       expect_angular_frontend_initialized
-
-      # Go to authentication
-      find('#tab-authentication').click
 
       # Enforce rules
       # 3 of 'lowercase, uppercase, special'
@@ -156,13 +153,13 @@ describe 'random password generation',
       fill_in 'user_password', with: 'adminADMIN'
       fill_in 'user_password_confirmation', with: 'adminADMIN'
       scroll_to_and_click(find('.button', text: 'Save'))
-      expect(page).to have_selector('#errorExplanation', text: "Password Must contain characters of the following classes")
+      expect(page).to have_selector('.errorExplanation', text: "Password Must contain characters of the following classes")
 
       # 2 of 3 classes
       fill_in 'user_password', with: 'adminADMIN123'
       fill_in 'user_password_confirmation', with: 'adminADMIN123'
       scroll_to_and_click(find('.button', text: 'Save'))
-      expect(page).to have_selector('#errorExplanation', text: "Password Must contain characters of the following classes")
+      expect(page).to have_selector('.errorExplanation', text: "Password Must contain characters of the following classes")
 
       # All classes
       fill_in 'user_password', with: 'adminADMIN!'

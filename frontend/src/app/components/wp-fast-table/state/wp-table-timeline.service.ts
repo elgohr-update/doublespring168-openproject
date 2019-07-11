@@ -30,23 +30,20 @@ import {Injectable} from '@angular/core';
 import {QueryResource, TimelineLabels, TimelineZoomLevel} from 'core-app/modules/hal/resources/query-resource';
 import {WorkPackageResource} from 'core-app/modules/hal/resources/work-package-resource';
 import {IsolatedQuerySpace} from "core-app/modules/work_packages/query-space/isolated-query-space";
-import {InputState} from 'reactivestates';
+import {input, InputState} from 'reactivestates';
 import {zoomLevelOrder} from '../../wp-table/timeline/wp-timeline';
 import {WorkPackageTableTimelineState} from './../wp-table-timeline';
 import {WorkPackageQueryStateService, WorkPackageTableBaseService} from './wp-table-base.service';
+import {Subject} from "rxjs";
 
 @Injectable()
 export class WorkPackageTableTimelineService extends WorkPackageQueryStateService<WorkPackageTableTimelineState> {
 
   /** Remember the computed zoom level to correct zooming after leaving autozoom */
-  public appliedZoomLevel:TimelineZoomLevel|undefined = undefined;
+  public appliedZoomLevel$ = input<TimelineZoomLevel>('auto');
 
   public constructor(protected readonly querySpace:IsolatedQuerySpace) {
     super(querySpace);
-  }
-
-  public get state():InputState<WorkPackageTableTimelineState> {
-    return this.querySpace.timeline;
   }
 
   public valueFromQuery(query:QueryResource) {
@@ -56,6 +53,14 @@ export class WorkPackageTableTimelineService extends WorkPackageQueryStateServic
       zoomLevel: query.timelineZoomLevel,
       labels: query.timelineLabels
     };
+  }
+
+  public set appliedZoomLevel(val:TimelineZoomLevel) {
+    this.appliedZoomLevel$.putValue(val);
+  }
+
+  public get appliedZoomLevel() {
+    return this.appliedZoomLevel$.value!;
   }
 
   public hasChanged(query:QueryResource) {
@@ -80,7 +85,7 @@ export class WorkPackageTableTimelineService extends WorkPackageQueryStateServic
   }
 
   public setVisible(value:boolean) {
-    this.state.putValue({...this.current, visible: value});
+    this.updatesState.putValue({...this.current, visible: value});
   }
 
   public get isVisible() {
@@ -132,9 +137,10 @@ export class WorkPackageTableTimelineService extends WorkPackageQueryStateServic
       return this.applyZoomLevel(level, delta);
     }
 
-    if (this.appliedZoomLevel && this.appliedZoomLevel !== 'auto') {
+    const applied = this.appliedZoomLevel;
+    if (applied && applied !== 'auto') {
       // When we have a real zoom value, use delta on that one
-      this.applyZoomLevel(this.appliedZoomLevel, delta);
+      this.applyZoomLevel(applied, delta);
     } else {
       // Use the maximum zoom value
       const target = delta < 0 ? 'days' : 'years';
@@ -151,7 +157,7 @@ export class WorkPackageTableTimelineService extends WorkPackageQueryStateServic
   }
 
   public get current():WorkPackageTableTimelineState {
-    return this.state.getValueOr(this.defaultState);
+    return this.lastUpdatedState.getValueOr(this.defaultState);
   }
 
   /**
@@ -159,7 +165,7 @@ export class WorkPackageTableTimelineService extends WorkPackageQueryStateServic
    * @param update
    */
   private modify(update:Partial<WorkPackageTableTimelineState>) {
-    this.update({ ...this.current, ...update });
+    this.update({ ...this.current, ...update } as WorkPackageTableTimelineState);
   }
 
   /**

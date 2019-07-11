@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {AfterViewInit, Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
 import {WorkPackageTableTimelineService} from 'core-components/wp-fast-table/state/wp-table-timeline.service';
 import {WorkPackageTablePaginationService} from 'core-components/wp-fast-table/state/wp-table-pagination.service';
 import {OpTableActionFactory} from 'core-components/wp-table/table-actions/table-action';
@@ -11,8 +11,8 @@ import {OpModalService} from 'core-components/op-modals/op-modal.service';
 import {WorkPackageEmbeddedBaseComponent} from "core-components/wp-table/embedded/wp-embedded-base.component";
 import {QueryFormResource} from "core-app/modules/hal/resources/query-form-resource";
 import {QueryFormDmService} from "core-app/modules/hal/dm-services/query-form-dm.service";
+import {distinctUntilChanged, take, withLatestFrom} from "rxjs/operators";
 import {untilComponentDestroyed} from "ng2-rx-componentdestroyed";
-import {withLatestFrom} from "rxjs/internal/operators";
 
 @Component({
   selector: 'wp-embedded-table',
@@ -23,6 +23,12 @@ export class WorkPackageEmbeddedTableComponent extends WorkPackageEmbeddedBaseCo
   @Input('queryProps') public queryProps:any = {};
   @Input() public tableActions:OpTableActionFactory[] = [];
   @Input() public externalHeight:boolean = false;
+
+  /** Inform about loading errors */
+  @Output() public onError = new EventEmitter<string>();
+
+  /** Inform about loaded query */
+  @Output() public onQueryLoaded = new EventEmitter<QueryResource>();
 
   readonly QueryDm:QueryDmService = this.injector.get(QueryDmService);
   readonly opModalService:OpModalService = this.injector.get(OpModalService);
@@ -52,16 +58,16 @@ export class WorkPackageEmbeddedTableComponent extends WorkPackageEmbeddedBaseCo
     }
 
     // Reload results on changes to pagination (Regression #29845)
-    this.querySpace.ready.fireOnStateChange(
-      this.wpTablePagination.state,
-      'Query loaded'
-    ).values$().pipe(
+    this.wpTablePagination
+      .updates$()
+      .pipe(
+      distinctUntilChanged(),
       untilComponentDestroyed(this),
       withLatestFrom(this.querySpace.query.values$())
-    ).subscribe(([pagination, query]) => {
+    ).subscribe(([_, query]) => {
       this.loadingIndicator = this.QueryDm
         .loadResults(query, this.wpTablePagination.paginationObject)
-        .then((results) => this.initializeStates(query, results));
+        .then((query) => this.initializeStates(query, query.results));
     });
   }
 
@@ -84,22 +90,23 @@ export class WorkPackageEmbeddedTableComponent extends WorkPackageEmbeddedBaseCo
       this.loadForm(query);
     }
 
-    this.querySpace.ready.doAndTransition('Query loaded', () => {
-      this.wpStatesInitialization.clearStates();
-      this.wpStatesInitialization.initializeFromQuery(query, results);
-      this.wpStatesInitialization.updateQuerySpace(query, results);
+    this.wpStatesInitialization.clearStates();
+    this.wpStatesInitialization.initializeFromQuery(query, results);
+    this.wpStatesInitialization.updateQuerySpace(query, results);
 
-      return this.querySpace.tableRendering.onQueryUpdated.valuesPromise()
-        .then(() => {
-          this.showTablePagination = results.total > results.count;
-          this.setLoaded();
+    return this.querySpace
+      .initialized
+      .values$()
+      .pipe(take(1))
+      .subscribe(() => {
+        this.showTablePagination = results.total > results.count;
+        this.setLoaded();
 
-          // Disable compact mode when timeline active
-          if (this.wpTableTimeline.isVisible) {
-            this.configuration = { ...this.configuration, compactTableStyle: false };
-          }
-        });
-    });
+        // Disable compact mode when timeline active
+        if (this.wpTableTimeline.isVisible) {
+          this.configuration = { ...this.configuration, compactTableStyle: false };
+        }
+      });
   }
 
   private loadForm(query:QueryResource):Promise<QueryFormResource> {
@@ -127,7 +134,6 @@ export class WorkPackageEmbeddedTableComponent extends WorkPackageEmbeddedBaseCo
       return Promise.resolve(this.loadedQuery!);
     }
 
-
     // HACK: Decrease loading time of queries when results are not needed.
     // We should allow the backend to disable results embedding instead.
     if (!this.configuration.tableVisible) {
@@ -151,6 +157,7 @@ export class WorkPackageEmbeddedTableComponent extends WorkPackageEmbeddedBaseCo
       )
       .then((query:QueryResource) => {
         this.initializeStates(query, query.results);
+        this.onQueryLoaded.emit(query);
         return query;
       })
       .catch((error) => {
@@ -158,6 +165,7 @@ export class WorkPackageEmbeddedTableComponent extends WorkPackageEmbeddedBaseCo
           'js.error.embedded_table_loading',
           { message: _.get(error, 'message', error) }
         );
+        this.onError.emit(error);
       });
 
     if (visible) {

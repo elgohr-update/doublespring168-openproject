@@ -56,7 +56,7 @@ module API
           if error.nil?
             error_response_lambda
           else
-            lambda { instance_exec error.new, &error_response_lambda }
+            lambda { |e| instance_exec error.new(e.message), &error_response_lambda }
           end
 
         # We do this lambda business because #rescue_from behaves differently
@@ -66,25 +66,12 @@ module API
 
       def default_error_response(headers, log)
         lambda { |e|
+          original_exception = $!
           representer = ::API::V3::Errors::ErrorRepresenter.new e
           resp_headers = instance_exec &headers
           env['api.format'] = 'hal+json'
 
-          if log
-            message = <<-MESSAGE
-  Grape rescuing from error: #{e}
-
-  Original error: #{$!.inspect}
-
-  Stacktrace:
-            MESSAGE
-
-            $@.each do |line|
-              message << "\n    #{line}"
-            end
-
-            Rails.logger.error message
-          end
+          OpenProject.logger.error original_exception, reference: :APIv3 if log
 
           error_response status: e.code, message: representer.to_json, headers: resp_headers
         }

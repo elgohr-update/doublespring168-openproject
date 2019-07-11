@@ -79,9 +79,10 @@
   overflow-x: hidden
   flex: 2
   position: relative
+  @include styled-scroll-bar
 
   .work-packages--panel-inner
-    padding: 5px 15px 20px 0px
+    padding: 0px 5px 20px 0
     width: 100%
 
     // These styles were taken over from the details tab styling.
@@ -96,13 +97,14 @@
           line-height: $work-package-details--tab-height - 10px
 
 .work-packages-full-view--split-right
-  min-width: 480px
-  overflow-y: auto
+  min-width: 500px
+  overflow-y: scroll
   overflow-x: auto
   position: relative
+  @include styled-scroll-bar
 
   .work-packages--panel-inner
-    padding: 15px 15px 0px 15px
+    padding: 15px 5px 0px 15px
 
   .work-package-details-activities-activity-contents ul.work-package-details-activities-messages
     padding-left: 0
@@ -206,16 +208,9 @@
     padding-bottom: 3px
     margin-top: 2px
 
-    .work-packages--type-selector:not(.wp-new-top-row--element)
-      [class*='__hl_dot_']::before
-        vertical-align: 1px
-        margin-right: 6px
-
 .work-packages--type-selector:not(.wp-new-top-row--element)
   .wp-table--cell-span
     padding-right: 5px !important
-    &:after
-      content: ':'
 
   // Remove left padding from type
   .wp-edit-field--display-field

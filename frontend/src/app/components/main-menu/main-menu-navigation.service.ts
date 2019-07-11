@@ -5,11 +5,11 @@ export class MainMenuNavigationService {
 
   public navigationEvents$ = new BehaviorSubject<string>('');
 
-  public onActivate(name:string) {
+  public onActivate(...names:string[]) {
     return this
       .navigationEvents$
       .pipe(
-        filter(evt => evt === name),
+        filter(evt => names.indexOf(evt) !== -1),
         take(1)
       );
   }
@@ -73,9 +73,12 @@ export class MainMenuNavigationService {
 
     // Emit first active
     let active = jQuery('#main-menu .menu_root > li.open').data('name');
-    if (active) {
-      this.navigationEvents$.next(active);
+    let activeRoot = jQuery('#main-menu .menu_root.open > li').data('name');
+    if (active || activeRoot) {
+      this.navigationEvents$.next(active || activeRoot);
     }
+
+
 
     jQuery('#main-menu li:has(ul) .main-item-wrapper > a').not('ul ul a')
     // 1. unbind the current click functions
@@ -98,7 +101,7 @@ export class MainMenuNavigationService {
     }
 
     jQuery('#main-menu ul.main-menu--children').each(function(_i, child) {
-      var title = jQuery(child).parents('li').find('.main-item-wrapper .menu-item--title').text();
+      var title = jQuery(child).parents('li').find('.main-item-wrapper .menu-item--title').contents()[0].textContent;
       var parentURL = jQuery(child).parents('li').find('.main-item-wrapper > a').attr('href');
       var header = jQuery('<div class="main-menu--children-menu-header"></div>');
       var upLink = jQuery('<a class="main-menu--arrow-left-to-project" href="#"><i class="icon-arrow-left1" aria-hidden="true"></i></a>');

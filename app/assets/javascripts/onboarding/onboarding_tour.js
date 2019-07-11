@@ -28,7 +28,7 @@
         var url = new URL(window.location.href);
         var isMobile = document.body.classList.contains('-browser-mobile');
         var demoProjectsAvailable = $('meta[name=demo_projects_available]').attr('content') === "true";
-        var boardsDemoDataAvailable = $('meta[name=boards_demo_data_available]').attr('content') === "true"
+        var boardsDemoDataAvailable = $('meta[name=boards_demo_data_available]').attr('content') === "true";
         var eeTokenAvailable = !$('body').hasClass('ee-banners-visible');
 
         // ------------------------------- Initial start -------------------------------
@@ -124,9 +124,9 @@
             waitForElement('.work-package--results-tbody', '#content', function() {
                 var steps;
 
-                // Check for EE edition, available seed data of boards, and correct project.
+                // Check for EE edition, and available seed data of boards.
                 // Then add boards to the tour, otherwise skip it.
-                if (eeTokenAvailable && boardsDemoDataAvailable && currentTourPart !== 'startMainTourFromBacklogs') {
+                if (eeTokenAvailable && boardsDemoDataAvailable) {
                     steps = wpOnboardingTourSteps.concat(boardTourSteps).concat(menuTourSteps);
                 } else {
                     steps = wpOnboardingTourSteps.concat(menuTourSteps);

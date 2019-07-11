@@ -59,7 +59,7 @@ module Pages
     def custom_edit_field(custom_field)
       edit_field("customField#{custom_field.id}").tap do |field|
         if custom_field.list?
-          field.field_type = :select
+          field.field_type = 'create-autocompleter'
         end
       end
     end
@@ -131,15 +131,10 @@ module Pages
                                     text: message)
     end
 
-    def expect_parent(parent = nil)
-      parent ||= work_package.parent
-
-      expect(parent).to_not be_nil
-
+    def expect_no_parent
       visit_tab!('relations')
 
-      expect(page).to have_selector('.relation-row a',
-                                    text: "#{parent.type.name}: #{parent.subject}")
+      expect(page).not_to have_selector('.wp-breadcrumb-parent')
     end
 
     def expect_zen_mode
@@ -264,11 +259,11 @@ module Pages
     def click_create_wp_button(type)
       find('.add-work-package:not([disabled])', text: 'Create').click
 
-      find('#types-context-menu .menu-item', text: type, wait: 10).click
+      find('#types-context-menu .menu-item', text: type.name.upcase, wait: 10).click
     end
 
     def select_type(type)
-      find(@type_field_selector + ' option', text: type).select_option
+      find(@type_field_selector + ' option', text: type.name.upcase).select_option
     end
 
     def subject_field

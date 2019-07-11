@@ -24,6 +24,12 @@ module Components
       list
     end
 
+    ##
+    # Get the ng_select input element
+    def ng_select_input(from_element)
+      from_element.find('.ng-input input')
+    end
+
     def select_autocomplete(element, query:, results_selector: nil, select_text: nil, option_selector: nil)
       target_dropdown = search_autocomplete(element, results_selector: results_selector, query: query)
 
@@ -33,7 +39,7 @@ module Components
       text = select_text.presence || query
 
       # click the element to select it
-      target_dropdown.find('.ng-option', text: text).click
+      target_dropdown.find('.ng-option', text: text, match: :first).click
     end
   end
 end

@@ -51,12 +51,18 @@ import {WidgetDocumentsComponent} from "core-app/modules/grids/widgets/documents
 import {WidgetNewsComponent} from "core-app/modules/grids/widgets/news/news.component";
 import {WidgetWpAccountableComponent} from './widgets/wp-accountable/wp-accountable.component';
 import {WidgetWpTableComponent} from "core-app/modules/grids/widgets/wp-table/wp-table.component";
+import {WidgetMenuComponent} from "core-app/modules/grids/widgets/menu/widget-menu.component";
+import {WidgetWpTableMenuComponent} from "core-app/modules/grids/widgets/wp-table/wp-table-menu.component";
 
 export const GRID_ROUTES:Ng2StateDeclaration[] = [
   {
     name: 'my_page',
     url: '/my/page',
     component: MyPageComponent,
+    data: {
+      bodyClasses: 'router--work-packages-my-page',
+      parent: 'work-packages'
+    }
   },
 ];
 
@@ -104,6 +110,10 @@ export const GRID_ROUTES:Ng2StateDeclaration[] = [
     WidgetWpCalendarComponent,
     WidgetWpTableComponent,
     WidgetTimeEntriesCurrentUserComponent,
+
+    WidgetMenuComponent,
+    WidgetWpTableMenuComponent,
+
     AddGridWidgetModal,
 
     GridColumnContextMenu,

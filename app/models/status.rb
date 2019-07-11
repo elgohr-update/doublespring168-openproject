@@ -31,12 +31,12 @@
 class Status < ActiveRecord::Base
   extend Pagination::Model
 
-  default_scope { order('position ASC') }
+  default_scope { order_by_position }
   before_destroy :check_integrity
   has_many :workflows, foreign_key: 'old_status_id'
   acts_as_list
 
-  belongs_to :color, class_name:  'Color', foreign_key: 'color_id'
+  belongs_to :color, class_name: 'Color', foreign_key: 'color_id'
 
   before_destroy :delete_workflows
 
@@ -48,7 +48,7 @@ class Status < ActiveRecord::Base
   after_save :unmark_old_default_value, if: :is_default?
 
   def unmark_old_default_value
-    Status.where(['id <> ?', id]).update_all("is_default=#{self.class.connection.quoted_false}")
+    Status.where.not(id: id).update_all(is_default: false)
   end
 
   # Returns the default status for new issues
@@ -57,7 +57,7 @@ class Status < ActiveRecord::Base
   end
 
   def self.where_default
-    where(['is_default=?', true])
+    where(is_default: true)
   end
 
   # Update all the +Issues+ setting their done_ratio to the value of their +Status+
@@ -107,6 +107,7 @@ class Status < ActiveRecord::Base
 
   def is_readonly
     return false unless can_readonly?
+
     super
   end
   alias :is_readonly? :is_readonly
