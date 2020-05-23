@@ -13,12 +13,16 @@ import {PERMITTED_CONTEXT_MENU_ACTIONS} from 'core-components/op-context-menu/wp
 import {OpModalService} from 'core-components/op-modals/op-modal.service';
 import {WorkPackageAuthorization} from 'core-components/work-packages/work-package-authorization.service';
 import {WorkPackageAction} from 'core-components/wp-table/context-menu-helper/wp-context-menu-helper.service';
+import {InjectField} from "core-app/helpers/angular/inject-field.decorator";
+import {TimeEntryCreateService} from "core-app/modules/time_entries/create/create.service";
 
 @Directive({
   selector: '[wpSingleContextMenu]'
 })
 export class WorkPackageSingleContextMenuDirective extends OpContextMenuTrigger {
   @Input('wpSingleContextMenu-workPackage') public workPackage:WorkPackageResource;
+
+  @InjectField() public timeEntryCreateService:TimeEntryCreateService;
 
   constructor(readonly HookService:HookService,
               readonly $state:StateService,
@@ -31,7 +35,7 @@ export class WorkPackageSingleContextMenuDirective extends OpContextMenuTrigger 
     super(elementRef, opContextMenuService);
   }
 
-  protected open(evt:JQueryEventObject) {
+  protected open(evt:JQuery.TriggeredEvent) {
     this.workPackage.project.$load().then(() => {
       this.authorisationService.initModelAuth('work_package', this.workPackage.$links);
 
@@ -53,9 +57,16 @@ export class WorkPackageSingleContextMenuDirective extends OpContextMenuTrigger 
       case 'delete':
         this.opModalService.show(WpDestroyModal, this.injector, { workPackages: [this.workPackage] });
         break;
+      case 'log_time':
+        this.timeEntryCreateService
+          .create(moment(new Date()), this.workPackage, false)
+          .catch(() => {
+            // do nothing, the user closed without changes
+          });
+        break;
 
       default:
-        window.location.href = link;
+        window.location.href = link!;
         break;
     }
   }
@@ -65,7 +76,7 @@ export class WorkPackageSingleContextMenuDirective extends OpContextMenuTrigger 
    *
    * @param {Event} openerEvent
    */
-  public positionArgs(evt:JQueryEventObject) {
+  public positionArgs(evt:JQuery.TriggeredEvent) {
     let additionalPositionArgs = {
       my: 'right top',
       at: 'right bottom'
@@ -104,7 +115,7 @@ export class WorkPackageSingleContextMenuDirective extends OpContextMenuTrigger 
         linkText: I18n.t('js.button_' + key),
         href: action.link,
         icon: action.icon || `icon-${key}`,
-        onClick: ($event:JQueryEventObject) => {
+        onClick: ($event:JQuery.TriggeredEvent) => {
           if (action.link && LinkHandling.isClickedWithModifier($event)) {
             return false;
           }

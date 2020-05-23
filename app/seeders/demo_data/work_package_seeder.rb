@@ -1,7 +1,8 @@
 #-- encoding: UTF-8
+
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2015 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -24,11 +25,11 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
-# See doc/COPYRIGHT.rdoc for more details.
+# See docs/COPYRIGHT.rdoc for more details.
 module DemoData
   class WorkPackageSeeder < Seeder
     attr_accessor :project, :user, :statuses, :repository,
-                  :time_entry_activities, :types, :key
+                  :types, :key
 
     include ::DemoData::References
 
@@ -38,7 +39,6 @@ module DemoData
       self.user = User.admin.first
       self.statuses = Status.all
       self.repository = Repository.first
-      self.time_entry_activities = TimeEntryActivity.all
       self.types = project.types.all.reject(&:is_milestone?)
     end
 
@@ -58,14 +58,22 @@ module DemoData
 
       work_packages_data.each do |attributes|
         print '.'
-        create_work_package attributes
+        create_or_update_work_package(attributes)
       end
+    end
+
+    # Decides what to do with work package seed data.
+    # The default here is to create the work package.
+    # Modules may patch this method.
+    def create_or_update_work_package(attributes)
+      create_work_package(attributes)
     end
 
     def create_work_package(attributes)
       wp_attr = base_work_package_attributes attributes
 
       set_version! wp_attr, attributes
+      set_accountable! wp_attr, attributes
       set_time_tracking_attributes! wp_attr, attributes
       set_backlogs_attributes! wp_attr, attributes
 
@@ -98,13 +106,23 @@ module DemoData
       {
         project:       project,
         author:        user,
-        assigned_to:   user,
+        assigned_to:   find_principal(attributes[:assignee]),
         subject:       attributes[:subject],
         description:   attributes[:description],
         status:        find_status(attributes),
         type:          find_type(attributes),
-        priority:      find_priority(attributes) || IssuePriority.default
+        priority:      find_priority(attributes) || IssuePriority.default,
+        parent:        WorkPackage.find_by(subject: attributes[:parent])
       }
+    end
+
+    def find_principal(name)
+      if name
+        group_assignee = Group.find_by(lastname: name)
+        return group_assignee unless group_assignee.nil?
+      end
+
+      user
     end
 
     def find_priority(attributes)
@@ -121,7 +139,13 @@ module DemoData
 
     def set_version!(wp_attr, attributes)
       if attributes[:version]
-        wp_attr[:fixed_version] = Version.find_by!(name: attributes[:version])
+        wp_attr[:version] = Version.find_by!(name: attributes[:version])
+      end
+    end
+
+    def set_accountable!(wp_attr, attributes)
+      if attributes[:accountable]
+        wp_attr[:responsible] = find_principal(attributes[:accountable])
       end
     end
 
@@ -152,7 +176,7 @@ module DemoData
     end
 
     def set_workpackage_relations
-      work_packages_data =  project_data_for(key, 'work_packages')
+      work_packages_data = project_data_for(key, 'work_packages')
 
       work_packages_data.each do |attributes|
         create_relations attributes
@@ -161,9 +185,12 @@ module DemoData
 
     def create_relations(attributes)
       Array(attributes[:relations]).each do |relation|
+        root_work_package = WorkPackage.find_by!(subject: attributes[:subject])
+        to_work_package =  WorkPackage.find_by(subject: relation[:to], project: root_work_package.project)
+        to_work_package =  WorkPackage.find_by!(subject: relation[:to]) unless to_work_package.nil?
         create_relation(
-          to:   WorkPackage.find_by!(subject: relation[:to]),
-          from: WorkPackage.find_by!(subject: attributes[:subject]),
+          to: to_work_package,
+          from: root_work_package,
           type: relation[:type]
         )
       end

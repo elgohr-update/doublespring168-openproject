@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -27,6 +27,7 @@
 #++
 
 require 'support/pages/page'
+require 'support/components/ng_select_autocomplete_helpers'
 
 module Pages
   class Groups < Page
@@ -64,6 +65,7 @@ module Pages
   end
 
   class Group < Pages::Page
+    include ::Components::NgSelectAutocompleteHelpers
     attr_reader :id
 
     def initialize(id)
@@ -75,11 +77,15 @@ module Pages
     end
 
     def open_users_tab!
-      click_on 'tab-users'
+      within('.content--tabs') do
+        click_on 'Users'
+      end
     end
 
     def open_projects_tab!
-      click_on 'tab-memberships'
+      within('.content--tabs') do
+        click_on 'Projects'
+      end
     end
 
     def add_to_project!(project_name, as:)
@@ -108,7 +114,10 @@ module Pages
 
     def add_user!(user_name)
       open_users_tab!
-      check user_name
+
+      container = page.find('.new-group-members--autocomplete')
+      select_autocomplete container,
+                          query: user_name
       click_on 'Add'
     end
 

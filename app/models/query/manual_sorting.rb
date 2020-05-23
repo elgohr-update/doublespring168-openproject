@@ -1,8 +1,8 @@
 #-- encoding: UTF-8
 
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -32,14 +32,11 @@ module Query::ManualSorting
   extend ActiveSupport::Concern
 
   included do
-    include Concerns::VirtualAttribute
-    after_save :persist_ordered_work_packages!
+    has_many :ordered_work_packages,
+             -> { order(position: :asc) }
 
-    virtual_attribute :ordered_work_packages do
-      ::OrderedWorkPackage
-        .where(query_id: id)
-        .order(:position)
-        .pluck(:work_package_id)
+    def manually_sorted?
+      sort_criteria_columns.any? { |clz, _| clz.is_a?(::Queries::WorkPackages::Columns::ManualSortingColumn) }
     end
 
     private
@@ -48,30 +45,5 @@ module Query::ManualSorting
       ::Queries::WorkPackages::Columns::ManualSortingColumn.new
     end
     delegate :manual_sorting_column, to: :class
-
-    ##
-    # Replace the current set of ordered work packages
-    def persist_ordered_work_packages!
-      return unless previous_changes[:ordered_work_packages]
-
-      OrderedWorkPackage.transaction do
-        ::OrderedWorkPackage.where(query_id: id).delete_all
-        store_ordered_work_packages!
-      end
-    end
-
-    ##
-    # Bulk insert the current set of ordered IDs
-    def store_ordered_work_packages!
-      bulk = ordered_work_packages.each_with_index.map do |wp_id, position|
-        {
-          query_id: id,
-          work_package_id: wp_id,
-          position: position
-        }
-      end
-
-      OrderedWorkPackage.import bulk
-    end
   end
 end

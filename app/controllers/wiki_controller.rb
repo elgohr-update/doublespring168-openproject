@@ -1,8 +1,8 @@
 #-- encoding: UTF-8
 
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -28,7 +28,6 @@
 # See docs/COPYRIGHT.rdoc for more details.
 #++
 
-require 'diff'
 require 'htmldiff'
 
 # The WikiController follows the Rails REST controller pattern but with
@@ -55,10 +54,6 @@ class WikiController < ApplicationController
                                               annotate
                                               destroy]
   before_action :build_wiki_page_and_content, only: %i[new create]
-
-  verify method: :post, only: [:protect], redirect_to: { action: :show }
-  verify method: :get,  only: %i[new new_child], render: { nothing: true, status: :method_not_allowed }
-  verify method: :post, only: :create, render: { nothing: true, status: :method_not_allowed }
 
   include AttachmentsHelper
   include PaginationHelper
@@ -115,7 +110,6 @@ class WikiController < ApplicationController
     @page.attach_files(permitted_params.attachments.to_h)
 
     if @page.save
-      render_attachment_warning_if_needed(@page)
       call_hook(:controller_wiki_edit_after_save, params: params, page: @page)
       flash[:notice] = l(:notice_successful_create)
       redirect_to_show
@@ -136,6 +130,10 @@ class WikiController < ApplicationController
       end
       return
     end
+
+    # Set the related page ID to make it the parent of new links
+    flash[:_related_wiki_page_id] = @page.id
+
     if params[:version] && !User.current.allowed_to?(:view_wiki_edits, @project)
       # Redirects user to the current version if he's not allowed to view previous versions
       redirect_to version: nil
@@ -153,7 +151,11 @@ class WikiController < ApplicationController
   def edit
     @page = @wiki.find_or_new_page(wiki_page_title)
     return render_403 unless editable?
-    @page.content = WikiContent.new(page: @page) if @page.new_record?
+
+    if @page.new_record?
+      @page.parent_id = flash[:_related_wiki_page_id] if flash[:_related_wiki_page_id]
+      @page.content = WikiContent.new(page: @page)
+    end
 
     @content = @page.content_for_version(params[:version])
     # don't keep previous comment
@@ -184,7 +186,6 @@ class WikiController < ApplicationController
     @content.add_journal User.current, params['content']['comments']
 
     if @page.save_with_content
-      render_attachment_warning_if_needed(@page)
       call_hook(:controller_wiki_edit_after_save, params: params, page: @page)
       flash[:notice] = l(:notice_successful_update)
       redirect_to_show
@@ -216,7 +217,7 @@ class WikiController < ApplicationController
           existing_identifier: item.name)
 
         redirect_to_show
-      elsif @page.update_attributes(attributes)
+      elsif @page.update(attributes)
         flash[:notice] = t(:notice_successful_update)
         redirect_to_show
       end
@@ -241,11 +242,13 @@ class WikiController < ApplicationController
 
   def edit_parent_page
     return render_403 unless editable?
+
     @parent_pages = @wiki.pages.includes(:parent) - @page.self_and_descendants
   end
 
   def update_parent_page
     return render_403 unless editable?
+
     @page.parent_id = params[:wiki_page][:parent_id]
     if @page.save
       flash[:notice] = l(:notice_successful_update)
@@ -291,7 +294,6 @@ class WikiController < ApplicationController
     render_404 unless @annotate
   end
 
-  verify method: :delete, only: [:destroy], redirect_to: { action: :show }
   # Removes a wiki page and its history
   # Children can be either set as root pages, removed or reassigned to another parent page
   def destroy
@@ -396,6 +398,10 @@ class WikiController < ApplicationController
   def build_wiki_page_and_content
     @page = WikiPage.new wiki: @wiki, title: wiki_page_title.presence
     @page.content = WikiContent.new page: @page
+
+    if flash[:_related_wiki_page_id]
+      @page.parent_id = flash[:_related_wiki_page_id]
+    end
 
     @content = @page.content_for_version nil
   end

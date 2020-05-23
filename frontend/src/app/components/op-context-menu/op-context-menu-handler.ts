@@ -1,15 +1,17 @@
 import {OPContextMenuService} from 'core-components/op-context-menu/op-context-menu.service';
 import {OpContextMenuItem} from 'core-components/op-context-menu/op-context-menu.types';
+import {UntilDestroyedMixin} from "core-app/helpers/angular/until-destroyed.mixin";
 
 /**
  * Interface passed to CM service to open a particular context menu.
  * This will often be a trigger component, but does not have to be.
  */
-export abstract class OpContextMenuHandler {
+export abstract class OpContextMenuHandler extends UntilDestroyedMixin {
   protected $element:JQuery;
   protected items:OpContextMenuItem[] = [];
 
   constructor(readonly opContextMenu:OPContextMenuService) {
+    super();
   }
 
   /**
@@ -28,7 +30,7 @@ export abstract class OpContextMenuHandler {
    *
    * @param {Event} openerEvent
    */
-  public positionArgs(openerEvent:JQueryEventObject):any {
+  public positionArgs(openerEvent:JQuery.TriggeredEvent):any {
     return {
       my: 'left top',
       at: 'right bottom',
@@ -49,7 +51,7 @@ export abstract class OpContextMenuHandler {
   /**
    * Open this context menu
    */
-  protected open(evt:JQueryEventObject) {
+  protected open(evt:JQuery.TriggeredEvent) {
     this.opContextMenu.show(this, evt);
   }
 

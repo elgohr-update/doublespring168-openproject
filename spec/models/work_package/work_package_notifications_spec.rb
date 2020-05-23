@@ -1,7 +1,7 @@
 #-- encoding: UTF-8
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -33,7 +33,8 @@ require 'spec_helper'
 # Tests that email notifications will be sent upon creating or changing a work package.
 describe WorkPackage, type: :model do
   describe 'email notifications' do
-    let(:user) { FactoryBot.create :admin }
+    using_shared_fixtures :admin
+    let(:user) { admin }
     let(:current_user) { FactoryBot.create :admin }
     let(:project) { FactoryBot.create :project }
     let!(:work_package) do
@@ -45,6 +46,7 @@ describe WorkPackage, type: :model do
 
     context 'after creation' do
       it "are sent to the work package's author" do
+        perform_enqueued_jobs
         mail = ActionMailer::Base.deliveries.detect { |m| m.subject.include? 'I can see you' }
 
         expect(mail).to be_present
@@ -72,41 +74,12 @@ describe WorkPackage, type: :model do
 
     describe 'after update' do
       before do
-        work_package.update_attributes subject: 'the wind of change'
+        work_package.update subject: 'the wind of change'
       end
 
       it "are sent to the work package's author" do
+        perform_enqueued_jobs
         mail = ActionMailer::Base.deliveries.detect { |m| m.subject.include? 'the wind of change' }
-
-        expect(mail).to be_present
-      end
-    end
-
-    describe 'notification triggered by subtask update' do
-      let!(:child) do
-        FactoryBot.create :work_package, subject: "I'm a child",
-                                         parent: work_package,
-                                         done_ratio: 42
-      end
-
-      let(:message) { "Updated automatically by changing values within child work package" }
-      let(:label) { "##{child.id}" }
-      let(:href) { "/work_packages/#{child.id}" }
-
-      let(:link_regex) { /#{message} <a[^<]*href="[^"]*#{href}"[^<]*>#{label}<\/a>/ }
-
-      before do
-        WorkPackages::UpdateService
-          .new(user: current_user,
-               model: child)
-          .call(done_ratio: 99)
-      end
-
-      it "sends out an email including a link to the subtask" do
-        matching_part = ->(part) { part.sub_type == "html" && part.to_s =~ link_regex }
-        matching_mail = ->(mail) { mail.body.parts.find(&matching_part) }
-
-        mail = ActionMailer::Base.deliveries.find(&matching_mail)
 
         expect(mail).to be_present
       end

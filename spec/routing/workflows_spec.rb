@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -29,10 +29,10 @@
 require 'spec_helper'
 
 describe 'workflows routes', type: :routing do
-  it { expect(get('/workflows')).to route_to('workflows#index') }
+  it { expect(get('/workflows')).to route_to('workflows#show') }
 
   it { expect(get('/workflows/edit')).to route_to('workflows#edit') }
-  it { expect(post('/workflows/edit')).to route_to('workflows#edit') }
+  it { expect(patch('/workflows')).to route_to('workflows#update') }
 
   it { expect(get('/workflows/copy')).to route_to('workflows#copy') }
   it { expect(post('/workflows/copy')).to route_to('workflows#copy') }

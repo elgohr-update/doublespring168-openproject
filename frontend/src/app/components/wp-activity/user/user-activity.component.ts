@@ -1,6 +1,6 @@
 //-- copyright
-// OpenProject is a project management system.
-// Copyright (C) 2012-2015 the OpenProject Foundation (OPF)
+// OpenProject is an open source project management software.
+// Copyright (C) 2012-2020 the OpenProject GmbH
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License version 3.
@@ -23,7 +23,7 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //
-// See doc/COPYRIGHT.rdoc for more details.
+// See docs/COPYRIGHT.rdoc for more details.
 //++
 
 import {UserResource} from 'core-app/modules/hal/resources/user-resource';
@@ -46,6 +46,8 @@ import {UserCacheService} from "core-components/user/user-cache.service";
 import {CommentService} from "core-components/wp-activity/comment-service";
 import {I18nService} from "core-app/modules/common/i18n/i18n.service";
 import {WorkPackageCommentFieldHandler} from "core-components/work-packages/work-package-comment/work-package-comment-field-handler";
+import {DomSanitizer, SafeHtml} from "@angular/platform-browser";
+import {HalResource} from "core-app/modules/hal/resources/hal-resource";
 
 @Component({
   selector: 'user-activity',
@@ -54,23 +56,21 @@ import {WorkPackageCommentFieldHandler} from "core-components/work-packages/work
 })
 export class UserActivityComponent extends WorkPackageCommentFieldHandler implements OnInit, AfterViewInit {
   @Input() public workPackage:WorkPackageResource;
-  @Input() public activity:any;
+  @Input() public activity:HalResource;
   @Input() public activityNo:number;
-  @Input() public activityLabel:string;
   @Input() public isInitial:boolean;
 
   public userCanEdit = false;
   public userCanQuote = false;
 
   public userId:string | number;
+  public user:UserResource;
   public userName:string;
-  public userActive:boolean;
-  public userPath:string | null;
-  public userLabel:string;
   public userAvatar:string;
-  public fieldLabel:string;
   public details:any[] = [];
   public isComment:boolean;
+  public isBcfComment:boolean;
+  public postedComment:SafeHtml;
 
   public focused = false;
 
@@ -85,6 +85,7 @@ export class UserActivityComponent extends WorkPackageCommentFieldHandler implem
 
   constructor(readonly elementRef:ElementRef,
               readonly injector:Injector,
+              readonly sanitization:DomSanitizer,
               readonly PathHelper:PathHelperService,
               readonly wpLinkedActivities:WorkPackagesActivityService,
               readonly commentService:CommentService,
@@ -99,19 +100,14 @@ export class UserActivityComponent extends WorkPackageCommentFieldHandler implem
   public ngOnInit() {
     super.ngOnInit();
 
+    this.updateCommentText();
     this.isComment = this.activity._type === 'Activity::Comment';
+    this.isBcfComment = this.activity._type === 'Activity::BcfComment';
+
     this.$element = jQuery(this.elementRef.nativeElement);
     this.reset();
     this.userCanEdit = !!this.activity.update;
     this.userCanQuote = !!this.workPackage.addComment;
-
-    if (this.postedComment) {
-      this.fieldLabel = this.I18n.t('js.label_activity_with_comment_no', {
-        activityNo: this.activityNo
-      });
-    } else {
-      this.fieldLabel = this.I18n.t('js.label_activity_no', {activityNo: this.activityNo});
-    }
 
     this.$element.bind('focusin', this.focus.bind(this));
     this.$element.bind('focusout', this.blur.bind(this));
@@ -123,22 +119,16 @@ export class UserActivityComponent extends WorkPackageCommentFieldHandler implem
     this.userCacheService
       .require(this.activity.user.idFromLink)
       .then((user:UserResource) => {
+        this.user = user;
         this.userId = user.id!;
         this.userName = user.name;
-        this.userActive = user.isActive;
         this.userAvatar = user.avatar;
-        this.userPath = user.showUser.href;
-        this.userLabel = this.I18n.t('js.label_author', {user: this.userName});
         this.cdRef.detectChanges();
       });
   }
 
   public shouldHideIcons():boolean {
-    return !(this.isComment && this.focussing());
-  }
-
-  public get postedComment() {
-    return this.activity.comment.html;
+    return !((this.isComment || this.isBcfComment) && this.focussing());
   }
 
   public ngAfterViewInit() {
@@ -149,10 +139,11 @@ export class UserActivityComponent extends WorkPackageCommentFieldHandler implem
 
   public activate() {
     super.activate(this.activity.comment.raw);
+    this.cdRef.detectChanges();
   }
 
   public handleUserSubmit() {
-    if (this.changeset.inFlight || !this.rawComment) {
+    if (this.inFlight || !this.rawComment) {
       return Promise.resolve();
     }
     return this.updateComment();
@@ -162,14 +153,27 @@ export class UserActivityComponent extends WorkPackageCommentFieldHandler implem
     this.commentService.quoteEvents.next(this.quotedText(this.activity.comment.raw));
   }
 
+  public get bcfSnapshotUrl() {
+    if (_.get(this.activity, 'bcfViewpoints[0]')) {
+      return `${_.get(this.activity, 'bcfViewpoints[0]').href}/snapshot`;
+    } else {
+      return null;
+    }
+  }
+
   public async updateComment() {
+    this.inFlight = true;
+
     await this.onSubmit();
     return this.commentService.updateComment(this.activity, this.rawComment || '')
-      .then(() => {
+      .then((newActivity:HalResource) => {
+        this.activity = newActivity;
+        this.updateCommentText();
         this.wpLinkedActivities.require(this.workPackage, true);
         this.wpCacheService.updateWorkPackage(this.workPackage);
         this.deactivate(true);
-      });
+      })
+      .catch(() => this.deactivate(true));
   }
 
   public focusEditIcon() {
@@ -191,8 +195,12 @@ export class UserActivityComponent extends WorkPackageCommentFieldHandler implem
     return this.focused;
   }
 
+  setErrors(newErrors:string[]):void {
+    // interface
+  }
+
   public quotedText(rawComment:string) {
-    var quoted = rawComment.split('\n')
+    let quoted = rawComment.split('\n')
       .map(function(line:string) {
         return '\n> ' + line;
       })
@@ -210,5 +218,9 @@ export class UserActivityComponent extends WorkPackageCommentFieldHandler implem
     if (focus) {
       this.focusEditIcon();
     }
+  }
+
+  private updateCommentText() {
+    this.postedComment = this.sanitization.bypassSecurityTrustHtml(this.activity.comment.html);
   }
 }

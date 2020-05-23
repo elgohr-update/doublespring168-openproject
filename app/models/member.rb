@@ -1,7 +1,7 @@
 #-- encoding: UTF-8
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -27,9 +27,8 @@
 # See docs/COPYRIGHT.rdoc for more details.
 #++
 
-class Member < ActiveRecord::Base
+class Member < ApplicationRecord
   extend DeprecatedAlias
-
   belongs_to :principal, foreign_key: 'user_id'
   has_many :member_roles, dependent: :destroy, autosave: true
   has_many :roles, through: :member_roles
@@ -241,7 +240,7 @@ class Member < ActiveRecord::Base
   #       Accordingly it has to be changed there too should this bit change at all.
   def unwatch_from_permission_change
     if principal
-      Watcher.prune(user: principal, project_id: project.id)
+      Watcher.prune(user: principal, project_id: project_id)
     end
   end
 

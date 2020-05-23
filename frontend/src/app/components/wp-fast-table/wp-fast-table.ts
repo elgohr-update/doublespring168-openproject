@@ -11,21 +11,20 @@ import {GroupedRowsBuilder} from './builders/modes/grouped/grouped-rows-builder'
 import {HierarchyRowsBuilder} from './builders/modes/hierarchy/hierarchy-rows-builder';
 import {PlainRowsBuilder} from './builders/modes/plain/plain-rows-builder';
 import {RowsBuilder} from './builders/modes/rows-builder';
-import {PrimaryRenderPass, RenderedRow} from './builders/primary-render-pass';
+import {PrimaryRenderPass} from './builders/primary-render-pass';
 import {WorkPackageTableEditingContext} from './wp-table-editing';
 
 import {WorkPackageTableRow} from './wp-table.interfaces';
 import {WorkPackageTableConfiguration} from 'core-app/components/wp-table/wp-table-configuration';
-import {PortalCleanupService} from "core-app/modules/fields/display/display-portal/portal-cleanup.service";
+import {RenderedWorkPackage} from "core-app/modules/work_packages/render-info/rendered-work-package.type";
+import {InjectField} from "core-app/helpers/angular/inject-field.decorator";
 
 export class WorkPackageTable {
 
-  private readonly querySpace:IsolatedQuerySpace = this.injector.get(IsolatedQuerySpace);
-
-  public wpCacheService:WorkPackageCacheService = this.injector.get(WorkPackageCacheService);
-  public states:States = this.injector.get(States);
-  public I18n:I18nService = this.injector.get(I18nService);
-  public portalCleanupService:PortalCleanupService = this.injector.get(PortalCleanupService);
+  @InjectField() querySpace:IsolatedQuerySpace;
+  @InjectField() wpCacheService:WorkPackageCacheService;
+  @InjectField() states:States;
+  @InjectField() I18n:I18nService;
 
   public originalRows:string[] = [];
   public originalRowIndex:{ [id:string]:WorkPackageTableRow } = {};
@@ -46,7 +45,8 @@ export class WorkPackageTable {
   public editing:WorkPackageTableEditingContext = new WorkPackageTableEditingContext(this, this.injector);
 
   constructor(public readonly injector:Injector,
-              public container:HTMLElement,
+              public tableAndTimelineContainer:HTMLElement,
+              public scrollContainer:HTMLElement,
               public tbody:HTMLElement,
               public timelineBody:HTMLElement,
               public timelineController:WorkPackageTimelineTableController,
@@ -54,10 +54,10 @@ export class WorkPackageTable {
   }
 
   public get renderedRows() {
-    return this.querySpace.rendered.getValueOr([]);
+    return this.querySpace.tableRendered.getValueOr([]);
   }
 
-  public findRenderedRow(classIdentifier:string):[number, RenderedRow] {
+  public findRenderedRow(classIdentifier:string):[number, RenderedWorkPackage] {
     const index = _.findIndex(this.renderedRows, (row) => row.classIdentifier === classIdentifier);
 
     return [index, this.renderedRows[index]];
@@ -75,7 +75,11 @@ export class WorkPackageTable {
     this.originalRowIndex = {};
     this.originalRows = rows.map((wp:WorkPackageResource, i:number) => {
       let wpId = wp.id!;
-      this.originalRowIndex[wpId] = <WorkPackageTableRow>{object: wp, workPackageId: wpId, position: i};
+
+      // Ensure we get the latest version
+      wp = this.wpCacheService.current(wpId, wp)!;
+
+      this.originalRowIndex[wpId] = <WorkPackageTableRow>{ object: wp, workPackageId: wpId, position: i };
       return wpId;
     });
   }
@@ -97,14 +101,19 @@ export class WorkPackageTable {
    * all elements.
    */
   public redrawTableAndTimeline() {
-    const renderPass = this.performRenderPass();
+    const renderPass = this.performRenderPass(false);
 
     // Insert timeline body
     requestAnimationFrame(() => {
+      this.tbody.innerHTML = '';
       this.timelineBody.innerHTML = '';
+      this.tbody.appendChild(renderPass.tableBody);
       this.timelineBody.appendChild(renderPass.timeline.timelineBody);
 
-      this.querySpace.rendered.putValue(renderPass.result);
+      // Mark rendering event in a timeout to let DOM process
+      setTimeout(() =>
+        this.querySpace.tableRendered.putValue(renderPass.result)
+      );
     });
   }
 
@@ -113,7 +122,7 @@ export class WorkPackageTable {
    */
   public redrawTable() {
     const renderPass = this.performRenderPass();
-    this.querySpace.rendered.putValue(renderPass.result);
+    this.querySpace.tableRendered.putValue(renderPass.result);
   }
 
   /**
@@ -145,16 +154,21 @@ export class WorkPackageTable {
   }
 
 
-  private performRenderPass() {
-    this.portalCleanupService.clear();
+  /**
+   * Perform the render pass
+   * @param insert whether to insert the result (set to false for timeline)
+   */
+  private performRenderPass(insert:boolean = true) {
     this.editing.reset();
     const renderPass = this.lastRenderPass = this.rowBuilder.buildRows();
 
     // Insert table body
-    requestAnimationFrame(() => {
-      this.tbody.innerHTML = '';
-      this.tbody.appendChild(renderPass.tableBody);
-    });
+    if (insert) {
+      requestAnimationFrame(() => {
+        this.tbody.innerHTML = '';
+        this.tbody.appendChild(renderPass.tableBody);
+      });
+    }
 
     return renderPass;
   }

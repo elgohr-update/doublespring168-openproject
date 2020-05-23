@@ -1,7 +1,7 @@
 #-- encoding: UTF-8
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -39,8 +39,10 @@ module API
       def initialize(models, self_link, query: {}, page: nil, per_page: nil, current_user:)
         @self_link_base = self_link
         @query = query
-        @page = page || 1
-        @per_page = [per_page || self.class.per_page_default(models), maximum_page_size].min
+        @page = page.to_i > 0 ? page.to_i : 1
+        @per_page = [per_page || self.class.per_page_default(models), maximum_page_size]
+          .map(&:to_i)
+          .min
 
         full_self_link = make_page_link(page: @page, page_size: @per_page)
         paged = paged_models(models)

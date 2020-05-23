@@ -1,8 +1,8 @@
 #-- encoding: UTF-8
 
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -131,8 +131,8 @@ module API
                       represented.persisted? && allowed_to?(:reorder_work_packages)
 
           {
-            href: api_v3_paths.query(represented.id),
-            method: :patch
+            href: api_v3_paths.query_order(represented.id),
+            method: :put
           }
         end
 
@@ -258,11 +258,11 @@ module API
                  exec_context: :decorator,
                  getter: nil,
                  setter: ->(fragment:, **) {
-                   ordered_work_packages = Array(fragment).map do |link|
-                     id_from_href "work_packages", link
-                   end
+                   next unless represented.new_record?
 
-                   represented.ordered_work_packages = ordered_work_packages if fragment
+                   Hash(fragment).each do |wp_id, position|
+                     represented.ordered_work_packages.build(work_package_id: wp_id, position: position)
+                   end
                  }
 
         property :starred,
@@ -299,6 +299,9 @@ module API
         property :timeline_zoom_level
 
         property :timeline_labels
+
+        # Visible representation of the results
+        property :display_representation
 
         # Highlighting properties
         property :highlighting_mode,

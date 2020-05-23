@@ -5,7 +5,6 @@ import {UserResource} from 'core-app/modules/hal/resources/user-resource';
 import {WorkPackageResource} from 'core-app/modules/hal/resources/work-package-resource';
 import {input, InputState, multiInput, MultiInputState, StatesGroup} from 'reactivestates';
 import {QueryColumn} from './wp-query/query-column';
-import {WikiPageResource} from 'core-app/modules/hal/resources/wiki-page-resource';
 import {PostResource} from 'core-app/modules/hal/resources/post-resource';
 import {HalResource} from 'core-app/modules/hal/resources/hal-resource';
 import {StatusResource} from "core-app/modules/hal/resources/status-resource";
@@ -13,9 +12,9 @@ import {QueryFilterInstanceSchemaResource} from "core-app/modules/hal/resources/
 import {Subject} from "rxjs";
 import {QuerySortByResource} from "core-app/modules/hal/resources/query-sort-by-resource";
 import {QueryGroupByResource} from "core-app/modules/hal/resources/query-group-by-resource";
-import {Input} from "@angular/core";
-import {QueryFilterResource} from "core-app/modules/hal/resources/query-filter-resource";
 import {VersionResource} from "core-app/modules/hal/resources/version-resource";
+import {WorkPackageDisplayRepresentationValue} from "core-app/modules/work_packages/routing/wp-view-base/view-services/wp-view-display-representation.service";
+import {TimeEntryResource} from "core-app/modules/hal/resources/time-entry-resource";
 
 export class States extends StatesGroup {
   name = 'MainStore';
@@ -38,6 +37,9 @@ export class States extends StatesGroup {
   /* /api/v3/statuses */
   statuses = multiInput<StatusResource>();
 
+  /* /api/v3/time_entries */
+  timeEntries:MultiInputState<TimeEntryResource> = multiInput<TimeEntryResource>();
+
   /* /api/v3/versions */
   versions = multiInput<VersionResource>();
 
@@ -51,7 +53,7 @@ export class States extends StatesGroup {
   changes = new GlobalStateChanges();
 
   // Additional state map that can be dynamically registered.
-  additional:{[id:string]:MultiInputState<HalResource>} = {};
+  additional:{ [id:string]:MultiInputState<HalResource> } = {};
 
   forResource(resource:HalResource):InputState<HalResource>|undefined {
     const stateName = _.camelCase(resource._type) + 's';
@@ -86,4 +88,7 @@ export class QueryAvailableDataStates {
 
   // Available filter schemas (derived from their schema)
   filters = input<QueryFilterInstanceSchemaResource[]>();
+
+  // Display of the WP results
+  displayRepresentation = input<WorkPackageDisplayRepresentationValue|null>();
 }

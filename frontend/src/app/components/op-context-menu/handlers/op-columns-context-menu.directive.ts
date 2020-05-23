@@ -1,6 +1,6 @@
 //-- copyright
-// OpenProject is a project management system.
-// Copyright (C) 2012-2015 the OpenProject Foundation (OPF)
+// OpenProject is an open source project management software.
+// Copyright (C) 2012-2020 the OpenProject GmbH
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License version 3.
@@ -23,7 +23,7 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //
-// See doc/COPYRIGHT.rdoc for more details.
+// See docs/COPYRIGHT.rdoc for more details.
 //++
 
 import {Directive, ElementRef, Injector, Input} from '@angular/core';
@@ -31,16 +31,14 @@ import {I18nService} from 'core-app/modules/common/i18n/i18n.service';
 
 import {OpContextMenuTrigger} from 'core-components/op-context-menu/handlers/op-context-menu-trigger.directive';
 import {OPContextMenuService} from 'core-components/op-context-menu/op-context-menu.service';
-import {OpContextMenuItem} from 'core-components/op-context-menu/op-context-menu.types';
 import {OpModalService} from 'core-components/op-modals/op-modal.service';
-import {WorkPackageTableColumnsService} from 'core-components/wp-fast-table/state/wp-table-columns.service';
-import {WorkPackageTableGroupByService} from 'core-components/wp-fast-table/state/wp-table-group-by.service';
-import {WorkPackageTableHierarchiesService} from 'core-components/wp-fast-table/state/wp-table-hierarchy.service';
-import {WorkPackageTableSortByService} from 'core-components/wp-fast-table/state/wp-table-sort-by.service';
+import {WorkPackageViewColumnsService} from 'core-app/modules/work_packages/routing/wp-view-base/view-services/wp-view-columns.service';
+import {WorkPackageViewGroupByService} from 'core-app/modules/work_packages/routing/wp-view-base/view-services/wp-view-group-by.service';
+import {WorkPackageViewHierarchiesService} from 'core-app/modules/work_packages/routing/wp-view-base/view-services/wp-view-hierarchy.service';
+import {WorkPackageViewSortByService} from 'core-app/modules/work_packages/routing/wp-view-base/view-services/wp-view-sort-by.service';
 import {WorkPackageTable} from 'core-components/wp-fast-table/wp-fast-table';
 import {QueryColumn} from 'core-components/wp-query/query-column';
 import {WpTableConfigurationModalComponent} from 'core-components/wp-table/configuration-modal/wp-table-configuration.modal';
-import {QuerySharingModal} from "core-components/modals/share-modal/query-sharing.modal";
 import {ConfirmDialogService} from "core-components/modals/confirm-dialog/confirm-dialog.service";
 import {QUERY_SORT_BY_ASC, QUERY_SORT_BY_DESC} from "core-app/modules/hal/resources/query-sort-by-resource";
 
@@ -61,10 +59,10 @@ export class OpColumnsContextMenu extends OpContextMenuTrigger {
 
   constructor(readonly elementRef:ElementRef,
               readonly opContextMenu:OPContextMenuService,
-              readonly wpTableColumns:WorkPackageTableColumnsService,
-              readonly wpTableSortBy:WorkPackageTableSortByService,
-              readonly wpTableGroupBy:WorkPackageTableGroupByService,
-              readonly wpTableHierarchies:WorkPackageTableHierarchiesService,
+              readonly wpTableColumns:WorkPackageViewColumnsService,
+              readonly wpTableSortBy:WorkPackageViewSortByService,
+              readonly wpTableGroupBy:WorkPackageViewGroupByService,
+              readonly wpTableHierarchies:WorkPackageViewHierarchiesService,
               readonly opModalService:OpModalService,
               readonly injector:Injector,
               readonly I18n:I18nService,
@@ -73,7 +71,7 @@ export class OpColumnsContextMenu extends OpContextMenuTrigger {
     super(elementRef, opContextMenu);
   }
 
-  protected open(evt:JQueryEventObject) {
+  protected open(evt:JQuery.TriggeredEvent) {
     if (!this.table.configuration.columnMenuEnabled) {
       return;
     }
@@ -94,7 +92,7 @@ export class OpColumnsContextMenu extends OpContextMenuTrigger {
    *
    * @param {Event} openerEvent
    */
-  public positionArgs(evt:JQueryEventObject) {
+  public positionArgs(evt:JQuery.TriggeredEvent) {
     let additionalPositionArgs = {
       of: this.$element.find('.generic-table--sort-header-outer'),
     };

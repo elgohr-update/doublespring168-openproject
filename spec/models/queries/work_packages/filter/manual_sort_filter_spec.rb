@@ -1,8 +1,8 @@
 #-- encoding: UTF-8
 
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -34,7 +34,9 @@ describe Queries::WorkPackages::Filter::ManualSortFilter, type: :model do
   let!(:in_order) { FactoryBot.create(:work_package) }
   let!(:in_order2) { FactoryBot.create(:work_package) }
   let!(:out_order) { FactoryBot.create(:work_package) }
-  let(:query_double) { double(Query, ordered_work_packages: [in_order2.id, in_order.id]) }
+
+  let(:ar_double) { double(ActiveRecord::Relation, pluck: [in_order2.id, in_order.id]) }
+  let(:query_double) { double(Query, ordered_work_packages: ar_double) }
 
   let(:instance) do
     described_class.create!(name: :manual_sort, context: query_double, operator: 'ow', values: [])

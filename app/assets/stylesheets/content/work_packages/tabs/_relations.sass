@@ -1,6 +1,6 @@
 //-- copyright
-// OpenProject is a project management system.
-// Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+// OpenProject is an open source project management software.
+// Copyright (C) 2012-2020 the OpenProject GmbH
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License version 3.
@@ -37,15 +37,6 @@
       i
         font-size: 0.8rem
 
-.add-relation
-  .select2
-    width: 350px
-  .select2-drop
-    width: 350px
-    top: auto
-    input[type='text']
-      width: 100%
-
 .tab-content--padding-right
   padding-right: 25px
 
@@ -61,11 +52,11 @@
   .description-section
     border: 1px dotted lightblue
     padding: 4px
-  .wp-edit-field
+  .inline-edit--container
     @include text-shortener
     // Similar to inner span's line-height
     line-height: 1.6em
-    .wp-table--cell-span
+    .inline-edit--display-field
       vertical-align: middle
   .controls-container
     text-align: right
@@ -132,14 +123,6 @@
 
 .wp-relation--description-wrapper
   width: 100%
-
-// Disable create link until WP is selected
-.wp-create-relation--save[disabled]
-  color: $relations-save-button--disabled-color
-  cursor: not-allowed
-
-  .icon-button
-    cursor: not-allowed
 
 .wp-relations-create--form
   display: flex

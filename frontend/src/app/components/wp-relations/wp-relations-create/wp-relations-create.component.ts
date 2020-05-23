@@ -1,11 +1,11 @@
 import {RelationResource} from 'core-app/modules/hal/resources/relation-resource';
 import {WorkPackageResource} from 'core-app/modules/hal/resources/work-package-resource';
 import {WorkPackageCacheService} from '../../work-packages/work-package-cache.service';
-import {WorkPackageNotificationService} from '../../wp-edit/wp-notification.service';
 import {WorkPackageRelationsService} from '../wp-relations.service';
-import {Component, ElementRef, Inject, Input, ViewChild} from "@angular/core";
+import {Component, Input} from "@angular/core";
 import {I18nService} from "core-app/modules/common/i18n/i18n.service";
-import {WorkPackageTableRefreshService} from "core-components/wp-table/wp-table-refresh-request.service";
+import {HalEventsService} from "core-app/modules/hal/services/hal-events.service";
+import {WorkPackageNotificationService} from "core-app/modules/work_packages/notifications/work-package-notification.service";
 
 @Component({
   selector: 'wp-relations-create',
@@ -13,7 +13,6 @@ import {WorkPackageTableRefreshService} from "core-components/wp-table/wp-table-
 })
 export class WorkPackageRelationsCreateComponent {
   @Input() readonly workPackage:WorkPackageResource;
-  @ViewChild('focusAfterSave', { static: false }) readonly focusAfterSave:ElementRef;
 
   public showRelationsCreateForm:boolean = false;
   public selectedRelationType:string = RelationResource.DEFAULT();
@@ -23,7 +22,6 @@ export class WorkPackageRelationsCreateComponent {
   public isDisabled = false;
 
   public text = {
-    save: this.I18n.t('js.relation_buttons.save'),
     abort: this.I18n.t('js.relation_buttons.abort'),
     relationType: this.I18n.t('js.relation_buttons.relation_type'),
     addNewRelation: this.I18n.t('js.relation_buttons.add_new_relation')
@@ -31,8 +29,8 @@ export class WorkPackageRelationsCreateComponent {
 
   constructor(readonly I18n:I18nService,
               protected wpRelations:WorkPackageRelationsService,
-              protected wpNotificationsService:WorkPackageNotificationService,
-              protected wpTableRefresh:WorkPackageTableRefreshService,
+              protected notificationService:WorkPackageNotificationService,
+              protected halEvents:HalEventsService,
               protected wpCacheService:WorkPackageCacheService) {
   }
 
@@ -49,9 +47,10 @@ export class WorkPackageRelationsCreateComponent {
       .then(() => this.isDisabled = false);
   }
 
-  public onReferenced(workPackage?:WorkPackageResource) {
+  public onSelected(workPackage?:WorkPackageResource) {
     if (workPackage) {
       this.selectedWpId = workPackage.id!;
+      this.createCommonRelation();
     }
   }
 
@@ -60,25 +59,23 @@ export class WorkPackageRelationsCreateComponent {
       this.selectedRelationType,
       this.selectedWpId)
       .then(relation => {
-        this.wpTableRefresh.request(`Added relation ${relation.id}`, {visible: true});
-        this.wpNotificationsService.showSave(this.workPackage);
+        this.halEvents.push(this.workPackage, {
+          eventType: 'association',
+          relatedWorkPackage: relation.id!,
+          relationType: this.selectedRelationType
+        });
+        this.notificationService.showSave(this.workPackage);
         this.toggleRelationsCreateForm();
       })
       .catch(err => {
-        this.wpNotificationsService.handleRawError(err, this.workPackage);
+        this.notificationService.handleRawError(err, this.workPackage);
         this.toggleRelationsCreateForm();
       });
   }
 
   public toggleRelationsCreateForm() {
     this.showRelationsCreateForm = !this.showRelationsCreateForm;
-
-    setTimeout(() => {
-      if (!this.showRelationsCreateForm) {
-        // Reset value
-        this.selectedWpId = '';
-        this.focusAfterSave.nativeElement.focus();
-      }
-    }, 50);
+    // Reset value
+    this.selectedWpId = '';
   }
 }

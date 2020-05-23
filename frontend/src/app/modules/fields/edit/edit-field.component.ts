@@ -1,6 +1,6 @@
 // -- copyright
-// OpenProject is a project management system.
-// Copyright (C) 2012-2015 the OpenProject Foundation (OPF)
+// OpenProject is an open source project management software.
+// Copyright (C) 2012-2020 the OpenProject GmbH
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License version 3.
@@ -23,12 +23,12 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //
-// See doc/COPYRIGHT.rdoc for more details.
+// See docs/COPYRIGHT.rdoc for more details.
 // ++
 
 import {
   ChangeDetectorRef,
-  Component,
+  Directive,
   ElementRef,
   Inject,
   InjectionToken,
@@ -38,26 +38,21 @@ import {
 } from "@angular/core";
 import {EditFieldHandler} from "core-app/modules/fields/edit/editing-portal/edit-field-handler";
 import {I18nService} from "core-app/modules/common/i18n/i18n.service";
-import {IWorkPackageEditingServiceToken} from "core-components/wp-edit-form/work-package-editing.service.interface";
-import {WorkPackageEditingService} from "core-components/wp-edit-form/work-package-editing-service";
-import {untilComponentDestroyed} from "ng2-rx-componentdestroyed";
 import {Field, IFieldSchema} from "core-app/modules/fields/field.base";
-import {WorkPackageChangeset} from "core-components/wp-edit-form/work-package-changeset";
+import {ResourceChangeset} from "core-app/modules/fields/changeset/resource-changeset";
+import {HalResource} from "core-app/modules/hal/resources/hal-resource";
 
-export const OpEditingPortalSchemaToken = new InjectionToken('wp-editing-portal--schema');
-export const OpEditingPortalHandlerToken = new InjectionToken('wp-editing-portal--handler');
-export const OpEditingPortalChangesetToken = new InjectionToken('wp-editing-portal--changeset');
+export const OpEditingPortalSchemaToken = new InjectionToken('editing-portal--schema');
+export const OpEditingPortalHandlerToken = new InjectionToken('editing-portal--handler');
+export const OpEditingPortalChangesetToken = new InjectionToken('editing-portal--changeset');
 
 export const overflowingContainerSelector = '.__overflowing_element_container';
 export const overflowingContainerAttribute = 'overflowingIdentifier';
 
 export const editModeClassName = '-editing';
 
-@Component({
-  template: ''
-})
-export class EditFieldComponent extends Field implements OnInit, OnDestroy {
-
+@Directive()
+export abstract class EditFieldComponent extends Field implements OnInit, OnDestroy {
   /** Self reference */
   public self = this;
 
@@ -66,43 +61,38 @@ export class EditFieldComponent extends Field implements OnInit, OnDestroy {
 
   constructor(readonly I18n:I18nService,
               readonly elementRef:ElementRef,
-              @Inject(IWorkPackageEditingServiceToken) protected wpEditing:WorkPackageEditingService,
-              @Inject(OpEditingPortalChangesetToken) protected changeset:WorkPackageChangeset,
+              @Inject(OpEditingPortalChangesetToken) protected change:ResourceChangeset<HalResource>,
               @Inject(OpEditingPortalSchemaToken) public schema:IFieldSchema,
               @Inject(OpEditingPortalHandlerToken) readonly handler:EditFieldHandler,
               readonly cdRef:ChangeDetectorRef,
               readonly injector:Injector) {
     super();
-    this.schema = this.schema || this.changeset.schema[this.name];
+    this.schema = this.schema || this.change.schema[this.name];
 
-    this.wpEditing.state(this.changeset.workPackage.id!)
-      .values$()
-      .pipe(
-        untilComponentDestroyed(this)
-      )
-      .subscribe((changeset) => {
-        if (this.changeset.form) {
-          const fieldSchema = changeset.schema[this.name];
+    if (this.change.state) {
+      this.change.state
+        .values$()
+        .pipe(
+          this.untilDestroyed()
+        )
+        .subscribe((change) => {
+          const fieldSchema = change.schema[this.name];
 
           if (!fieldSchema) {
             return handler.deactivate(false);
           }
 
-          this.changeset = changeset;
-          this.schema = this.changeset.schema[this.name];
+          this.change = change;
+          this.schema = change.schema[this.name];
           this.initialize();
           this.cdRef.markForCheck();
-        }
-      });
+        });
+    }
   }
 
   ngOnInit():void {
     this.$element = jQuery(this.elementRef.nativeElement);
     this.initialize();
-  }
-
-  ngOnDestroy() {
-    // Nothing to do
   }
 
   public get overflowingSelector() {
@@ -120,17 +110,17 @@ export class EditFieldComponent extends Field implements OnInit, OnDestroy {
   }
 
   public get value() {
-    return this.changeset.value(this.name);
+    return this.resource[this.name];
   }
 
   public get name() {
     // Get the mapped schema name, as this is not always the attribute
     // e.g., startDate in table for milestone => date attribute
-    return this.changeset.getSchemaName(this.handler.fieldName);
+    return this.change.getSchemaName(this.handler.fieldName);
   }
 
   public set value(value:any) {
-    this.changeset.setValue(this.name, this.parseValue(value));
+    this.resource[this.name] = this.parseValue(value);
   }
 
   public get placeholder() {
@@ -142,7 +132,7 @@ export class EditFieldComponent extends Field implements OnInit, OnDestroy {
   }
 
   public get resource() {
-    return this.changeset.workPackage;
+    return this.change.projectedResource;
   }
 
   /**

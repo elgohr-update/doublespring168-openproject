@@ -1,7 +1,7 @@
 #-- encoding: UTF-8
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -50,7 +50,7 @@ Given /^the group "(.+?)" has the following members:$/ do |name, table|
 
   raise "Could not find users with login: #{not_found}" if not_found.size > 0
 
-  group.add_member!(users)
+  group.add_members!(users)
 end
 
 When /^I add the user "(.+)" to the group$/ do |user_login|
@@ -70,7 +70,7 @@ Given /^there is a group named "(.*?)" with the following members:$/ do |name, t
   group = FactoryBot.create(:group, lastname: name)
 
   table.raw.flatten.each do |login|
-    group.users << User.find_by!(login: login)
+    group.add_members!(User.find_by!(login: login))
   end
 end
 

@@ -1,8 +1,8 @@
 #-- encoding: UTF-8
 
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -41,7 +41,7 @@ module OpenProject::TextFormatting::Filters::Macros::ChildPages
 
     def check
       if @page.nil? || !@user.allowed_to?(:view_wiki_pages, @page.wiki.project)
-        raise I18n.t('macros.include_wiki_page.errors.page_not_found', name: @page_value)
+        raise I18n.t('macros.wiki_child_pages.errors.page_not_found', name: @page_value)
       end
     end
 

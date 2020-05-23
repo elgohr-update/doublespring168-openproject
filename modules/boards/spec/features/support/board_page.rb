@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -103,10 +103,24 @@ module Pages
 
       select_autocomplete(page.find('.wp-inline-create--reference-autocompleter'),
                           query: work_package.subject,
-                          results_selector: '.board--container',
+                          results_selector: '.work-packages-partitioned-query-space--container',
                           select_text: "##{work_package.id}")
 
       expect_card(list_name, work_package.subject)
+    end
+
+    def expect_not_referencable(list_name, work_package)
+      within_list(list_name) do
+        page.find('.board-list--card-dropdown-button').click
+      end
+
+      page.find('.menu-item', text: 'Add existing').click
+
+      target_dropdown = search_autocomplete(page.find('.wp-inline-create--reference-autocompleter'),
+                                            query: work_package.subject,
+                                            results_selector: '.work-packages-partitioned-query-space--container')
+
+      expect(target_dropdown).to have_no_selector('.ui-menu-item', text: work_package.subject)
     end
 
     ##
@@ -123,7 +137,7 @@ module Pages
     def expect_cards_in_order(list_name, *card_titles)
       within_list(list_name) do
         found = all('.wp-card .wp-card--subject')
-                .map(&:text)
+          .map(&:text)
         expected = card_titles.map { |title| title.is_a?(WorkPackage) ? title.subject : title.to_s }
 
         expect(found)
@@ -167,7 +181,7 @@ module Pages
       else
         open_and_fill_add_list_modal option
         page.find('.ng-option-label', text: option, wait: 10).click
-        click_on 'Continue'
+        click_on 'Add'
       end
     end
 
@@ -220,6 +234,10 @@ module Pages
       page.find('.dropdown-menu a', text: action).click
     end
 
+    def card_for(work_package)
+      ::Pages::WorkPackageCard.new work_package
+    end
+
     def expect_list_option(name, present: true)
       open_and_fill_add_list_modal name
 
@@ -247,13 +265,10 @@ module Pages
     end
 
     def back_to_index
-      find('.board--back-button').click
+      find('.back-button').click
     end
 
     def expect_editable_board(editable)
-      # Editable / draggable check
-      expect(page).to have_conditional_selector(editable, '.board--container.-editable')
-
       # Settings dropdown
       expect(page).to have_conditional_selector(editable, '.board--settings-dropdown')
 
@@ -274,12 +289,12 @@ module Pages
     def rename_board(new_name, through_dropdown: false)
       if through_dropdown
         click_dropdown_entry 'Rename view'
-        expect(page).to have_focus_on('.board--header-container .editable-toolbar-title--input')
-        input = page.find('.board--header-container .editable-toolbar-title--input')
+        expect(page).to have_focus_on('.toolbar-container .editable-toolbar-title--input')
+        input = page.find('.toolbar-container .editable-toolbar-title--input')
         input.set new_name
         input.send_keys :enter
       else
-        page.within('.board--header-container') do
+        page.within('.toolbar-container') do
           input = page.find('.editable-toolbar-title--input').click
           input.set new_name
           input.send_keys :enter
@@ -288,7 +303,7 @@ module Pages
 
       expect_and_dismiss_notification message: I18n.t('js.notice_successful_update')
 
-      page.within('.board--header-container') do
+      page.within('.toolbar-container') do
         expect(page).to have_field('editable-toolbar-title', with: new_name)
       end
     end
@@ -327,9 +342,24 @@ module Pages
     end
 
     def open_and_fill_add_list_modal(name)
+      open_add_list_modal
+      sleep(0.1)
+      page.find('.op-modal--modal-container .new-list--action-select input').set(name)
+    end
+
+    def open_add_list_modal
       page.find('.boards-list--add-item').click
       expect(page).to have_selector('.new-list--action-select input')
-      page.find('.op-modal--modal-container .new-list--action-select input').set(name)
+    end
+
+    def add_list_modal_shows_warning(value, with_link: false)
+      within page.find('.op-modal--modal-container') do
+        warning = '.notification-box.-warning'
+        link = '.notification-box--content a'
+
+        expect(page).to (value ? have_selector(warning) : have_no_selector(warning))
+        expect(page).to (with_link ? have_selector(link) : have_no_selector(link))
+      end
     end
   end
 end

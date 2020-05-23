@@ -1,11 +1,18 @@
 #-- copyright
-# OpenProject Costs Plugin
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
-# Copyright (C) 2009 - 2014 the OpenProject Foundation (OPF)
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License version 3.
+#
+# OpenProject is a fork of ChiliProject, which is a fork of Redmine. The copyright follows:
+# Copyright (C) 2006-2017 Jean-Philippe Lang
+# Copyright (C) 2010-2013 the ChiliProject Team
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
-# version 3.
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -15,6 +22,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+#
+# See docs/COPYRIGHT.rdoc for more details.
 #++
 
 require 'spec_helper'
@@ -25,18 +34,18 @@ describe WorkPackage, 'cost eager loading', type: :model do
   end
   let(:role) do
     FactoryBot.create(:role,
-                       permissions: [:view_work_packages,
-                                     :view_cost_entries,
-                                     :view_cost_rates,
-                                     :view_time_entries,
-                                     :log_time,
-                                     :log_costs,
-                                     :view_hourly_rates])
+                      permissions: [:view_work_packages,
+                                    :view_cost_entries,
+                                    :view_cost_rates,
+                                    :view_time_entries,
+                                    :log_time,
+                                    :log_costs,
+                                    :view_hourly_rates])
   end
   let(:user) do
     FactoryBot.create(:user,
-                       member_in_project: project,
-                       member_through_role: role)
+                      member_in_project: project,
+                      member_through_role: role)
   end
 
   let(:cost_type) do
@@ -47,38 +56,38 @@ describe WorkPackage, 'cost eager loading', type: :model do
   end
   let(:cost_entry1) do
     FactoryBot.create(:cost_entry,
-                       cost_type: cost_type,
-                       user: user,
-                       work_package: work_package,
-                       project: project)
+                      cost_type: cost_type,
+                      user: user,
+                      work_package: work_package,
+                      project: project)
   end
   let(:cost_entry2) do
     FactoryBot.create(:cost_entry,
-                       cost_type: cost_type,
-                       user: user,
-                       work_package: work_package,
-                       project: project)
+                      cost_type: cost_type,
+                      user: user,
+                      work_package: work_package,
+                      project: project)
   end
   let(:time_entry1) do
     FactoryBot.create(:time_entry,
-                       user: user,
-                       project: project,
-                       work_package: work_package)
+                      user: user,
+                      project: project,
+                      work_package: work_package)
   end
   let(:time_entry2) do
     FactoryBot.create(:time_entry,
-                       user: user,
-                       project: project,
-                       work_package: work_package)
+                      user: user,
+                      project: project,
+                      work_package: work_package)
   end
   let(:user_rates) do
     FactoryBot.create(:hourly_rate,
-                       user: user,
-                       project: project)
+                      user: user,
+                      project: project)
   end
   let(:cost_rate) do
     FactoryBot.create(:cost_rate,
-                       cost_type: cost_type)
+                      cost_type: cost_type)
   end
 
   context "combining core's and cost's eager loading" do

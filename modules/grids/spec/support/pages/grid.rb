@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -30,64 +30,78 @@ require 'support/pages/page'
 
 module Pages
   class Grid < ::Pages::Page
-    def add_row(row_number, before_or_after: :before)
-      # open grid row menu
-      find(".grid--row-headers .grid--header:nth-of-type(#{row_number})").click
-
-      label = if before_or_after == :before
-                I18n.t('js.label_add_row_before')
-              else
-                I18n.t('js.label_add_row_after')
-              end
-
-      find('li .menu-item', text: label).click
-    end
-
-    def add_column(column_number, before_or_after: :before)
-      # open grid column menu
-      find(".grid--column-headers .grid--header:nth-of-type(#{column_number})").click
-
-      label = if before_or_after == :before
-                I18n.t('js.label_add_column_before')
-              else
-                I18n.t('js.label_add_column_after')
-              end
-
-      find('li .menu-item', text: label).click
-    end
-
-    def add_widget(row_number, column_number, name)
-      within_add_widget_modal(row_number, column_number) do
+    def add_widget(row_number, column_number, location, name)
+      within_add_widget_modal(row_number, column_number, location) do
         expect(page)
-          .to have_content(I18n.t('js.grid.add_modal.choose_widget'))
+          .to have_content(I18n.t('js.grid.add_widget'))
 
         page.find('.grid--addable-widget', text: Regexp.new("^#{name}$")).click
       end
     end
 
-    def expect_unable_to_add_widget(row_number, column_number, name)
-      within_add_widget_modal(row_number, column_number) do
-        expect(page)
-          .to have_content(I18n.t('js.grid.add_modal.choose_widget'))
+    def expect_no_help_mode
+      expect(page)
+        .to have_no_selector('.toolbar-item .icon-add')
+    end
 
-        expect(page)
-          .not_to have_selector('.grid--addable-widget', text: Regexp.new("^#{name}$"))
+    def expect_unable_to_add_widget(row_number, column_number, location, name = nil)
+      if name
+        expect_specific_widget_unaddable(row_number, column_number, location, name)
+      else
+        expect_widget_adding_prohibited_generally(row_number, column_number)
       end
     end
 
-    def area_of(row_number, column_number)
-      ::Components::Grids::GridArea.of(row_number, column_number).area
+    def expect_add_widget_enterprise_edition_notice(row_number, column_number, location)
+      within_add_widget_modal(row_number, column_number, location) do
+        expect(page)
+          .to have_content(I18n.t('js.grid.add_widget'))
+
+        expect(page)
+          .to have_selector('.notification-box.-ee-upsale', text: I18n.t('js.upsale.ee_only'))
+      end
+    end
+
+    def area_of(row_number, column_number, location = :within)
+      real_row, real_column = case location
+                              when :within
+                                [row_number * 2, column_number * 2]
+                              when :row
+                                [row_number * 2 - 1, column_number * 2]
+                              when :column
+                                [row_number * 2, column_number * 2 - 1]
+                              end
+
+      ::Components::Grids::GridArea.of(real_row, real_column).area
     end
 
     private
 
-    def within_add_widget_modal(row_number, column_number)
-      area = area_of(row_number, column_number)
+    def within_add_widget_modal(row_number, column_number, location)
+      area = area_of(row_number, column_number, location)
       area.hover
-      area.find('.grid--widget-add').click
+      area.find('.grid--widget-add', visible: :all).click
 
       within '.op-modal--portal' do
         yield
+      end
+    end
+
+    def expect_widget_adding_prohibited_generally(row_number = 1, column_number = 1)
+      area = area_of(row_number, column_number)
+      area.hover
+
+      expect(area)
+        .to have_no_selector('.grid--widget-add')
+    end
+
+    def expect_specific_widget_unaddable(row_number, column_number, location, name)
+      within_add_widget_modal(row_number, column_number, location) do
+        expect(page)
+          .to have_content(I18n.t('js.grid.add_widget'))
+
+        expect(page)
+          .not_to have_selector('.grid--addable-widget', text: Regexp.new("^#{name}$"))
       end
     end
   end

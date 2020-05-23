@@ -1,13 +1,13 @@
 #-- encoding: UTF-8
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2014 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
 #
 # OpenProject is a fork of ChiliProject, which is a fork of Redmine. The copyright follows:
-# Copyright (C) 2006-2013 Jean-Philippe Lang
+# Copyright (C) 2006-2017 Jean-Philippe Lang
 # Copyright (C) 2010-2013 the ChiliProject Team
 #
 # This program is free software; you can redistribute it and/or
@@ -24,7 +24,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
-# See doc/COPYRIGHT.rdoc for more details.
+# See docs/COPYRIGHT.rdoc for more details.
 #++
 
 module OpenProject::Plugins
@@ -47,11 +47,24 @@ module OpenProject::Plugins
     end
 
     def self.providers_for(strategy)
-      strategies[strategy_key(strategy)].map(&:call).flatten.map(&:to_hash)
+      filtered_strategies strategies[strategy_key(strategy)].map(&:call).flatten.map(&:to_hash)
     end
 
     def self.providers
-      strategies.values.flatten.map(&:call).flatten.map(&:to_hash)
+      RequestStore.fetch(:openproject_omniauth_filtered_strategies) do
+        filtered_strategies strategies.values.flatten.map(&:call).flatten.map(&:to_hash)
+      end
+    end
+
+    def self.filtered_strategies(options)
+      options.select do |provider|
+        name = provider[:name]&.to_s
+        next true if !EnterpriseToken.show_banners? || name == 'developer'
+
+        warn_unavailable(name)
+
+        false
+      end
     end
 
     def self.strategy_key(strategy)
@@ -66,11 +79,19 @@ module OpenProject::Plugins
 
       [camelization, name].compact.first.underscore.to_sym
     end
+
+    def self.warn_unavailable(name)
+      RequestStore.fetch("warn_unavailable_auth_#{name}") do
+        Rails.logger.warn { "OmniAuth SSO strategy #{name} is only available for Enterprise Editions." }
+        true
+      end
+    end
   end
 
   class ProviderBuilder
     def strategy(strategy, &providers)
       key = AuthPlugin.strategy_key(strategy)
+
       if AuthPlugin.strategies.include? key
         AuthPlugin.strategies[key] << providers
       else

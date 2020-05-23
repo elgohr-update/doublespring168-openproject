@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -30,8 +30,9 @@ module OpenProject
   module Cache
     module CacheKey
       def self.key(*parts)
-        ['openproject',
-         OpenProject::VERSION] + parts.flatten(1)
+        version_part = expand([OpenProject::VERSION, OpenProject::VERSION.product_version].compact)
+
+        [version_part] + parts.flatten(1)
       end
 
       ##

@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -45,7 +45,7 @@ describe 'user self registration', type: :feature, js: true do
       click_link 'Create a new account'
       # deliberately inserting a wrong password confirmation
       within '.registration-modal' do
-        fill_in 'Login', with: 'heidi'
+        fill_in 'Username', with: 'heidi'
         fill_in 'First name', with: 'Heidi'
         fill_in 'Last name', with: 'Switzerland'
         fill_in 'Email', with: 'heidi@heidiland.com'
@@ -74,7 +74,7 @@ describe 'user self registration', type: :feature, js: true do
 
       # deliberately inserting a wrong password confirmation
       within '.registration-modal' do
-        fill_in 'Login', with: 'heidi'
+        fill_in 'Username', with: 'heidi'
         fill_in 'First name', with: 'Heidi'
         fill_in 'Last name', with: 'Switzerland'
         fill_in 'Email', with: 'heidi@heidiland.com'

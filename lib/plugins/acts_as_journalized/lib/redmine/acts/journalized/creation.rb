@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -156,6 +156,8 @@ module Redmine::Acts::Journalized
           new_journal.user_id = user.id
         end
 
+        # Ensure journal version exists
+        ::JournalVersion.find_or_create_by(journable_type: self.class.name, journable_id: id, version: 1)
         JournalManager.recreate_initial_journal self.class, new_journal, changed_data
 
         # Backdate journal
@@ -187,15 +189,6 @@ module Redmine::Acts::Journalized
       # multiple types
       def activity_type
         self.class.name.underscore.pluralize
-      end
-
-      # Specifies the attributes used during journal creation. This is separated into its own
-      # method so that it can be overridden by the VestalVersions::Users feature.
-      def journal_attributes
-        { journaled_id: id, activity_type: activity_type,
-          details: journal_changes, version: last_version + 1,
-          notes: journal_notes, user_id: (journal_user.try(:id) || User.current.try(:id))
-        }.merge(extra_journal_attributes || {})
       end
     end
   end

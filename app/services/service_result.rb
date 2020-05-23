@@ -1,8 +1,8 @@
 #-- encoding: UTF-8
 
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -30,9 +30,8 @@
 
 class ServiceResult
   attr_accessor :success,
-                :errors,
                 :result,
-                :message,
+                :errors,
                 :message_type,
                 :context,
                 :dependent_results
@@ -47,10 +46,11 @@ class ServiceResult
     self.success = success
     self.result = result
     self.context = context
-    self.dependent_results = dependent_results
 
     initialize_errors(errors)
-    initialize_message(message)
+    @message = message
+
+    self.dependent_results = dependent_results
   end
 
   alias success? :success
@@ -123,6 +123,14 @@ class ServiceResult
     yield(self) if failure?
   end
 
+  def message
+    if @message
+      @message
+    elsif failure? && errors.is_a?(ActiveModel::Errors)
+      errors.full_messages.join(" ")
+    end
+  end
+
   private
 
   def initialize_errors(errors)
@@ -136,14 +144,6 @@ class ServiceResult
       end
   end
 
-  def initialize_message(message)
-    self.message =
-      if message
-        message
-      elsif failure? && errors.is_a?(ActiveModel::Errors)
-        errors.full_messages.join("")
-      end
-  end
 
   def get_message_type
     if message_type.present?

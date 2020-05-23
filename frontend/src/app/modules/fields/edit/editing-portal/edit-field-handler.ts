@@ -1,6 +1,6 @@
 // -- copyright
-// OpenProject is a project management system.
-// Copyright (C) 2012-2015 the OpenProject Foundation (OPF)
+// OpenProject is an open source project management software.
+// Copyright (C) 2012-2020 the OpenProject GmbH
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License version 3.
@@ -23,12 +23,14 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //
-// See doc/COPYRIGHT.rdoc for more details.
+// See docs/COPYRIGHT.rdoc for more details.
 // ++
 
 import {Subject} from 'rxjs';
+import {HalResource} from "core-app/modules/hal/resources/hal-resource";
+import {UntilDestroyedMixin} from "core-app/helpers/angular/until-destroyed.mixin";
 
-export abstract class EditFieldHandler {
+export abstract class EditFieldHandler extends UntilDestroyedMixin {
   /**
    * Whether the handler belongs to a larger edit mode form
    * e.g., WP-create
@@ -88,7 +90,7 @@ export abstract class EditFieldHandler {
   /**
    * Stop event propagation
    */
-  public abstract stopPropagation(evt:JQueryEventObject):boolean;
+  public abstract stopPropagation(evt:JQuery.TriggeredEvent):boolean;
 
   /**
    * Focus on the active field.
@@ -107,7 +109,7 @@ export abstract class EditFieldHandler {
    * In an edit mode, we can't derive from a submit event wheteher the user pressed enter
    * (and on what field he did that).
    */
-  public abstract handleUserKeydown(event:JQueryEventObject, onlyCancel?:boolean):void;
+  public abstract handleUserKeydown(event:JQuery.TriggeredEvent, onlyCancel?:boolean):void;
 
   /**
    * Cancel edit
@@ -133,4 +135,10 @@ export abstract class EditFieldHandler {
    * Handle focus loss
    */
   public abstract onFocusOut():void;
+
+  public abstract setErrors(newErrors:string[]):void;
+
+  public previewContext(resource:HalResource):string|undefined {
+    return undefined;
+  }
 }

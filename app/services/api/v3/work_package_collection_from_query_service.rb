@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -32,9 +32,10 @@ module API
       include Utilities::PathHelper
       include ::API::Utilities::PageSizeHelper
 
-      def initialize(query, user)
+      def initialize(query, user, scope: nil)
         self.query = query
         self.current_user = user
+        self.scope = scope
       end
 
       def call(params = {}, valid_subset: false)
@@ -54,7 +55,13 @@ module API
       private
 
       def results_to_representer(params)
-        collection_representer(query.results.sorted_work_packages,
+        results_scope = query.results.sorted_work_packages
+
+        if scope
+          results_scope = results_scope.where(id: scope.select(:id))
+        end
+
+        collection_representer(results_scope,
                                params: params,
                                project: query.project,
                                groups: generate_groups,
@@ -62,15 +69,24 @@ module API
       end
 
       attr_accessor :query,
-                    :current_user
+                    :current_user,
+                    :scope
 
       def representer
         ::API::V3::WorkPackages::WorkPackageCollectionRepresenter
       end
 
       def calculate_resulting_params(provided_params)
-        calculate_default_params
-          .merge(provided_params.slice('offset', 'pageSize').symbolize_keys)
+        calculate_default_params.merge(provided_params.slice('offset', 'pageSize').symbolize_keys).tap do |params|
+          if query.manually_sorted?
+            params[:query_id] = query.id
+            params[:offset] = 1
+            params[:pageSize] = Setting.forced_single_page_size
+          else
+            params[:offset] = to_i_or_nil(params[:offset])
+            params[:pageSize] = to_i_or_nil(params[:pageSize])
+          end
+        end
       end
 
       def calculate_default_params
@@ -89,7 +105,7 @@ module API
                    format_query_sums results.all_sums_for_group(group)
                  end
 
-          ::API::Decorators::AggregationGroup.new(group, count, query: results.query, sums: sums)
+          ::API::Decorators::AggregationGroup.new(group, count, query: results.query, sums: sums, current_user: current_user)
         end
       end
 
@@ -127,8 +143,8 @@ module API
           self_link(project),
           project: project,
           query: resulting_params,
-          page: to_i_or_nil(resulting_params[:offset]),
-          per_page: to_i_or_nil(resulting_params[:pageSize]),
+          page: resulting_params[:offset],
+          per_page: resulting_params[:pageSize],
           groups: groups,
           total_sums: sums,
           embed_schemas: true,

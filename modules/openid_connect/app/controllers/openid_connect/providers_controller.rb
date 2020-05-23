@@ -4,6 +4,7 @@ module OpenIDConnect
     menu_item :plugin_openid_connect
 
     before_action :require_admin
+    before_action :check_ee
     before_action :find_provider, only: [:edit, :update, :destroy]
 
     def index; end
@@ -53,6 +54,13 @@ module OpenIDConnect
 
     private
 
+    def check_ee
+      if EnterpriseToken.show_banners?
+        render template: '/openid_connect/providers/upsale'
+        return false
+      end
+    end
+
     def create_params
       params.require(:openid_connect_provider).permit(:name, :display_name, :identifier, :secret)
     end
@@ -77,5 +85,15 @@ module OpenIDConnect
       Provider::ALLOWED_TYPES.dup - providers.map(&:name)
     end
     helper_method :openid_connect_providers_available_for_configure
+
+    def default_breadcrumb
+      if action_name != 'index'
+        ActionController::Base.helpers.link_to(t('openid_connect.providers.plural'), openid_connect_providers_path)
+      end
+    end
+
+    def show_local_breadcrumb
+      true
+    end
   end
 end

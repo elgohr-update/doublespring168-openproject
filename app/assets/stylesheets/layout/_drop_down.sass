@@ -1,6 +1,6 @@
 //-- copyright
-// OpenProject is a project management system.
-// Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+// OpenProject is an open source project management software.
+// Copyright (C) 2012-2020 the OpenProject GmbH
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License version 3.
@@ -73,7 +73,7 @@
     white-space: nowrap
     font-weight: normal
 
-    &:not(.inactive):hover, &:not(.inactive):focus
+    &:not(.inactive):hover
       background-color: #F0F0F0
       @include varprop(color, context-menu-hover-font-color)
       cursor: pointer
@@ -94,9 +94,6 @@
 
 .dropdown
   @include dot_border_width_style
-
-.select2-drop.-large-dropdown
-  min-width: 25vw
 
 // ---------------------------- .DROPDOWN styles --------------------------------
 

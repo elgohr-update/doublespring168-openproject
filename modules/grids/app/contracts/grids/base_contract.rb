@@ -1,8 +1,8 @@
 #-- encoding: UTF-8
 
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -28,12 +28,11 @@
 # See docs/COPYRIGHT.rdoc for more details.
 #++
 
-require 'model_contract'
-
 module Grids
   class BaseContract < ::ModelContract
     include OpenProject::StaticRouting::UrlHelpers
     include AssignableValuesContract
+    include ::Attachments::ValidateReplacements
 
     attribute :row_count do
       validate_positive_integer(:row_count)
@@ -51,6 +50,8 @@ module Grids
       validate_widget_collisions
       validate_widgets_within
       validate_widgets_start_before_end
+
+      run_registration_validations
 
       super
     end
@@ -85,7 +86,7 @@ module Grids
     def validate_registered_widgets
       return unless config.registered_grid?(grid_class)
 
-      undestroyed_widgets.each do |widget|
+      widgets_to_be_created.each do |widget|
         next if config.allowed_widget?(grid_class, widget.identifier, user, grid_project)
 
         errors.add(:widgets, :inclusion)
@@ -134,6 +135,14 @@ module Grids
       end
     end
 
+    def run_registration_validations
+      validations = config.validations(model, self.class.name.demodulize.gsub('Contract', '').underscore.to_sym)
+
+      validations.each do |validation|
+        instance_eval(&validation)
+      end
+    end
+
     def widgets_overlap?(widget, other_widget)
       top_left_inside?(widget, other_widget) ||
         top_right_inside?(widget, other_widget) ||
@@ -178,6 +187,10 @@ module Grids
 
     def undestroyed_widgets
       model.widgets.reject(&:marked_for_destruction?)
+    end
+
+    def widgets_to_be_created
+      undestroyed_widgets.select(&:new_record?)
     end
 
     def all_allowed_widget_identifiers(user)

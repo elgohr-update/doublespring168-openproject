@@ -1,6 +1,6 @@
 //-- copyright
-// OpenProject is a project management system.
-// Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+// OpenProject is an open source project management software.
+// Copyright (C) 2012-2020 the OpenProject GmbH
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License version 3.
@@ -169,17 +169,23 @@ mark.ui-autocomplete-match
         box-sizing: border-box !important
   .ng-value
     @include text-shortener
+    line-height: 22px
 
-.ng-select.-multi-select .ng-select-container
+.ng-select.ng-select-multiple .ng-select-container
   height: initial !important
   min-height: initial !important
+
+  .ng-value-label
+    display: initial !important
 
 // Ensure dropdown is above modals
 .ng-dropdown-panel
   z-index: 9500 !important
 
 .ng-option
-  font-size: 0.875rem
-  line-height: 1.6
+  font-size: 14px
+  line-height: 22px
 .work-package-table--container .ng-dropdown-panel
   z-index: auto !important
+
+

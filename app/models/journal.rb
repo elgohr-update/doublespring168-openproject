@@ -1,7 +1,7 @@
 #-- encoding: UTF-8
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -27,12 +27,12 @@
 # See docs/COPYRIGHT.rdoc for more details.
 #++
 
-class Journal < ActiveRecord::Base
+class Journal < ApplicationRecord
   self.table_name = 'journals'
 
-  include JournalChanges
-  include JournalFormatter
-  include FormatHooks
+  include ::JournalChanges
+  include ::JournalFormatter
+  include ::Redmine::Acts::Journalized::FormatHooks
 
   register_journal_formatter :diff, OpenProject::JournalFormatter::Diff
   register_journal_formatter :attachment, OpenProject::JournalFormatter::Attachment
@@ -54,31 +54,24 @@ class Journal < ActiveRecord::Base
   # logs like the history on issue#show
   scope :changing, -> { where(['version > 1']) }
 
-  # Ensure that no INSERT/UPDATE/DELETE statements as well as other code inside :with_write_lock
-  # is run concurrently to the code inside this block, by using database locking.
-  # Note: If this is called from inside a transaction, the lock will last until the
-  #   end of that transaction.
-  def self.with_write_lock(journable)
-    lock_name = "journal.#{journable.class}.#{journable.id}"
-
-    result = Journal.with_advisory_lock_result(lock_name, timeout_seconds: 60) do
-      yield
-    end
-
-    unless result.lock_was_acquired?
-      raise "Failed to acquire write lock to journable #{journable.class} #{journable.id}"
-    end
-
-    result.result
-  end
-
   def changed_data=(changed_attributes)
     attributes = changed_attributes
 
     if attributes.is_a? Hash and attributes.values.first.is_a? Array
       attributes.each { |k, v| attributes[k] = v[1] }
     end
-    data.update_attributes attributes
+    data.update attributes
+  end
+
+  # TODO: check if this can be removed
+  # Overrides the +user=+ method created by the polymorphic +belongs_to+ user association.
+  # Based on the class of the object given, either the +user+ association columns or the
+  # +user_name+ string column is populated.
+  def user=(value)
+    case value
+    when ActiveRecord::Base then super(value)
+    else self.user = User.find_by_login(value)
+    end
   end
 
   # In conjunction with the included Comparable module, allows comparison of journal records
@@ -137,6 +130,10 @@ class Journal < ActiveRecord::Base
 
   def previous
     predecessor
+  end
+
+  def noop?
+    (!notes || notes&.empty?) && get_changes.empty?
   end
 
   private

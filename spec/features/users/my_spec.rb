@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -35,10 +35,10 @@ describe 'my',
   let(:user_password) { 'bob' * 4 }
   let(:user) do
     FactoryBot.create(:user,
-                       mail: 'old@mail.com',
-                       login: 'bob',
-                       password: user_password,
-                       password_confirmation: user_password)
+                      mail: 'old@mail.com',
+                      login: 'bob',
+                      password: user_password,
+                      password_confirmation: user_password)
   end
 
   ##
@@ -98,14 +98,11 @@ describe 'my',
         end
 
         context 'as admin' do
-          let(:user) {
-            FactoryBot.create :admin,
-                               password: user_password,
-                               password_confirmation: user_password
-          }
+          using_shared_fixtures :admin
+          let(:user) { admin }
 
           it 'requires the password' do
-            dialog.confirm_flow_with(user_password)
+            dialog.confirm_flow_with('adminADMIN!')
             expect_changed!
           end
         end

@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -77,7 +77,8 @@ describe Authorization::EnterpriseService do
          multiselect_custom_fields
          edit_attribute_groups
          work_package_query_relation_columns
-         attribute_help_texts).each do |guarded_action|
+         attribute_help_texts
+         grid_widget_wp_graph).each do |guarded_action|
         context "guarded action #{guarded_action}" do
           let(:action) { guarded_action }
 

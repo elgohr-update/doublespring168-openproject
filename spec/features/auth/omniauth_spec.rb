@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -49,8 +49,6 @@ describe 'Omniauth authentication', type: :feature do
   end
 
   after do
-    User.delete_all
-    User.current = nil
     OmniAuth.config.test_mode = @omniauth_test_mode
     Capybara.ignore_hidden_elements = @capybara_ignore_elements
     OmniAuth.config.logger = @omniauth_logger
@@ -198,7 +196,7 @@ describe 'Omniauth authentication', type: :feature do
   context 'registration by email',
           with_settings: {
             self_registration?: true,
-            self_registration: '1'
+            self_registration: Setting::SelfRegistration.by_email.to_s
           } do
 
     shared_examples 'registration with registration by email' do

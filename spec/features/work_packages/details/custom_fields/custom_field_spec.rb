@@ -42,7 +42,7 @@ describe 'custom field inplace editor', js: true do
     let(:custom_field) do
       FactoryBot.create(:text_issue_custom_field, name: 'LongText')
     end
-    let(:field) { WorkPackageEditorField.new wp_page, property_name }
+    let(:field) { TextEditorField.new wp_page, property_name }
     let(:initial_custom_values) { { custom_field.id => 'foo' } }
 
     it 'can cancel through the button only' do
@@ -183,8 +183,10 @@ describe 'custom field inplace editor', js: true do
         field.set_value ''
         field.expect_invalid
 
-        expect(WorkPackages::UpdateService).not_to receive(:new)
         field.save!
+
+        work_package.reload
+        expect(work_package.send("custom_field_#{custom_field.id}")).to eq 123
       end
     end
   end
@@ -210,7 +212,7 @@ describe 'custom field inplace editor', js: true do
     end
 
     context 'with german locale',
-            driver: :chrome_headless_de do
+            driver: :firefox_headless_de do
       let(:user) { FactoryBot.create :admin, language: 'de' }
 
       it 'displays the float with german locale and allows editing' do

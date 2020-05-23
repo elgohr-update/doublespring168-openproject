@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2017 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -23,16 +23,17 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
-# See doc/COPYRIGHT.rdoc for more details.
+# See docs/COPYRIGHT.rdoc for more details.
 #++
 
 require 'spec_helper'
 
 describe 'Custom actions', type: :feature, js: true do
+  using_shared_fixtures :admin
+
   let(:permissions) { %i(view_work_packages edit_work_packages move_work_packages) }
   let(:role) { FactoryBot.create(:role, permissions: permissions) }
   let!(:other_role) { FactoryBot.create(:role, permissions: permissions) }
-  let(:admin) { FactoryBot.create(:admin) }
   let(:user) do
     user = FactoryBot.create(:user,
                              firstname: 'A',
@@ -454,5 +455,31 @@ describe 'Custom actions', type: :feature, js: true do
     wp_page.click_custom_action('Escalate', expect_success: false)
 
     wp_page.expect_notification type: :error, message: I18n.t('api_v3.errors.code_409')
+  end
+
+  scenario 'editing a current date custom action (Regression #30949)' do
+    # create custom action 'Unassign'
+    index_ca_page.visit!
+
+    new_ca_page = index_ca_page.new
+
+    retry_block do
+      new_ca_page.visit!
+      new_ca_page.set_name('Current date')
+      new_ca_page.set_description('Sets the current date')
+      new_ca_page.add_action('Date', 'Current date')
+    end
+
+    new_ca_page.create
+
+    index_ca_page.expect_current_path
+    index_ca_page.expect_listed('Current date')
+
+    date_action = CustomAction.last
+    expect(date_action.actions.length).to eq(1)
+    expect(date_action.conditions.length).to eq(0)
+
+    edit_page = index_ca_page.edit('Current date')
+    expect(page).to have_select('custom_action_actions_date', selected: 'Current date')
   end
 end

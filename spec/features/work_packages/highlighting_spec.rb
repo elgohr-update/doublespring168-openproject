@@ -17,6 +17,7 @@ describe 'Work Package highlighting fields',
     FactoryBot.create :work_package,
                       project: project,
                       status: status1,
+                      subject: 'B',
                       due_date: (Date.today - 1.days),
                       priority: priority1
   end
@@ -25,17 +26,21 @@ describe 'Work Package highlighting fields',
     FactoryBot.create :work_package,
                       project: project,
                       status: status2,
+                      subject: 'A',
                       due_date: Date.today,
                       priority: priority_no_color
   end
 
   let(:wp_table) { Pages::WorkPackagesTable.new(project) }
   let(:highlighting) { ::Components::WorkPackages::Highlighting.new }
-  let!(:work_package) { FactoryBot.create :work_package, project: project }
+  let(:sort_by) { ::Components::WorkPackages::SortBy.new }
+  let(:query_title) { ::Components::WorkPackages::QueryTitle.new }
 
   let!(:query) do
     query = FactoryBot.build(:query, user: user, project: project)
     query.column_names = %w[id subject status priority due_date]
+    query.highlighted_attributes = %i[status priority due_date]
+    query.highlighting_mode = :inline
 
     query.save!
     query
@@ -185,5 +190,38 @@ describe 'Work Package highlighting fields',
     wp_table.open_full_screen_by_doubleclick wp_1
     expect(page).to have_selector(".wp-status-button .__hl_background_status_#{status1.id}")
     expect(page).to have_selector(".__hl_inline_priority_#{priority1.id}")
+  end
+
+  it 'correctly parses custom selected inline attributes' do
+    # Highlight only one attribute
+    highlighting.switch_inline_attribute_highlight "Priority"
+
+    # Regression test, resort table
+    sort_by.sort_via_header 'Subject'
+    wp_table.expect_work_package_order wp_2, wp_1
+
+    # Regression test, resort table
+    sort_by.sort_via_header 'Subject', descending: true
+    wp_table.expect_work_package_order wp_1, wp_2
+  end
+
+  it 'does not set query_props when switching in view (Regression #32118)' do
+    prio_wp1 = wp_table.edit_field(wp_1, :priority)
+    prio_wp1.update priority_no_color.name
+    prio_wp1.expect_state_text priority_no_color.name
+
+    wp_table.expect_and_dismiss_notification message: 'Successful update.'
+    wp_1.reload
+    expect(wp_1.priority).to eq priority_no_color
+
+    # We need to wait a bit for the query_props to load
+    # I don't have a better idea than waiting explicitly here
+    sleep 5
+
+    query_title.expect_not_changed
+
+    url = URI.parse(page.current_url).query
+    expect(url).to include("query_id=#{query.id}")
+    expect(url).not_to match(/query_props=.+/)
   end
 end

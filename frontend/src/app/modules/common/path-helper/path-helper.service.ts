@@ -1,6 +1,6 @@
 // -- copyright
-// OpenProject is a project management system.
-// Copyright (C) 2012-2015 the OpenProject Foundation (OPF)
+// OpenProject is an open source project management software.
+// Copyright (C) 2012-2020 the OpenProject GmbH
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License version 3.
@@ -23,13 +23,13 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //
-// See doc/COPYRIGHT.rdoc for more details.
+// See docs/COPYRIGHT.rdoc for more details.
 // ++
 
 import {ApiV3Paths} from 'core-app/modules/common/path-helper/apiv3/apiv3-paths';
 import {Injectable} from '@angular/core';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class PathHelperService {
   public readonly appBasePath:string;
   public readonly api:{ v3:ApiV3Paths };
@@ -44,6 +44,7 @@ export class PathHelperService {
   public get staticBase() {
     return this.appBasePath;
   }
+
   public attachmentDownloadPath(attachmentIdentifier:string, slug:string|undefined) {
     let path = this.staticBase + '/attachments/' + attachmentIdentifier;
 
@@ -52,6 +53,20 @@ export class PathHelperService {
     } else {
       return path;
     }
+  }
+
+  public ifcModelsPath(projectIdentifier:string) {
+    return this.staticBase + `/projects/${projectIdentifier}/ifc_models`;
+  }
+
+  public bimDetailsPath(projectIdentifier:string, workPackageId:string, viewpoint:number|string|null = null) {
+    let path = this.projectPath(projectIdentifier) + `/bcf/split/details/${workPackageId}`;
+
+    if (viewpoint !== null) {
+      path += `?viewpoint=${viewpoint}`;
+    }
+
+    return path;
   }
 
   public highlightingCssPath() {
@@ -72,6 +87,10 @@ export class PathHelperService {
 
   public myPagePath() {
     return this.staticBase + '/my/page';
+  }
+
+  public newsPath(newsId:string) {
+    return this.staticBase + '/news/' + newsId;
   }
 
   public loginPath() {
@@ -96,6 +115,10 @@ export class PathHelperService {
 
   public projectCalendarPath(projectId:string) {
     return this.projectPath(projectId) + '/work_packages/calendar';
+  }
+
+  public projectMembershipsPath(projectId:string) {
+    return this.projectPath(projectId) + '/members';
   }
 
   public projectNewsPath(projectId:string) {
@@ -126,7 +149,7 @@ export class PathHelperService {
     return this.projectWorkPackagesPath(projectId) + '/new';
   }
 
-  public projectBoardsPath(projectIdentifier:string | null) {
+  public projectBoardsPath(projectIdentifier:string|null) {
     if (projectIdentifier) {
       return this.projectPath(projectIdentifier) + '/boards';
     } else {
@@ -146,14 +169,6 @@ export class PathHelperService {
     } else {
       return this.staticBase + suffix; // time entries root path
     }
-  }
-
-  public timeEntryPath(timeEntryIdentifier:string) {
-    return this.staticBase + '/time_entries/' + timeEntryIdentifier;
-  }
-
-  public timeEntryEditPath(timeEntryIdentifier:string) {
-    return this.timeEntryPath(timeEntryIdentifier) + '/edit';
   }
 
   public usersPath() {
@@ -197,7 +212,7 @@ export class PathHelperService {
   }
 
   public projectLevelListPath() {
-    return this.projectsPath() +  '/level_list.json';
+    return this.projectsPath() + '/level_list.json';
   }
 
   public textFormattingHelp() {

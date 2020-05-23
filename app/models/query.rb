@@ -1,8 +1,8 @@
 #-- encoding: UTF-8
 
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -28,7 +28,7 @@
 # See docs/COPYRIGHT.rdoc for more details.
 #++
 
-class Query < ActiveRecord::Base
+class Query < ApplicationRecord
   include Timelines
   include Highlighting
   include ManualSorting
@@ -66,6 +66,8 @@ class Query < ActiveRecord::Base
   scope(:global, -> { where(project_id: nil) })
 
   scope(:hidden, -> { where(hidden: true) })
+
+  scope(:non_hidden, -> { where(hidden: false) })
 
   def self.new_default(attributes = nil)
     new(attributes).tap do |query|
@@ -186,6 +188,7 @@ class Query < ActiveRecord::Base
 
   def add_short_filter(field, expression)
     return unless expression
+
     parms = expression.scan(/\A(o|c|!\*|!|\*)?(.*)\z/).first
     add_filter field, (parms[0] || '='), [parms[1] || '']
   end
@@ -328,11 +331,13 @@ class Query < ActiveRecord::Base
       .map do |attribute, direction|
         attribute = attribute.to_sym
 
-        column = sortable_columns
-                 .detect { |candidate| candidate.name == attribute }
-
-        [column, direction]
+        [sort_criteria_column(attribute), direction]
       end
+  end
+
+  def sort_criteria_column(attribute)
+    sortable_columns
+      .detect { |candidate| candidate.name == attribute }
   end
 
   def sorted?
@@ -370,9 +375,8 @@ class Query < ActiveRecord::Base
   end
 
   # Returns the result set
-  # Valid options are :order, :include, :conditions
-  def results(options = {})
-    Results.new(self, options)
+  def results
+    Results.new(self)
   end
 
   # Returns the journals

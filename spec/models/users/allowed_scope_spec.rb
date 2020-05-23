@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -31,8 +31,8 @@ require 'spec_helper'
 describe User, 'allowed scope' do
   let(:user) { member.principal }
   let(:anonymous) { FactoryBot.build(:anonymous) }
-  let(:project) { FactoryBot.build(:project, is_public: false) }
-  let(:project2) { FactoryBot.build(:project, is_public: false) }
+  let(:project) { FactoryBot.build(:project, public: false) }
+  let(:project2) { FactoryBot.build(:project, public: false) }
   let(:role) { FactoryBot.build(:role) }
   let(:role2) { FactoryBot.build(:role) }
   let(:anonymous_role) { FactoryBot.build(:anonymous_role) }
@@ -63,7 +63,7 @@ describe User, 'allowed scope' do
     end
 
     it 'should return the user' do
-      expect(User.allowed(action, project)).to match_array [user]
+      expect(User.allowed(action, project).where(id: user.id)).to match_array [user]
     end
   end
 
@@ -76,7 +76,7 @@ describe User, 'allowed scope' do
     end
 
     it 'should return the user' do
-      expect(User.allowed(action, project)).to match_array [user]
+      expect(User.allowed(action, project).where(id: user.id)).to match_array [user]
     end
   end
 
@@ -90,7 +90,7 @@ describe User, 'allowed scope' do
     end
 
     it 'should be empty' do
-      expect(User.allowed(action, project)).to be_empty
+      expect(User.allowed(action, project).where(id: user.id)).to be_empty
     end
   end
 
@@ -103,7 +103,7 @@ describe User, 'allowed scope' do
     end
 
     it 'should return the user' do
-      expect(User.allowed(action, project)).to be_empty
+      expect(User.allowed(action, project).where(id: user.id)).to be_empty
     end
   end
 
@@ -120,7 +120,7 @@ describe User, 'allowed scope' do
     end
 
     it 'should be empty' do
-      expect(User.allowed(action, project)).to be_empty
+      expect(User.allowed(action, project).where(id: user.id)).to be_empty
     end
   end
 
@@ -132,15 +132,14 @@ describe User, 'allowed scope' do
     before do
       role.add_permission! action
 
-      project.is_public = true
-      project.save!
+      project.update(public: true)
 
       member.project = project2
       member.save!
     end
 
     it 'should be empty' do
-      expect(User.allowed(action, project)).to be_empty
+      expect(User.allowed(action, project).where(id: user.id)).to be_empty
     end
   end
 
@@ -149,7 +148,7 @@ describe User, 'allowed scope' do
            w/o the user being member in the project
            w/ the non member role having the necessary permission' do
     before do
-      project.is_public = true
+      project.public = true
 
       non_member = Role.non_member
       non_member.add_permission! action
@@ -158,7 +157,7 @@ describe User, 'allowed scope' do
     end
 
     it 'should return the user' do
-      expect(User.allowed(action, project)).to match_array [user]
+      expect(User.allowed(action, project).where(id: user.id)).to match_array [user]
     end
   end
 
@@ -167,7 +166,7 @@ describe User, 'allowed scope' do
            w/o the user being member in the project
            w/ the anonymous role having the necessary permission' do
     before do
-      project.is_public = true
+      project.public = true
 
       anonymous_role = Role.anonymous
       anonymous_role.add_permission! action
@@ -176,7 +175,7 @@ describe User, 'allowed scope' do
     end
 
     it 'should return the anonymous user' do
-      expect(User.allowed(action, project)).to match_array([anonymous])
+      expect(User.allowed(action, project).where(id: [user.id, anonymous.id])).to match_array([anonymous])
     end
   end
 
@@ -185,7 +184,7 @@ describe User, 'allowed scope' do
            w/o the user being member in the project
            w/ the non member role having another permission' do
     before do
-      project.is_public = true
+      project.public = true
 
       non_member = Role.non_member
       non_member.add_permission! other_action
@@ -194,7 +193,7 @@ describe User, 'allowed scope' do
     end
 
     it 'should be empty' do
-      expect(User.allowed(action, project)).to be_empty
+      expect(User.allowed(action, project).where(id: user.id)).to be_empty
     end
   end
 
@@ -210,7 +209,7 @@ describe User, 'allowed scope' do
     end
 
     it 'should be empty' do
-      expect(User.allowed(action, project)).to be_empty
+      expect(User.allowed(action, project).where(id: user.id)).to be_empty
     end
   end
 
@@ -220,7 +219,7 @@ describe User, 'allowed scope' do
            w/o the role having the necessary permission
            w/ the non member role having the permission' do
     before do
-      project.is_public = true
+      project.public = true
       project.save
 
       role.add_permission! other_action
@@ -231,7 +230,7 @@ describe User, 'allowed scope' do
     end
 
     it 'should be empty' do
-      expect(User.allowed(action, project)).to be_empty
+      expect(User.allowed(action, project).where(id: user.id)).to be_empty
     end
   end
 
@@ -245,7 +244,7 @@ describe User, 'allowed scope' do
     end
 
     it 'should return the user' do
-      expect(User.allowed(public_action, project)).to match_array [user]
+      expect(User.allowed(public_action, project).where(id: user.id)).to match_array [user]
     end
   end
 
@@ -255,12 +254,12 @@ describe User, 'allowed scope' do
            w/o the role having the permission
            w/ the permission being public' do
     before do
-      project.is_public = true
+      project.public = true
       project.save
     end
 
     it 'should return the user and anonymous' do
-      expect(User.allowed(public_action, project)).to match_array [user, anonymous]
+      expect(User.allowed(public_action, project).where(id: [user.id, anonymous.id])).to match_array [user, anonymous]
     end
   end
 
@@ -281,7 +280,7 @@ describe User, 'allowed scope' do
     end
 
     it 'should be empty' do
-      expect(User.allowed(permission.name, project)).to eq []
+      expect(User.allowed(permission.name, project).where(id: user.id)).to eq []
     end
   end
 
@@ -302,7 +301,7 @@ describe User, 'allowed scope' do
     end
 
     it 'should return the user' do
-      expect(User.allowed(permission.name, project)).to eq [user]
+      expect(User.allowed(permission.name, project).where(id: user.id)).to eq [user]
     end
   end
 
@@ -315,7 +314,7 @@ describe User, 'allowed scope' do
       role.add_permission! action
       member.save!
 
-      project.update_attribute(:status, Project::STATUS_ARCHIVED)
+      project.update(active: false)
     end
 
     it 'should be empty' do
@@ -332,7 +331,7 @@ describe User, 'allowed scope' do
     end
 
     it 'should return the user' do
-      expect(User.allowed_members(action, project)).to be_empty
+      expect(User.allowed_members(action, project).where(id: user.id)).to be_empty
     end
   end
 
@@ -347,7 +346,7 @@ describe User, 'allowed scope' do
     end
 
     it 'should return the user' do
-      expect(User.allowed_members(action, project)).to match_array [user]
+      expect(User.allowed_members(action, project).where(id: user.id)).to match_array [user]
     end
   end
 
@@ -360,7 +359,7 @@ describe User, 'allowed scope' do
     end
 
     it 'should return the user' do
-      expect(User.allowed_members(action, project)).to be_empty
+      expect(User.allowed_members(action, project).where(id: user.id)).to be_empty
     end
   end
 
@@ -369,7 +368,7 @@ describe User, 'allowed scope' do
            w/ the user being member in the project
            w/ the role having the necessary permission' do
     before do
-      project.update_attribute(:is_public, true)
+      project.update_attribute(:public, true)
 
       role.add_permission! action
 
@@ -377,7 +376,7 @@ describe User, 'allowed scope' do
     end
 
     it 'should return the user' do
-      expect(User.allowed_members(action, project)).to match_array [user]
+      expect(User.allowed_members(action, project).where(id: user.id)).to match_array [user]
     end
   end
 
@@ -386,13 +385,13 @@ describe User, 'allowed scope' do
            w/o the user being member in the project
            w/ the role having the necessary permission' do
     before do
-      project.update_attribute(:is_public, true)
+      project.update_attribute(:public, true)
 
       role.add_permission! action
     end
 
     it 'should return the user' do
-      expect(User.allowed_members(action, project)).to be_empty
+      expect(User.allowed_members(action, project).where(id: user.id)).to be_empty
     end
   end
 end

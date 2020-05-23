@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -64,7 +64,7 @@ describe ::OAuth::ApplicationsController, type: :controller do
   describe '#new' do
     it do
       get :new
-      expect(response).to be_success
+      expect(response.status).to eql 200
       expect(response).to render_template :new
     end
   end
@@ -79,7 +79,7 @@ describe ::OAuth::ApplicationsController, type: :controller do
 
     it do
       get :edit, params: { id: 1, application: { name: 'foo' } }
-      expect(response).to be_success
+      expect(response.status).to eql 200
       expect(response).to render_template :edit
     end
   end

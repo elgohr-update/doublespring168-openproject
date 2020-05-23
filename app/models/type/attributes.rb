@@ -1,8 +1,8 @@
 #-- encoding: UTF-8
 
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -61,8 +61,12 @@ module Type::Attributes
     #
     # @return [Hash{String => Hash}] Map from attribute names to options.
     def all_work_package_form_attributes(merge_date: false)
+      wp_cf_cache_parts = RequestStore.fetch(:wp_cf_max_updated_at_and_count) do
+        WorkPackageCustomField.pluck(Arel.sql('max(updated_at), count(id)')).flatten
+      end
+
       OpenProject::Cache.fetch('all_work_package_form_attributes',
-                               *WorkPackageCustomField.pluck(Arel.sql('max(updated_at), count(id)')).flatten,
+                               *wp_cf_cache_parts,
                                merge_date) do
         calculate_all_work_package_form_attributes(merge_date)
       end
@@ -150,7 +154,7 @@ module Type::Attributes
   end
 
   ##
-  # Get all applicale work package attributes
+  # Get all applicable work package attributes
   def work_package_attributes(merge_date: true)
     all_attributes = self.class.all_work_package_form_attributes(merge_date: merge_date)
 

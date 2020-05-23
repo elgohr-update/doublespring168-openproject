@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -30,7 +30,9 @@ require 'spec_helper'
 
 describe 'Wysiwyg tables',
          type: :feature, js: true do
-  let(:user) { FactoryBot.create :admin }
+  using_shared_fixtures :admin
+  let(:user) { admin }
+
   let(:project) { FactoryBot.create(:project, enabled_module_names: %w[wiki]) }
   let(:editor) { ::Components::WysiwygEditor.new }
 
@@ -134,6 +136,57 @@ describe 'Wysiwyg tables',
           expect(editable).to have_selector('th', text: 'h1')
           expect(editable).to have_selector('th', text: 'h2')
           expect(editable).to have_selector('td', text: 'a')
+        end
+      end
+
+      it 'can add styled tables' do
+        editor.in_editor do |container, editable|
+          # strangely, we need visible: :all here
+          editor.click_toolbar_button 'Insert table'
+          # 2x2
+          container.find('.ck-insert-table-dropdown-grid-box:nth-of-type(12)').click
+
+          # Edit table
+          tds = editable.all('.table.ck-widget td')
+          values = %w(h1 h2 a)
+          expect(tds.length).to eq(4)
+
+          tds.take(3).each_with_index do |td, i|
+            td.click
+            td.send_keys values[i]
+            sleep 0.5
+          end
+
+          # style first td
+          tds.first.click
+
+          # Click row toolbar
+          editor.click_hover_toolbar_button 'Cell properties'
+
+          # Enable header row
+          expect(page).to have_selector('.ck-input-color input', count: 2)
+          # Pick the latter one, it's the background color
+          page.all('.ck-input-color input').last.set '#123456'
+          find('.ck-button-save').click
+
+          # Table should now have header
+          expect(editable).to have_selector('td[style*="background-color:#123456"]')
+        end
+
+        # Save wiki page
+        click_on 'Save'
+
+        expect(page).to have_selector('.flash.notice')
+
+        within('#content') do
+          expect(page).to have_selector('td[style*="background-color:#123456"]')
+        end
+
+        # Edit again
+        click_on 'Edit'
+
+        editor.in_editor do |container, editable|
+          expect(editable).to have_selector('td[style*="background-color:#123456"]')
         end
       end
     end

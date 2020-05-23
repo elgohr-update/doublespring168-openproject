@@ -1,8 +1,8 @@
 #-- encoding: UTF-8
 
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -81,6 +81,7 @@ module WorkPackage::Journalized
 
     register_on_journal_formatter(:id, 'parent_id')
     register_on_journal_formatter(:fraction, 'estimated_hours')
+    register_on_journal_formatter(:fraction, 'derived_estimated_hours')
     register_on_journal_formatter(:decimal, 'done_ratio')
     register_on_journal_formatter(:diff, 'description')
     register_on_journal_formatter(:attachment, /attachments_?\d+/)
@@ -90,7 +91,7 @@ module WorkPackage::Journalized
     register_on_journal_formatter :named_association, :parent_id, :project_id,
                                   :status_id, :type_id,
                                   :assigned_to_id, :priority_id,
-                                  :category_id, :fixed_version_id,
+                                  :category_id, :version_id,
                                   :planning_element_status_id,
                                   :author_id, :responsible_id
     register_on_journal_formatter :datetime, :start_date, :due_date

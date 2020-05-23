@@ -1,3 +1,24 @@
+#-- copyright
+#OpenProject is an open source project management software.
+#Copyright (C) 2012-2020 the OpenProject GmbH
+#This program is free software; you can redistribute it and/or
+#modify it under the terms of the GNU General Public License version 3.
+#OpenProject is a fork of ChiliProject, which is a fork of Redmine. The copyright follows:
+#Copyright (C) 2006-2017 Jean-Philippe Lang
+#Copyright (C) 2010-2013 the ChiliProject Team
+#This program is free software; you can redistribute it and/or
+#modify it under the terms of the GNU General Public License
+#as published by the Free Software Foundation; either version 2
+#of the License, or (at your option) any later version.
+#This program is distributed in the hope that it will be useful,
+#but WITHOUT ANY WARRANTY; without even the implied warranty of
+#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#GNU General Public License for more details.
+#You should have received a copy of the GNU General Public License
+#along with this program; if not, write to the Free Software
+#Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+#See docs/COPYRIGHT.rdoc for more details.
+#++
 nl:
   js:
     ajax:
@@ -15,24 +36,17 @@ nl:
     close_popup_title: "Popup sluiten"
     close_filter_title: "Sluit filter"
     close_form_title: "Sluit formulier"
-    card:
-      add_new: 'Nieuwe kaart toevoegen'
-      highlighting:
-        inline: 'Markeer inline:'
-        entire_card_by: 'Gehele kaart door'
-      remove_from_list: 'Verwijder kaart uit lijst'
-    clipboard:
-      browser_error: "Uw browser ondersteunt kopiëren naar het klembord niet. Kopieer de geselecteerde tekst handmatig."
-      copied_successful: "Met succes gekopieerd naar het klembord!"
     button_add_watcher: "Watcher toevoegen"
+    button_add: "Toevoegen"
     button_back: "Terug"
     button_back_to_list_view: "Terug naar het overzicht"
     button_cancel: "Annuleren"
     button_close: "Sluiten"
+    button_change_project: "Change project"
     button_check_all: "Selecteer alles"
     button_configure-form: "Formulier configureren"
     button_confirm: "Accepteren"
-    button_continue: "Ga verder"
+    button_continue: "Verdergaan"
     button_copy: "Kopieer"
     button_custom-fields: "Aangepaste velden"
     button_delete: "Verwijderen"
@@ -46,10 +60,11 @@ nl:
     button_show_view: "Fullscreen weergave"
     button_log_time: "Gelogde tijd"
     button_more: "Meer"
-    button_move: "Verplaatsen"
     button_open_details: "Open detailweergave"
     button_close_details: "Sluit detailweergave"
     button_open_fullscreen: "Open volledig scherm"
+    button_show_cards: "Show card view"
+    button_show_list: "Show list view"
     button_quote: "Citeer"
     button_save: "Opslaan"
     button_settings: "Instellingen"
@@ -59,7 +74,34 @@ nl:
     button_export-atom: "Download Atom"
     calendar:
       title: 'Kalender'
-      too_many: 'Er zijn meer werkpakketten (%{count}) dan kunnen worden weergegeven op de kalender (%{max}). Voeg filters te concentreren op de relevante items.'
+      too_many: 'There are %{count} work packages in total, but only %{max} can be shown.'
+    card:
+      add_new: 'Nieuwe kaart toevoegen'
+      highlighting:
+        inline: 'Markeer inline:'
+        entire_card_by: 'Gehele kaart door'
+      remove_from_list: 'Verwijder kaart uit lijst'
+    caption_rate_history: "Rate history"
+    clipboard:
+      browser_error: "Uw browser ondersteunt kopiëren naar het klembord niet. Kopieer de geselecteerde tekst handmatig."
+      copied_successful: "Met succes gekopieerd naar het klembord!"
+    chart:
+      type: 'Chart type'
+      axis_criteria: 'Axis criteria'
+      modal_title: 'Work package graph configuration'
+      types:
+        line: 'Line'
+        horizontal_bar: 'Horizontal bar'
+        bar: 'Bar'
+        pie: 'Pie'
+        doughnut: 'Doughnut'
+        radar: 'Radar'
+        polar_area: 'Polar area'
+      tabs:
+        graph_settings: 'Algemeen'
+        dataset: 'Dataset %{number}'
+      errors:
+        could_not_load: 'The data to display the graph could not be loaded. The necessary permissions may be lacking.'
     description_available_columns: "Beschikbare kolommen"
     description_current_position: "You are here: "
     description_select_work_package: "Selecteer werk pakket #%{id}"
@@ -122,6 +164,59 @@ nl:
         edit_query: 'Edit query'
         new_group: 'Nieuwe groep'
         reset_to_defaults: 'Standaardinstellingen herstellen'
+      enterprise:
+        trial:
+          confirmation: "Confirmation of email address"
+          confirmation_info: "We sent you an email. Please check your emails and click the confirmation link provided to start your 14 days trial."
+          form:
+            general_consent: >
+              I agree with the <a target="_blank" href="%{link_terms}">terms of service</a> and the <a target="_blank" href="%{link_privacy}">privacy policy</a>.
+            invalid_email: "Invalid email address"
+            label_company: "Company"
+            label_first_name: "Voornaam"
+            label_last_name: "Achternaam"
+            label_email: "E-mail"
+            label_domain: "Domain"
+            label_subscriber: "Abonnee"
+            label_maximum_users: "Maximum aantal actieve gebruikers"
+            label_starts_at: "Starts at"
+            label_expires_at: "Verloopt op"
+            receive_newsletter: I want to receive the OpenProject <a target="_blank" href="%{link}">newsletter</a>.
+            taken_domain: There can only be one active trial per domain.
+            taken_email: Each user can only create one trial.
+          email_not_received: "You did not receive an email? You can resend the email with the link on the right."
+          try_another_email: "Or try it with another email address."
+          next_steps: "Next steps"
+          resend_link: "Opnieuw verzenden"
+          resend_success: "Email has been resent. Please check your emails and click the confirmation link provided."
+          resend_warning: "Could not resend email."
+          session_timeout: "Your session timed out. Please try to reload the page or resend email."
+          status_label: "Status:"
+          status_confirmed: "confirmed"
+          status_waiting: "email sent - waiting for confirmation"
+          test_ee: "Test the Enterprise Edition 14 days for free"
+          quick_overview: "Get a quick overview of project management and team collaboration with OpenProject Enterprise Edition."
+        upsale:
+          become_hero: "Word een held!"
+          benefits:
+            description: "Wat zijn de voordelen?"
+            high_security: "Security features"
+            high_security_text: "Single sign on (SAML, OpenID Connect, CAS), two-factor authentication and automatic sync of LDAP groups."
+            installation: "Installation support"
+            installation_text: "Experienced software engineers guide you through the complete installation and setup process in your own infrastructure."
+            premium_features: "Premium features"
+            premium_features_text: "Agile boards, custom theme and logo, graphs, intelligent workflows with custom actions, full text search for work package attachments and multi-select custom fields."
+            professional_support: "Professionele ondersteuning"
+            professional_support_text: "Get reliable, high-touch support from senior support engineers with expert knowledge about running OpenProject in business-critical environments."
+          button_start_trial: "Start free trial"
+          button_book_now: "Book now"
+          confidence: >
+            We deliver the confidence of a tested and supported enterprise-class project management software - with Open Source and an open mind.
+          link_quote: "Get a quote"
+          text: >
+            The OpenProject Enterprise Edition builds on top of the Community Edition. It includes premium features and professional support mainly aimed at organizations with more than 10 users that manage business critical projects with OpenProject.
+          unlimited: "Unlimited"
+          you_contribute: "Developers need to pay their bills, too. With the Enterprise Edition, you substantially contribute to this Open Source community effort."
     custom_actions:
       date:
         specific: 'op'
@@ -131,6 +226,9 @@ nl:
       cannot_save_changes_with_message: "Uw wijzigingen vanwege de volgende fout niet opslaan: %{error}"
       query_saving: "Het overzicht kon niet bewaard worden."
       embedded_table_loading: "De ingesloten weergave kon niet worden geladen: %{message}"
+    enumeration_activities: "Activiteiten (tijdregistratie)"
+    enumeration_doc_categories: "Document categories"
+    enumeration_work_package_priorities: "Werkpakket prioriteiten"
     filter:
       description:
         text_open_filter: "Open dit filter met de 'ALT'-knop en toetsenbord pijlen."
@@ -152,43 +250,28 @@ nl:
     general_text_yes: "Ja"
     general_text_No: "Nee"
     general_text_Yes: "Ja"
-    grid:
-      add_modal:
-        choose_widget: 'Widget kiezen'
-      remove: 'Remove widget'
-      widgets:
-        documents:
-          title: 'Documenten'
-          no_results: 'Geen documenten.'
-        news:
-          title: 'Nieuws'
-          at: 'bij'
-          no_results: 'Niets nieuws om te rapporteren.'
-        time_entries_current_user:
-          title: 'Besteed tijd (laatste 7 dagen)'
-          no_results: 'Geen tijd items voor de afgelopen 7 dagen.'
-        work_packages_accountable:
-          title: "Werkpakketten waar ik verantwoordelijk voor ben"
-        work_packages_assigned:
-          title: 'Werkpakketten toegewezen aan mij'
-        work_packages_created:
-          title: 'Werkpakketten gemaakt door mij werk werk'
-        work_packages_watched:
-          title: 'Werkpakketten bekeken door mij'
-        work_packages_table:
-          title: 'Werkpakketten'
-        work_packages_calendar:
-          title: 'Kalender'
+    global_roles: Globale functies
+    hal:
+      error:
+        update_conflict_refresh: "Click here to refresh the resource and update to the newest version."
+        edit_prohibited: "Editing %{attribute} is blocked for this resource. Either this attribute is derived from relations (e.g, children) or otherwise not configurable."
+        format:
+          date: "%{attribute} is geen geldige datum - JJJJ-MM-DD verwacht."
+        general: "Er is een fout opgetreden."
     homescreen:
       blocks:
         new_features:
           text_new_features: "Read about new features and product updates."
-          current_new_feature_html: "OpenProject contains a new <b>Boards view</b> for Agile project management. </br> To activate this new feature for your existing projects, please do the following steps: <ul><li>Activate the module Boards within existing projects' settings.</li> <li>Configure your Boards in a project.</li> <li>Verify roles and permissions</li></ul>"
-          image_alt_text: "Board teaser image"
-          learn_about: "Learn more about Agile Boards"
+          learn_about: "Learn more about the new features"
+          standard:
+            learn_about_link: https://www.openproject.org/openproject-10-5
+            current_new_feature_html: >
+              The release contains various new features and improvements: <br><br> <ul> <li><b>Action board for assignees</b>: create action boards that will automatically update the assignee when moving cards across lists.</li> <li>Sort versions by name not by dates which makes it much easier to select a version from the list.</li> <li><b>Remove 24-hour restriction</b> for time tracking.</li> <li>Show news summary on project overview widget.</li> <li>Various bug fixes and <b>usability improvements</b>.</li> </ul>
+          bim:
+            learn_about_link: https://www.openproject.org/openproject-bim-10-5
+            current_new_feature_html: >
+              OpenProject 10.5 now supports the <b>BIM Collaboration Format (BCF)</b> – the open issue tracking standard for BIM models.<br><br> <ul> <li>Easily create and <b>manage BIM issues</b> such as clashes, requests and questions in the interactive 3D IFC model and <b>share it with the project team.</b></li> <li>Integrate OpenProject with your favorite BIM software using the powerful <a target="_blank" href="%{bcf_api_link}">BCF REST API.</a></li> <li>Import and export BCF XML files.</li> </ul>
     label_activate: "Activeren"
-    label_activity_no: "Activiteit ingangsnummer %{activityNo}"
-    label_activity_with_comment_no: "Activiteit ingangsnummer %{activityNo}. Bevat gebruikerscommentaar."
     label_add_column_after: "Kolom toevoegen na"
     label_add_column_before: "Kolom toevoegen voor"
     label_add_columns: "Kolommen toevoegen"
@@ -198,13 +281,14 @@ nl:
     label_add_row_before: "Rij voor toevoegen"
     label_add_selected_columns: "Geselecteerde kolommen toevoegen"
     label_added_by: "toegevoegd door"
-    label_added_time_by: "Toegevoegd door %{author} %{age}"
+    label_added_time_by: "Added by <a href=%{authorLink}>%{author}</a> at %{age}"
     label_ago: "dagen geleden"
     label_all: "alle"
     label_all_work_packages: "alle werkpakketten"
     label_and: "en"
     label_ascending: "Oplopend"
     label_author: "Auteur: %{user}"
+    label_avatar: "Avatar"
     label_between: "tussen"
     label_board: "Bord"
     label_board_locked: "Vergrendeld"
@@ -218,6 +302,8 @@ nl:
     label_deactivate: "Deactiveren"
     label_descending: "Aflopend"
     label_description: "Omschrijving"
+    label_details: "Details"
+    label_display: "Weergave"
     label_cancel_comment: "Annuleer reactie"
     label_closed_work_packages: "gesloten"
     label_collapse: "Samenvouwen"
@@ -236,32 +322,42 @@ nl:
     label_expand_all: "Alles uitklappen"
     label_expand_project_menu: "Menu project uitvouwen"
     label_export: "Exporteren"
+    label_export_preparing: "The export is being prepared and will be downloaded shortly."
     label_filename: "Bestand"
     label_filesize: "Grootte"
+    label_general: "Algemeen"
     label_greater_or_equal: ">="
     label_group: 'Groep'
     label_group_by: "Groeperen op"
+    label_group_plural: "Groepen"
     label_hide_attributes: "Toon minder"
     label_hide_column: "Verberg kolom"
     label_hide_project_menu: "Project menu samenvouwen"
     label_in: "in"
     label_in_less_than: "in minder dan"
     label_in_more_than: "in meer dan"
+    label_incoming_emails: "Inkomende e-mails"
+    label_information_plural: "Informatie"
+    label_import: "Import"
     label_latest_activity: "Laatste Activiteit"
     label_last_updated_on: "Laatst geüpdatet op"
+    label_learn_more_link: "Meer informatie"
     label_less_or_equal: "<="
     label_less_than_ago: "minder dan dagen geleden"
     label_loading: "Laden..."
+    label_mail_notification: "E-mailnotificaties"
     label_me: "ik"
+    label_meeting_agenda: "Agenda"
+    label_meeting_minutes: "Minuten"
     label_menu_collapse: "samenvouwen"
     label_menu_expand: "uitbreiden"
     label_more_than_ago: "meer dan dagen geleden"
-    label_my_page: "Mijn pagina"
     label_next: "Volgende"
     label_no_color: "Geen kleur"
     label_no_data: "Geen gegevens om weer te geven"
     label_no_due_date: "geen einddatum"
     label_no_start_date: "geen startdatum"
+    label_no_value: "Geen waarde"
     label_none: "geen"
     label_not_contains: "bevat geen"
     label_not_equals: "is niet"
@@ -273,12 +369,16 @@ nl:
     label_previous: "Vorige"
     label_per_page: "Per pagina:"
     label_please_wait: "Een ogenblik geduld"
+    label_project_plural: "Projecten"
     label_visibility_settings: "Zichtbaarheidsinstellingen"
     label_quote_comment: "Citeer dit commentaar"
+    label_recent: "Recent"
     label_reset: "Herstel"
     label_remove_column: "Kolom verwijderen"
     label_remove_columns: "Verwijder geselecteerde kolommen"
     label_remove_row: "Rij verwijderen"
+    label_report: "Rapport"
+    label_repository_plural: "Repositories"
     label_save_as: "Opslaan als"
     label_select_watcher: "Kies een toezichter..."
     label_selected_filter_list: "Geselecteerde filters"
@@ -289,19 +389,24 @@ nl:
     label_sort_higher: "Omhoog"
     label_sort_lower: "Omlaag"
     label_sorting: "Sortering"
+    label_spent_time: "Bestede tijd"
     label_star_query: "Favoriet"
     label_press_enter_to_save: "Druk op Enter om te bewaren."
     label_public_query: "Publiek"
+    label_sum: "Som"
     label_sum_for: "Som voor"
     label_subject: "Onderwerp"
     label_this_week: "deze week"
     label_today: "vandaag"
+    label_time_entry_plural: "Bestede tijd"
     label_up: "Omhoog"
+    label_user_plural: "Gebruikers"
     label_activity_show_only_comments: "Geef alleen activiteiten met commentaar weer"
     label_activity_show_all: "Geef alle activiteiten weer"
     label_total_progress: "%{percent}% totale vooruitgang"
     label_total_amount: "Totaal: %{amount}"
     label_updated_on: "bijgewerkt op"
+    label_value_derived_from_children: "(value derived from children)"
     label_warning: "Waarschuwing"
     label_work_package: "Werkpakket"
     label_work_package_plural: "Werkpakketten"
@@ -337,6 +442,7 @@ nl:
     label_wait: "Moment geduld a.u.b. voor configuratie..."
     label_upload_counter: "%{done} van %{count} bestanden afgerond"
     label_validation_error: "Het werkpakket kon niet worden opgeslagen vanwege de volgende fouten:"
+    label_version_plural: "Versies"
     label_view_has_changed: "This view has unsaved changes. Click to save them."
     help_texts:
       show_modal: 'Toon kenmerk help tekstinvoer'
@@ -403,23 +509,22 @@ nl:
         upgrade_to_ee_text: "Wow! Als u deze functie nodig heeft bent u een super pro! Zou u de opensource ontwikkelaars willen ondersteunen door een licentie te nemen op de enterprice edition?"
         more_information: "Meer informatie"
         nevermind: "Geen aandacht"
-        filter_types:
-          parent: "onderliggend van"
-          precedes: "voorafgaand aan"
-          follows: "volgende"
-          relates: "met betrekking tot"
-          duplicates: "dupliceren"
-          duplicated: "gedupliceerd door"
-          blocks: "blokkeren"
-          blocked: "vergrendeld door"
-          partof: "die deel uitmaken van"
-          includes: "inclusief"
-          requires: "vereisen"
-          required: "vereist door"
+      edit:
+        form_configuration: "Form Configuration"
+        projects: "Projecten"
+        settings: "Instellingen"
     time_entry:
+      project: 'Project'
+      work_package: 'Werkpakket'
+      work_package_required: 'Requires selecting a work package first.'
       activity: 'Activiteit'
       comment: 'Commentaar'
+      duration: 'Duur'
+      spent_on: 'Datum'
       hours: 'Uren'
+      title: 'Gelogde tijd'
+    two_factor_authentication:
+      label_two_factor_authentication: 'Twee-factor-authenticatie'
     watchers:
       label_loading: volgers worden geladen...
       label_error_loading: Er is een fout opgetreden tijdens het laden van de volgers
@@ -450,6 +555,8 @@ nl:
       set_parent: "Stel bovenliggend in"
       change_parent: "Wijzig bovenliggende pagina"
       remove_parent: "Verwijder bovenliggende map"
+      hierarchy_indent: "Indent hierarchy"
+      hierarchy_outdent: "Outdent hierarchy"
       group_by_wp_type: "Groep per werkpakkettype"
       group_by_relation_type: "Groep per relatietype"
       add_parent: "Voeg bestaande ouder toe"
@@ -475,16 +582,6 @@ nl:
       select_tag: 'Selecteer label'
       select_branch: 'Selecteer pad'
     field_value_enter_prompt: "Breng een waarde in voor veld '%{field}'"
-    select2:
-      input_too_short:
-        one: "Voeg {{count}} extra karakter toe"
-        other: "Voeg {{count}} extra karakters toe"
-      load_more: "Meer resultaten laden ..."
-      no_matches: "Geen overeenkomsten gevonden"
-      searching: "Bezig met zoeken ..."
-      selection_too_big:
-        one: "Je kunt maar {{limit}} onderdeel selecteren"
-        other: "Je kunt maar {{limit}} onderdelen selecteren"
     project_menu_details: "Details"
     sort:
       sorted_asc: 'Oplopende sorteervolgorde toegepast, '
@@ -577,7 +674,7 @@ nl:
       image: "Afbeelding"
     work_packages:
       bulk_actions:
-        move: 'Bulk verplaatsen'
+        move: 'Bulk change of project'
         edit: 'Aanpassen in bulk'
         copy: 'Selectie kopiëren'
         delete: 'Selectie verwijderen'
@@ -590,12 +687,6 @@ nl:
       description_enter_text: "Tekst invoeren"
       description_options_hide: "Verberg opties"
       description_options_show: "Toon opties"
-      error:
-        update_conflict_refresh: "Klik hier om het werkpakket vernieuwen en bijwerken naar de nieuwste versie."
-        edit_prohibited: "Het bewerken van %{attribute} is geblokkeerd voor dit werkpakket. Ofwel is dit attribuut afgeleid van relaties (bv. kinderen) of anders is het niet configureerbaar."
-        format:
-          date: "%{attribute} is geen geldige datum - JJJJ-MM-DD verwacht."
-        general: "Er is een fout opgetreden."
       edit_attribute: "%{attribute} - Bewerken"
       key_value: "%{key}: %{value}"
       label_enable_multi_select: "Laat meerkeuze toe"
@@ -609,7 +700,7 @@ nl:
       message_successful_show_in_fullscreen: "Klik hier om dit werkpakket te openen in volledig scherm."
       message_view_spent_time: "Toon bestede tijd voor dit werkpakket"
       message_work_package_read_only: "Werkpakket is opgesloten in deze status. Geen kenmerk dan status kan worden gewijzigd."
-      no_value: "Geen waarde"
+      message_work_package_status_blocked: "Work package status is not writable due to closed status and closed version being assigned."
       placeholder_filter_by_text: "Betreft, beschrijving, commentaar, ..."
       inline_create:
         title: 'Klik hier om een nieuw werkpakket aan deze lijst toe te voegen'
@@ -634,6 +725,7 @@ nl:
       no_results:
         title: Geen werkpakketten om te tonen.
         description: Ofwel zijn er geen gecreëerd ofwel zijn alle werkpakketten uitgefilterd.
+      limited_results: Only %{count} work packages can be shown in manual sorting mode. Please reduce the results by filtering.
       property_groups:
         details: "Details"
         people: "Mensen"
@@ -675,7 +767,7 @@ nl:
         label_content: "Klik hier om het menu overslaan en ga naar de inhoud"
       placeholders:
         default: "-"
-        description: "Klik om omschrijving in te geven..."
+        formattable: "%{name}: Click to edit..."
       query:
         column_names: "Kolommen"
         group_by: "Groepeer resultaten op"
@@ -693,6 +785,9 @@ nl:
         confirm_edit_cancel: "Weet u zeker dat u wilt stoppen met het bewerken van de naam van deze weergave? De Titel zal terug naar vorige waarde worden ingesteld."
         click_to_edit_query_name: "Klik om de titel van de weergave te bewerken."
         rename_query_placeholder: "Naam van deze weergave"
+        star_text: "Mark this view as favorite and add to the saved views sidebar on the left."
+        public_text: >
+          Publish this view, allowing other users to access your view. Users with the 'Manage public views' permission can modify or remove public query. This does not affect the visibility of work package results in that view and depending on their permissions, users may see different results.
         errors:
           unretrievable_query: "Het is onmogelijk om de weergave van de url op te halen"
           not_found: "Deze weergave bestaat niet"
@@ -731,14 +826,13 @@ nl:
           automatic: 'Automatic'
           manually: 'Manually'
           warning: 'You will lose your previous sorting when activating the automatic sorting mode.'
-        columns_help_text: "Gebruik de bovenstaande toegang voor het toevoegen of verwijderen van kolommen aan uw tabelweergave. U kunt de kolommen slepen en neerzetten om deze te rangschikken."
+        columns_help_text: "Use the input above to add columns to your table view. You can drag and drop the columns to reorder them."
         upsale:
           attribute_highlighting: 'Moeten bepaalde werkpakketten te onderscheiden zijn van de massa?'
           relation_columns: 'Nodig om te zien van betrekkingen in de pakketlijst werk?'
           check_out_link: 'Bekijk de Enterprise Edition.'
         relation_filters:
-          first_part: "Bekijk alle werkpakketten"
-          second_part: "her huidige werkpakket"
+          filter_work_packages_by_relation_type: 'Filter work packages by relation type'
       tabs:
         overview: Overzicht
         activity: Activiteit
@@ -824,8 +918,9 @@ nl:
         one: "één onderliggend werkpakket"
         other: "%{count} werkpakket kinderen"
       hour:
-        one: "%{count} uur"
-        other: "%{count} uren"
+        zero: "0 h"
+        one: "1 h"
+        other: "%{count} h"
     zen_mode:
       button_activate: 'Zen-modus activeren'
       button_deactivate: 'Deactiveren van zen modus'
@@ -839,3 +934,7 @@ nl:
         all_projects: "alle projecten"
         project_and_subprojects: "en alle subprojecten"
         search_for: "Zoeken naar"
+    views:
+      card: 'Cards'
+      list: 'Table'
+      timeline: 'Gantt'

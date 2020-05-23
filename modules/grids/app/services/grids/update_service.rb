@@ -1,8 +1,8 @@
 #-- encoding: UTF-8
 
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -31,10 +31,20 @@
 class Grids::UpdateService < ::BaseServices::Update
   protected
 
-  def update(attributes)
+  def perform(attributes)
     set_type_for_error_message(attributes.delete(:scope))
 
     super
+  end
+
+  def after_perform(service_call)
+    model.touch if only_widgets_updated?
+
+    super
+  end
+
+  def only_widgets_updated?
+    !model.saved_changes? && model.widgets.any?(&:saved_changes?)
   end
 
   # Changing the scope/type after the grid has been created is prohibited.

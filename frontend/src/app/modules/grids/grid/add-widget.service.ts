@@ -8,77 +8,59 @@ import {GridWidgetArea} from "core-app/modules/grids/areas/grid-widget-area";
 import {GridAreaService} from "core-app/modules/grids/grid/area.service";
 import {GridDragAndDropService} from "core-app/modules/grids/grid/drag-and-drop.service";
 import {GridResizeService} from "core-app/modules/grids/grid/resize.service";
-import {SchemaResource} from "core-app/modules/hal/resources/schema-resource";
+import {GridMoveService} from "core-app/modules/grids/grid/move.service";
+import {GridGap} from "core-app/modules/grids/areas/grid-gap";
+import {I18nService} from "core-app/modules/common/i18n/i18n.service";
 
 @Injectable()
 export class GridAddWidgetService {
+
+  text = { add: this.i18n.t('js.grid.add_widget') };
 
   constructor(readonly opModalService:OpModalService,
               readonly injector:Injector,
               readonly halResource:HalResourceService,
               readonly layout:GridAreaService,
               readonly drag:GridDragAndDropService,
-              readonly resize:GridResizeService) {
+              readonly move:GridMoveService,
+              readonly resize:GridResizeService,
+              readonly i18n:I18nService) {
   }
 
   public isAddable(area:GridArea) {
     return !this.drag.currentlyDragging &&
       !this.resize.currentlyResizing &&
-      this.layout.mousedOverArea === area &&
-      this.layout.gridAreaIds.includes(area.guid);
+      (this.layout.mousedOverArea === area || this.layout.isSingleCell || this.layout.inHelpMode) &&
+      this.isAllowed;
   }
 
-  public widget(area:GridArea, schema:SchemaResource) {
+  public widget(area:GridArea) {
     this
-      .select(area, schema)
+      .select(area)
       .then((widgetResource) => {
-        // try to set it to a 2 x 3 layout
-        // but shrink if that is outside the grid or
-        // overlaps any other widget
+
+        if (this.layout.isGap(area)) {
+          this.addLine(area as GridGap);
+        }
+
         let newArea = new GridWidgetArea(widgetResource);
 
-        newArea.endColumn = newArea.endColumn + 1;
-        newArea.endRow = newArea.endRow + 2;
+        this.setMaxWidth(newArea);
 
-        let maxRow:number = this.layout.numRows + 1;
-        let maxColumn:number = this.layout.numColumns + 1;
-
-        this.layout.widgetAreas.forEach((existingArea) => {
-          if (newArea.startColumnOverlaps(existingArea) &&
-            maxColumn > existingArea.startColumn) {
-            maxColumn = existingArea.startColumn;
-          }
-        });
-
-        if (maxColumn < newArea.endColumn) {
-          newArea.endColumn = maxColumn;
-        }
-
-        this.layout.widgetAreas.forEach((existingArea) => {
-          if (newArea.overlaps(existingArea) &&
-            maxRow > existingArea.startRow) {
-            maxRow = existingArea.startRow;
-          }
-        });
-
-        if (maxRow < newArea.endRow) {
-          newArea.endRow = maxRow;
-        }
-
-        newArea.writeAreaChangeToWidget();
-
-        this.layout.widgetResources.push(newArea.widget);
-
-        this.layout.buildAreas();
+        this.persist(newArea);
       })
       .catch(() => {
         // user didn't select a widget
       });
   }
 
-  private select(area:GridArea, schema:SchemaResource) {
+  public get addText() {
+    return this.text.add;
+  }
+
+  private select(area:GridArea) {
     return new Promise<GridWidgetResource>((resolve, reject) => {
-      const modal = this.opModalService.show(AddGridWidgetModal, this.injector, { schema: schema });
+      const modal = this.opModalService.show(AddGridWidgetModal, this.injector, { schema: this.layout.schema });
       modal.closingEvent.subscribe((modal:AddGridWidgetModal) => {
         let registered = modal.chosenWidget;
 
@@ -99,8 +81,43 @@ export class GridAddWidgetService {
 
         let resource = this.halResource.createHalResource(source) as GridWidgetResource;
 
+        resource.grid = this.layout.gridResource;
+
         resolve(resource);
       });
     });
+  }
+
+  private addLine(area:GridGap) {
+    if (area.isRow) {
+      // - 1 to have it added before
+      this.layout.addRow(area.startRow - 1, area.startColumn);
+    } else if (area.isColumn) {
+      // - 1 to have it added before
+      this.layout.addColumn(area.startColumn - 1, area.startRow);
+    }
+  }
+
+  // try to set it to a layout with a height of 1 and as wide as possible
+  // but shrink if that is outside the grid or overlaps any other widget
+  private setMaxWidth(area:GridWidgetArea) {
+    area.endColumn = this.layout.numColumns + 1;
+
+    this.layout.widgetAreas.forEach((existingArea) => {
+      if (area.startColumnOverlaps(existingArea)) {
+        area.endColumn = existingArea.startColumn;
+      }
+    });
+  }
+
+  private persist(area:GridWidgetArea) {
+    area.writeAreaChangeToWidget();
+    this.layout.widgetAreas.push(area);
+    this.layout.widgetResources.push(area.widget);
+    this.layout.rebuildAndPersist();
+  }
+
+  public get isAllowed() {
+    return this.layout.gridResource && this.layout.gridResource.updateImmediately;
   }
 }

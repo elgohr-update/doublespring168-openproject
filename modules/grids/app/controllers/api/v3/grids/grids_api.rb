@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -42,7 +42,7 @@ module API
 
             if query.valid?
               GridCollectionRepresenter.new(query.results,
-                                            api_v3_paths.time_entries,
+                                            api_v3_paths.grids,
                                             grid_scope: query.filter_scope,
                                             page: to_i_or_nil(params[:offset]),
                                             per_page: resolve_page_size(params[:pageSize]),
@@ -54,7 +54,7 @@ module API
 
           post &::API::V3::Utilities::Endpoints::Create.new(model: ::Grids::Grid).mount
 
-          mount CreateFormAPI
+          mount ::API::V3::Grids::CreateFormAPI
           mount ::API::V3::Grids::Schemas::GridSchemaAPI
 
           route_param :id, type: Integer, desc: 'Grid ID' do
@@ -70,6 +70,8 @@ module API
                                   current_user: current_user)
             end
 
+            mount ::API::V3::Attachments::AttachmentsByGridAPI
+
             # Hack to be able to use the Default* mount while having the permission check
             # not affecting the GET request
             namespace do
@@ -79,10 +81,31 @@ module API
                 end
               end
 
-              patch &::API::V3::Utilities::Endpoints::Update.new(model: ::Grids::Grid).mount
+              patch &::API::V3::Utilities::Endpoints::Update.new(model: ::Grids::Grid,
+                                                                 params_modifier: ->(params) do
+                                                                   params[:widgets]&.each do |widget|
+                                                                     # Need to parse the widget options again
+                                                                     # as the right representer needs to be used
+                                                                     # which is specific to the @grid.class. The parsing
+                                                                     # before strives to be agnostic.
+                                                                     strategy = ::Grids::Configuration
+                                                                                .widget_strategy(@grid.class,
+                                                                                                 widget.identifier)
+                                                                     representer = strategy.options_representer.constantize
+
+                                                                     widget.options = representer
+                                                                                      .new(OpenStruct.new, current_user: current_user)
+                                                                                      .from_hash(widget.options)
+                                                                                      .to_h
+                                                                                      .with_indifferent_access
+                                                                   end
+
+                                                                   params
+                                                                 end)
+                                                            .mount
               delete &::API::V3::Utilities::Endpoints::Delete.new(model: ::Grids::Grid).mount
 
-              mount UpdateFormAPI
+              mount ::API::V3::Grids::UpdateFormAPI
             end
           end
         end

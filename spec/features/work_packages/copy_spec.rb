@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -57,7 +57,7 @@ RSpec.feature 'Work package copy', js: true, selenium: true do
                      project: project,
                      assigned_to: assignee,
                      responsible: responsible,
-                     fixed_version: version,
+                     version: version,
                      type: type,
                      author: author)
   end
@@ -116,7 +116,7 @@ RSpec.feature 'Work package copy', js: true, selenium: true do
     work_package_page.ensure_page_loaded
     work_package_page.expect_attributes Subject: original_work_package.subject,
                                         Description: 'Copied WP Description',
-                                        Version: original_work_package.fixed_version,
+                                        Version: original_work_package.version,
                                         Priority: original_work_package.priority,
                                         Assignee: original_work_package.assigned_to.name,
                                         Responsible: original_work_package.responsible.name
@@ -128,6 +128,24 @@ RSpec.feature 'Work package copy', js: true, selenium: true do
     expect_angular_frontend_initialized
     expect(page).to have_selector('.relation-group--header', text: 'RELATED TO', wait: 20)
     expect(page).to have_selector('.wp-relations--subject-field', text: original_work_package.subject)
+  end
+
+  describe 'when source work package has an attachment' do
+    it 'still allows copying through menu (Regression #30518)' do
+      wp_page = Pages::FullWorkPackage.new(original_work_package, project)
+      wp_page.visit!
+      wp_page.ensure_page_loaded
+
+      # Go to add cost entry page
+      find('#action-show-more-dropdown-menu .button').click
+      find('.menu-item', text: 'Copy').click
+
+      to_copy_work_package_page = Pages::FullWorkPackageCreate.new original_work_package: original_work_package
+      to_copy_work_package_page.update_attributes Description: 'Copied WP Description'
+      to_copy_work_package_page.save!
+
+      to_copy_work_package_page.expect_and_dismiss_notification message: I18n.t('js.notice_successful_create')
+    end
   end
 
   scenario 'on split screen page' do
@@ -152,7 +170,7 @@ RSpec.feature 'Work package copy', js: true, selenium: true do
     work_package_page.ensure_page_loaded
     work_package_page.expect_attributes Subject: original_work_package.subject,
                                         Description: 'Copied WP Description',
-                                        Version: original_work_package.fixed_version,
+                                        Version: original_work_package.version,
                                         Priority: original_work_package.priority,
                                         Assignee: original_work_package.assigned_to,
                                         Responsible: original_work_package.responsible

@@ -1,6 +1,6 @@
 //-- copyright
-// OpenProject is a project management system.
-// Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+// OpenProject is an open source project management software.
+// Copyright (C) 2012-2020 the OpenProject GmbH
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License version 3.
@@ -63,7 +63,15 @@ div.wiki
 
     td, th
       border: 1px solid #bbb
-      padding: 4px
+      text-align: left
+
+      .task-list
+        margin-bottom: 0
+        margin-left: 5px
+
+    th
+      background: rgba(0, 0, 0, 0.05)
+      padding: 10px
 
   // ------------------- LISTINGS -------------------
   ul.toc
@@ -141,11 +149,14 @@ h1:hover, h2:hover, h3:hover
     max-width: 100%
 
 .wiki.wiki-content
+  overflow: auto
   overflow-wrap: break-word
   word-wrap: break-word
+  @include styled-scroll-bar
 
 .wiki--content--attribute
-  .form--field-container
+  .form--field-container,
+  .form--text-area-container
     max-width: 100%
 
 #wiki_page_parent_id

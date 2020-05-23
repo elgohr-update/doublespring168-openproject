@@ -1,20 +1,21 @@
 import {WorkPackageResource} from "core-app/modules/hal/resources/work-package-resource";
 import {TableDragActionService} from "core-components/wp-table/drag-and-drop/actions/table-drag-action.service";
-import {WorkPackageTableGroupByService} from "core-components/wp-fast-table/state/wp-table-group-by.service";
-import {WorkPackageEditingService} from "core-components/wp-edit-form/work-package-editing-service";
+import {WorkPackageViewGroupByService} from "core-app/modules/work_packages/routing/wp-view-base/view-services/wp-view-group-by.service";
+
+import {HalResourceEditingService} from "core-app/modules/fields/edit/services/hal-resource-editing.service";
 import {rowGroupClassName} from "core-components/wp-fast-table/builders/modes/grouped/grouped-classes.constants";
 import {locatePredecessorBySelector} from "core-components/wp-fast-table/helpers/wp-table-row-helpers";
 import {groupIdentifier} from "core-components/wp-fast-table/builders/modes/grouped/grouped-rows-helpers";
-import {IWorkPackageEditingServiceToken} from "core-components/wp-edit-form/work-package-editing.service.interface";
-import {WorkPackageNotificationService} from "core-components/wp-edit/wp-notification.service";
-import {WorkPackageTableRefreshService} from 'core-components/wp-table/wp-table-refresh-request.service';
+import {HalResourceNotificationService} from "core-app/modules/hal/services/hal-resource-notification.service";
+import {HalEventsService} from "core-app/modules/hal/services/hal-events.service";
+import {InjectField} from "core-app/helpers/angular/inject-field.decorator";
 
 export class GroupByDragActionService extends TableDragActionService {
 
-  private wpTableGroupBy = this.injector.get(WorkPackageTableGroupByService);
-  private wpEditing = this.injector.get<WorkPackageEditingService>(IWorkPackageEditingServiceToken);
-  private wpNotifications = this.injector.get(WorkPackageNotificationService);
-  private wpTableRefresh = this.injector.get(WorkPackageTableRefreshService);
+  @InjectField() wpTableGroupBy:WorkPackageViewGroupByService;
+  @InjectField() halEditing:HalResourceEditingService;
+  @InjectField() halEvents:HalEventsService;
+  @InjectField() halNotification:HalResourceNotificationService;
 
   public get applies() {
     return this.wpTableGroupBy.isEnabled;
@@ -28,22 +29,15 @@ export class GroupByDragActionService extends TableDragActionService {
     return attribute !== null && workPackage.isAttributeEditable(attribute);
   }
 
-  /**
-   * We need to refresh the table results to get the correct group count.
-   * @param _newOrder
-   */
-  public onNewOrder(_newOrder:string[]):void {
-    this.wpTableRefresh.request('Dropped in group mode');
-  }
-
   public handleDrop(workPackage:WorkPackageResource, el:HTMLElement):Promise<unknown> {
-    const changeset = this.wpEditing.changesetFor(workPackage);
+    const changeset = this.halEditing.changeFor(workPackage);
     const groupedValue = this.getValueForGroup(el);
 
-    changeset.setValue(this.groupedAttribute!, groupedValue);
-    return changeset
-      .save()
-      .catch(e => this.wpNotifications.handleRawError(e, workPackage));
+    changeset.projectedResource[this.groupedAttribute!] = groupedValue;
+    return this.halEditing
+      .save(changeset)
+      .then((saved) => this.halEvents.push(saved.resource, {eventType: 'updated'}))
+      .catch(e => this.halNotification.handleRawError(e, workPackage));
   }
 
   private getValueForGroup(el:HTMLElement):unknown|null {

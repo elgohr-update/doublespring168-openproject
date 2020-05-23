@@ -1,6 +1,6 @@
 //-- copyright
-// OpenProject is a project management system.
-// Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+// OpenProject is an open source project management software.
+// Copyright (C) 2012-2020 the OpenProject GmbH
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License version 3.
@@ -126,6 +126,7 @@ $modal-footer-height: $modal-header-height
 
     h2, h3
       @include text-shortener
+      margin: 0
 
   .op-modal--modal-close-button
     right: 10px
@@ -143,8 +144,6 @@ $modal-footer-height: $modal-header-height
   label
     display: inline
     padding-right: 30px
-  .select2-search-choice-close
-    top: 3px
 
 .ee-relation-columns-upsale
   margin-top: -0.7rem
@@ -193,3 +192,4 @@ ul.export-options
   .wp-table--configuration-modal,
   .op-modal--modal-container
     width: 90vw
+    max-width: unset

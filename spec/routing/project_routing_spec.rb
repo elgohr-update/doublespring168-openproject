@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -45,26 +45,6 @@ describe ProjectsController, type: :routing do
     it do
       expect(get('/projects.xml')).to route_to(
         controller: 'projects', action: 'index', format: 'xml'
-      )
-    end
-  end
-
-  describe 'show' do
-    it do
-      expect(get('/projects/1')).to route_to(
-        controller: 'projects', action: 'show', id: '1'
-      )
-    end
-
-    it do
-      expect(get('/projects/1.xml')).to route_to(
-        controller: 'projects', action: 'show', id: '1', format: 'xml'
-      )
-    end
-
-    it do
-      expect(get('/projects/test')).to route_to(
-        controller: 'projects', action: 'show', id: 'test'
       )
     end
   end
@@ -164,7 +144,8 @@ describe ProjectsController, type: :routing do
         controller: 'copy_projects',
         action: 'copy',
         id: '123',
-        coming_from: 'settings')
+        coming_from: 'settings'
+      )
     end
 
     it do
@@ -172,7 +153,8 @@ describe ProjectsController, type: :routing do
         controller: 'copy_projects',
         action: 'copy',
         id: '123',
-        coming_from: 'admin')
+        coming_from: 'admin'
+      )
     end
   end
 

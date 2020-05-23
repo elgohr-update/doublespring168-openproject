@@ -1,4 +1,4 @@
-import {AfterViewInit, Directive, ElementRef, Input} from "@angular/core";
+import {AfterViewInit, Directive, ElementRef} from "@angular/core";
 import {OPContextMenuService} from "core-components/op-context-menu/op-context-menu.service";
 import {OpContextMenuHandler} from "core-components/op-context-menu/op-context-menu-handler";
 import {OpContextMenuItem} from "core-components/op-context-menu/op-context-menu.types";
@@ -19,7 +19,7 @@ export class OpContextMenuTrigger extends OpContextMenuHandler implements AfterV
     this.$element = jQuery(this.elementRef.nativeElement);
 
     // Open by clicking the element
-    this.$element.on('click', (evt:JQueryEventObject) => {
+    this.$element.on('click', (evt:JQuery.TriggeredEvent) => {
       evt.preventDefault();
       evt.stopPropagation();
 
@@ -44,7 +44,7 @@ export class OpContextMenuTrigger extends OpContextMenuHandler implements AfterV
    *
    * @param {Event} openerEvent
    */
-  public positionArgs(openerEvent:JQueryEventObject) {
+  public positionArgs(openerEvent:JQuery.TriggeredEvent) {
     return {
       my: 'left top',
       at: 'left bottom',

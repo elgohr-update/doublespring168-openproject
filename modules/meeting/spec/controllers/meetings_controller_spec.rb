@@ -1,10 +1,18 @@
 #-- copyright
-# OpenProject Meeting Plugin
-#
-# Copyright (C) 2011-2014 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
+#
+# OpenProject is a fork of ChiliProject, which is a fork of Redmine. The copyright follows:
+# Copyright (C) 2006-2017 Jean-Philippe Lang
+# Copyright (C) 2010-2013 the ChiliProject Team
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -15,7 +23,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
-# See doc/COPYRIGHT.md for more details.
+# See docs/COPYRIGHT.rdoc for more details.
 #++
 
 require File.dirname(__FILE__) + '/../spec_helper'
@@ -61,7 +69,7 @@ describe MeetingsController, type: :controller do
       end
       describe 'html' do
         before(:each) do
-          get 'show',  params: { id: @m.id }
+          get 'show', params: { id: @m.id }
         end
         it { expect(response).to be_successful }
       end
@@ -109,21 +117,21 @@ describe MeetingsController, type: :controller do
                project_id: project.id,
                meeting: {
                  title: 'Foobar',
-                 duration: '1.0',
+                 duration: '1.0'
                }.merge(params)
-              }
+             }
       end
 
       describe 'invalid start_date' do
-        let(:params) {
+        let(:params) do
           {
             start_date: '-',
             start_time_hour: '10:00'
           }
-        }
+        end
 
         it 'renders an error' do
-          expect(response).to be_successful
+          expect(response.status).to eql 200
           expect(response).to render_template :new
           expect(response.body)
             .to have_selector '#errorExplanation li',
@@ -133,15 +141,15 @@ describe MeetingsController, type: :controller do
       end
 
       describe 'invalid start_time_hour' do
-        let(:params) {
+        let(:params) do
           {
             start_date: '2015-06-01',
             start_time_hour: '-'
           }
-        }
+        end
 
         it 'renders an error' do
-          expect(response).to be_successful
+          expect(response.status).to eql 200
           expect(response).to render_template :new
           expect(response.body)
             .to have_selector '#errorExplanation li',

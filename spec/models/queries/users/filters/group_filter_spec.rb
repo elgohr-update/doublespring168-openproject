@@ -1,8 +1,8 @@
 #-- encoding: UTF-8
 
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -55,11 +55,8 @@ describe Queries::Users::Filters::GroupFilter, type: :model do
     end
   end
 
-  it_behaves_like 'list_optional query filter' do
-    let(:attribute) { :id }
+  it_behaves_like 'list_optional group query filter' do
     let(:model) { User }
-    let(:joins) { :groups }
     let(:valid_values) { [group1.id.to_s] }
-    let(:expected_table_name) { 'groups_users' }
   end
 end

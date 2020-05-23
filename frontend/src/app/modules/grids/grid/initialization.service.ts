@@ -43,6 +43,11 @@ export class GridInitializationService {
 
           let resource = this.halResourceService.createHalResource(source) as GridResource;
 
+          if (resource.widgets.length === 0) {
+            resource.rowCount = 1;
+            resource.columnCount = 1;
+          }
+
           this.gridDm.create(resource, form.schema)
             .then((resource) => {
               resolve(resource);

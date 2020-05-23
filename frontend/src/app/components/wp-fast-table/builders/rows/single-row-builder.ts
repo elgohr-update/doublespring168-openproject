@@ -4,33 +4,30 @@ import {locateTableRowByIdentifier} from 'core-components/wp-fast-table/helpers/
 import {debugLog} from '../../../../helpers/debug_output';
 import {WorkPackageResource} from 'core-app/modules/hal/resources/work-package-resource';
 import {isRelationColumn, QueryColumn} from '../../../wp-query/query-column';
-import {WorkPackageTableColumnsService} from '../../state/wp-table-columns.service';
-import {WorkPackageTableSelection} from '../../state/wp-table-selection.service';
+import {WorkPackageViewColumnsService} from 'core-app/modules/work_packages/routing/wp-view-base/view-services/wp-view-columns.service';
 import {WorkPackageTable} from '../../wp-fast-table';
-import {CellBuilder, wpCellTdClassName} from '../cell-builder';
+import {CellBuilder, tdClassName} from '../cell-builder';
 import {RelationCellbuilder} from '../relation-cell-builder';
 import {checkedClassName} from '../ui-state-link-builder';
 import {TableActionRenderer} from 'core-components/wp-fast-table/builders/table-action-renderer';
+import {WorkPackageViewSelectionService} from "core-app/modules/work_packages/routing/wp-view-base/view-services/wp-view-selection.service";
+import {
+  internalContextMenuColumn,
+  internalSortColumn
+} from "core-components/wp-fast-table/builders/internal-sort-columns";
+import {InjectField} from "core-app/helpers/angular/inject-field.decorator";
 
 // Work package table row entries
 export const tableRowClassName = 'wp-table--row';
 // Work package and timeline rows
 export const commonRowClassName = 'wp--row';
 
-export const internalSortColumn = {
-  id: '__internal-sorthandle'
-} as QueryColumn;
-
-export const internalContextMenuColumn = {
-  id: '__internal-contextMenu'
-} as QueryColumn;
-
 export class SingleRowBuilder {
 
   // Injections
-  public wpTableSelection = this.injector.get(WorkPackageTableSelection);
-  public wpTableColumns = this.injector.get(WorkPackageTableColumnsService);
-  public I18n:I18nService = this.injector.get(I18nService);
+  @InjectField() wpTableSelection:WorkPackageViewSelectionService;
+  @InjectField() wpTableColumns:WorkPackageViewColumnsService;
+  @InjectField() I18n:I18nService;
 
   // Cell builder instance
   protected cellBuilder = new CellBuilder(this.injector);
@@ -87,7 +84,7 @@ export class SingleRowBuilder {
           return null;
         }
       default:
-        return this.cellBuilder.build(workPackage, column.id);
+        return this.cellBuilder.build(workPackage, column);
     }
   }
 
@@ -145,7 +142,7 @@ export class SingleRowBuilder {
    */
   public refreshRow(workPackage:WorkPackageResource, jRow:JQuery):JQuery {
     // Detach all current edit cells
-    const cells = jRow.find(`.${wpCellTdClassName}`).detach();
+    const cells = jRow.find(`.${tdClassName}`).detach();
 
     // Remember the order of all new edit cells
     const newCells:HTMLElement[] = [];
@@ -153,8 +150,9 @@ export class SingleRowBuilder {
     this.augmentedColumns.forEach((column:QueryColumn) => {
       const oldTd = cells.filter(`td.${column.id}`);
 
-      // Skip the replacement of the column if this is being edited.
-      if (this.isColumnBeingEdited(workPackage, column)) {
+      // Treat internal columns specially
+      // and skip the replacement of the column if this is being edited.
+      if (column.id.startsWith('__internal') || this.isColumnBeingEdited(workPackage, column)) {
         newCells.push(oldTd[0]);
         return;
       }
@@ -178,15 +176,15 @@ export class SingleRowBuilder {
   }
 
   protected buildEmptyRow(workPackage:WorkPackageResource, row:HTMLTableRowElement):[HTMLTableRowElement, boolean] {
-    const changeset = this.workPackageTable.editing.changeset(workPackage.id!);
+    const change = this.workPackageTable.editing.change(workPackage);
     let cells:{ [attribute:string]:JQuery } = {};
 
-    if (changeset && !changeset.empty) {
+    if (change && !change.isEmpty()) {
       // Try to find an old instance of this row
       const oldRow = locateTableRowByIdentifier(this.classIdentifier(workPackage));
 
-      changeset.changedAttributes.forEach((attribute:string) => {
-        cells[attribute] = oldRow.find(`.${wpCellTdClassName}.${attribute}`);
+      change.changedAttributes.forEach((attribute:string) => {
+        cells[attribute] = oldRow.find(`.${tdClassName}.${attribute}`);
       });
     }
 

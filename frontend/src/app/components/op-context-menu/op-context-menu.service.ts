@@ -7,7 +7,7 @@ import {OPContextMenuComponent} from "core-components/op-context-menu/op-context
 import {keyCodes} from 'core-app/modules/common/keyCodes.enum';
 import {FocusHelperService} from 'core-app/modules/common/focus/focus-helper';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class OPContextMenuService {
   public active:OpContextMenuHandler|null = null;
 
@@ -40,7 +40,7 @@ export class OPContextMenuService {
     $transitions.onStart({}, () => this.close());
 
     // Listen to keyups on window to close context menus
-    jQuery(window).on('keydown', (evt:JQueryEventObject) => {
+    jQuery(window).on('keydown', (evt:JQuery.TriggeredEvent) => {
       if (this.active && evt.which === keyCodes.ESCAPE) {
         this.close();
       }
@@ -49,18 +49,19 @@ export class OPContextMenuService {
     });
 
     // Listen to any click and close the active context menu
-    jQuery(window).on('click', (evt:JQueryEventObject) => {
-      if (this.active && evt.button !== 2 && !this.portalHostElement.contains(evt.target as Element)) {
-        this.close();
+    const that = this;
+    document.getElementById('wrapper')!.addEventListener('click', function(evt:Event) {
+      if (that.active &&  !that.portalHostElement.contains(evt.target as Element)) {
+        that.close();
       }
-    });
+    },  true);
   }
 
   /**
    * Open a ContextMenu reference and append it to the portal
    * @param contextMenu A reference to a context menu handler
    */
-  public show(menu:OpContextMenuHandler, event:JQueryEventObject, component:any = OPContextMenuComponent) {
+  public show(menu:OpContextMenuHandler, event:JQuery.TriggeredEvent, component:any = OPContextMenuComponent) {
     this.close();
 
     // Create a portal for the given component class and render it
@@ -97,7 +98,7 @@ export class OPContextMenuService {
     this.active = null;
   }
 
-  public reposition(event:JQueryEventObject) {
+  public reposition(event:JQuery.TriggeredEvent) {
     if (!this.active) {
       return;
     }

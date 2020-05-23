@@ -1,8 +1,8 @@
 #-- encoding: UTF-8
 
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2017 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -25,7 +25,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
-# See doc/COPYRIGHT.rdoc for more details.
+# See docs/COPYRIGHT.rdoc for more details.
 #++
 
 module OpenProject::TextFormatting
@@ -117,9 +117,13 @@ module OpenProject::TextFormatting
       end
 
       def process!
-        return if headings.empty?
+        result[:toc] =
+          if headings.empty?
+            I18n.t(:label_wiki_toc_empty)
+          else
+            content_tag(:ul, render_nested(nil), class: 'toc')
+          end
 
-        result[:toc] = content_tag(:ul, render_nested(nil), class: 'toc')
       rescue StandardError => e
         Rails.logger.error { "Failed to render table of contents: #{e} #{e.message}" }
       end

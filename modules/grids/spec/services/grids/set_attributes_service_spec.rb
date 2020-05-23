@@ -1,8 +1,8 @@
 #-- encoding: UTF-8
 
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -37,7 +37,7 @@ describe Grids::SetAttributesService, type: :model do
 
     allow(contract)
       .to receive(:new)
-      .with(grid, user)
+      .with(grid, user, options: { changed_by_system: [] })
       .and_return(contract_instance)
 
     contract
@@ -64,7 +64,7 @@ describe Grids::SetAttributesService, type: :model do
   describe 'call' do
     let(:call_attributes) do
       {
-        row_count: 5
+        column_count: 6
       }
     end
 
@@ -333,6 +333,7 @@ describe Grids::SetAttributesService, type: :model do
       let(:widgets) do
         [
           FactoryBot.build_stubbed(:grid_widget,
+                                   id: existing_widgets[0].id,
                                    identifier: 'work_packages_assigned',
                                    start_row: 3,
                                    end_row: 5,
@@ -374,7 +375,7 @@ describe Grids::SetAttributesService, type: :model do
       end
     end
 
-    context 'with updates to an existing widget' do
+    context 'with additions and updates to existing widgets' do
       let(:widgets) do
         [
           FactoryBot.build_stubbed(:grid_widget,

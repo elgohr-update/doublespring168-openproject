@@ -1,11 +1,18 @@
 #-- copyright
-# ReportingEngine
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
-# Copyright (C) 2010 - 2014 the OpenProject Foundation (OPF)
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License version 3.
+#
+# OpenProject is a fork of ChiliProject, which is a fork of Redmine. The copyright follows:
+# Copyright (C) 2006-2017 Jean-Philippe Lang
+# Copyright (C) 2010-2013 the ChiliProject Team
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
-# version 3.
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -15,6 +22,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+#
+# See docs/COPYRIGHT.rdoc for more details.
 #++
 
 # make sure to require Widget::Filters::Base first because otherwise
@@ -23,7 +32,7 @@ require_dependency 'widget/filters/base'
 class Widget::Filters::MultiChoice < Widget::Filters::Base
   def render
     filterName = filter_class.underscore_name
-    write(content_tag :div, id: "#{filterName}_arg_1", class: 'advanced-filters--filter-value' do
+    result = content_tag :div, id: "#{filterName}_arg_1", class: 'advanced-filters--filter-value' do
       choices = filter_class.available_values.each_with_index.map do |(label, value), i|
         opts = {
           type: 'radio',
@@ -40,7 +49,8 @@ class Widget::Filters::MultiChoice < Widget::Filters::Base
       end
       content_tag :div, choices.join.html_safe,
                   id: "#{filter_class.underscore_name}_arg_1_val"
-    end)
+    end
+    write result
   end
 
   private

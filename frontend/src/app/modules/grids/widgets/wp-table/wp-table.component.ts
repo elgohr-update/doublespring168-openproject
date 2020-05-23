@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {ChangeDetectionStrategy, Component, Injector} from '@angular/core';
 import {AbstractWidgetComponent} from "core-app/modules/grids/widgets/abstract-widget.component";
 import {QueryFormResource} from "core-app/modules/hal/resources/query-form-resource";
 import {QueryResource} from "core-app/modules/hal/resources/query-resource";
@@ -11,24 +11,18 @@ import {QueryDmService} from "core-app/modules/hal/dm-services/query-dm.service"
 import {IsolatedQuerySpace} from "core-app/modules/work_packages/query-space/isolated-query-space";
 import {StateService} from '@uirouter/core';
 import {skip} from 'rxjs/operators';
-import {untilComponentDestroyed} from 'ng2-rx-componentdestroyed';
 
 @Component({
   selector: 'widget-wp-table',
   templateUrl: './wp-table.component.html',
   styleUrls: ['./wp-table.component.sass'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WidgetWpTableComponent extends AbstractWidgetComponent {
   public queryId:string|null;
   private queryForm:QueryFormResource;
   public inFlight = false;
   public query$:Observable<QueryResource>;
-
-  // An heuristic based on paddings, margins, the widget header height and the pagination height
-  private static widgetSpaceOutsideTable:number = 230;
-  private static wpLineHeight:number = 40;
-  private static gridAreaHeight:number = 100;
-  private static gridAreaSpace:number = 20;
 
   public configuration:Partial<WorkPackageTableConfiguration> = {
     actionsColumnEnabled: false,
@@ -38,21 +32,22 @@ export class WidgetWpTableComponent extends AbstractWidgetComponent {
   };
 
   constructor(protected i18n:I18nService,
+              protected readonly injector:Injector,
               protected urlParamsHelper:UrlParamsHelperService,
               protected readonly state:StateService,
               protected readonly queryDm:QueryDmService,
               protected readonly querySpace:IsolatedQuerySpace,
               protected readonly queryFormDm:QueryFormDmService) {
-    super(i18n);
+    super(i18n, injector);
   }
 
   ngOnInit() {
     if (!this.resource.options.queryId) {
       this.createInitial()
         .then((query) => {
-          this.resource.options.queryId = query.id;
+          let changeset = this.setChangesetOptions({ queryId: query.id });
 
-          this.resourceChanged.emit(this.resource);
+          this.resourceChanged.emit(changeset);
 
           this.queryId = query.id;
         });
@@ -69,33 +64,18 @@ export class WidgetWpTableComponent extends AbstractWidgetComponent {
       .pipe(
         // 2 because ... well it is a magic number and works
         skip(2),
-        untilComponentDestroyed(this)
+        this.untilDestroyed()
       ).subscribe((query) => {
       this.ensureFormAndSaveQuery(query);
     });
+  }
 
-    this.configuration.forcePerPageOption = this.perPageOption;
+  public get widgetName() {
+    return this.resource.options.name as string;
   }
 
   public static get identifier():string {
     return 'work_packages_table';
-  }
-
-  private get perPageOption():number|false {
-    if (this.resource) {
-      let numberOfRows = this.resource.height;
-      let availableHeight = numberOfRows * WidgetWpTableComponent.gridAreaHeight +
-        (numberOfRows - 1) * WidgetWpTableComponent.gridAreaSpace;
-      let perPageOption:number = Math.floor((availableHeight - WidgetWpTableComponent.widgetSpaceOutsideTable) / WidgetWpTableComponent.wpLineHeight);
-
-      return perPageOption < 1 ? 1 : perPageOption;
-    } else {
-      return false;
-    }
-  }
-
-  ngOnDestroy() {
-    // nothing to do
   }
 
   private ensureFormAndSaveQuery(query:QueryResource) {
@@ -126,7 +106,7 @@ export class WidgetWpTableComponent extends AbstractWidgetComponent {
   private createInitial():Promise<QueryResource> {
     const projectIdentifier = this.state.params['projectPath'];
     let initializationProps = this.resource.options.queryProps;
-    let queryProps = Object.assign({pageSize: 0}, initializationProps);
+    let queryProps = Object.assign({ pageSize: 0 }, initializationProps);
 
     return this.queryFormDm
       .loadWithParams(

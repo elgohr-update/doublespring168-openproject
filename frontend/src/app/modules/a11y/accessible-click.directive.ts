@@ -1,6 +1,6 @@
 //-- copyright
-// OpenProject is a project management system.
-// Copyright (C) 2012-2017 the OpenProject Foundation (OPF)
+// OpenProject is an open source project management software.
+// Copyright (C) 2012-2020 the OpenProject GmbH
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License version 3.
@@ -23,7 +23,7 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //
-// See doc/COPYRIGHT.rdoc for more details.
+// See docs/COPYRIGHT.rdoc for more details.
 //++
 
 import {Directive, EventEmitter, HostListener, Input, Output} from '@angular/core';
@@ -34,11 +34,11 @@ import {keyCodes} from 'core-app/modules/common/keyCodes.enum';
 })
 export class AccessibleClickDirective {
   @Input('accessibleClickStopEvent') stopEventPropagation:boolean = true;
-  @Output('accessibleClick') onClick = new EventEmitter<JQueryEventObject>();
+  @Output('accessibleClick') onClick = new EventEmitter<JQuery.TriggeredEvent>();
 
   @HostListener('click', ['$event'])
   @HostListener('keydown', ['$event'])
-  public handleClick(event:JQueryEventObject) {
+  public handleClick(event:JQuery.TriggeredEvent) {
     if (event.type === 'click' || event.which === keyCodes.ENTER || event.which === keyCodes.SPACE) {
 
       if (this.stopEventPropagation) {

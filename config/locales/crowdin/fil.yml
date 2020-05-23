@@ -1,3 +1,24 @@
+#-- copyright
+#OpenProject is an open source project management software.
+#Copyright (C) 2012-2020 the OpenProject GmbH
+#This program is free software; you can redistribute it and/or
+#modify it under the terms of the GNU General Public License version 3.
+#OpenProject is a fork of ChiliProject, which is a fork of Redmine. The copyright follows:
+#Copyright (C) 2006-2017 Jean-Philippe Lang
+#Copyright (C) 2010-2013 the ChiliProject Team
+#This program is free software; you can redistribute it and/or
+#modify it under the terms of the GNU General Public License
+#as published by the Free Software Foundation; either version 2
+#of the License, or (at your option) any later version.
+#This program is distributed in the hope that it will be useful,
+#but WITHOUT ANY WARRANTY; without even the implied warranty of
+#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#GNU General Public License for more details.
+#You should have received a copy of the GNU General Public License
+#along with this program; if not, write to the Free Software
+#Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+#See docs/COPYRIGHT.rdoc for more details.
+#++
 fil:
   no_results_title_text: Sa kasalukuyan ay walang maipakita.
   activities:
@@ -7,29 +28,51 @@ fil:
     plugins:
       no_results_title_text: Sa kasalukuyan ay walang mga plugin na available.
     custom_styles:
+      color_theme: "Color theme"
+      color_theme_custom: "(Custom)"
+      colors:
+        alternative-color: "Alternative"
+        content-link-color: "Link font"
+        primary-color: "Primary"
+        primary-color-dark: "Primary (dark)"
+        header-bg-color: "Header background"
+        header-item-bg-hover-color: "Header background on hover"
+        header-item-font-color: "Header font"
+        header-item-font-hover-color: "Header font on hover"
+        header-border-bottom-color: "Header border"
+        main-menu-bg-color: "Main menu background"
+        main-menu-bg-selected-background: "Main menu when selected"
+        main-menu-bg-hover-background: "Main menu on hover"
+        main-menu-font-color: "Main menu font"
+        main-menu-selected-font-color: "Main menu font when selected"
+        main-menu-hover-font-color: "Main menu font on hover"
+        main-menu-border-color: "Main menu border"
       custom_colors: "Naka-kustom ng mga kukay"
       customize: "I-custimize ang iyong OpenProject installation gamit ang iyong sarilig logo. Tandaan: Ang logo ay pambulikong accesible."
       enterprise_notice: "Bilang isang espesyal 'Salamat' para sa kanilang tulong na pinansyal upang mabuo ang OpenProject, Ito maliit na tampok ay magagamit para sa Enterprise Edition sinuportahan ng mga tagapasunod."
       manage_colors: "I-edit ang kulay ng mga napiling opsyon"
       instructions:
-        alternative_color: "Malakas ang amoy ng kulay, kadalasan ay ginamit para sa pinaka-importanteng pindutan sa screen."
-        content_link_color: "Ang kulay ng font ang karamihan ng mga link."
-        primary_color: "Pangunahing kulay."
-        primary_color_dark: "Kadalasan ang masyadong maitim na bersyon sa isang pangunahing kulay ang ginamit para sa mga epekto ng hover."
-        header_bg_color: "Ang kulay ng background ng header."
-        header_item_bg_hover_color: "Ang nakapalibot na kulay ng madaling pindutin aytem ng header kung naka-hover gamit ang mouse."
-        header_item_font_color: "Ang kulay ng font sa madaling pinduting header ng mga aytem."
-        header_item_font_hover_color: "Ang kulay ng font ng madaling pinduting mga aytem kung naka-hover gamit ang mouse."
-        header_border_bottom_color: "Manipis na kinya sa ibaba ng header. Iwanan itong patlang walang laman kung ayaw mo sa kahit anong linya."
-        main_menu_bg_color: "Kabilang kaliwa ang kulay ng pagpipiliang nakapalibot na kulay."
+        alternative-color: "Strong accent color, typically used for the most important button on a screen."
+        content-link-color: "Ang kulay ng font ang karamihan ng mga link."
+        primary-color: "Pangunahing kulay."
+        primary-color-dark: "Kadalasan ang masyadong maitim na bersyon sa isang pangunahing kulay ang ginamit para sa mga epekto ng hover."
+        header-item-bg-hover-color: "Ang nakapalibot na kulay ng madaling pindutin aytem ng header kung naka-hover gamit ang mouse."
+        header-item-font-color: "Ang kulay ng font sa madaling pinduting header ng mga aytem."
+        header-item-font-hover-color: "Ang kulay ng font ng madaling pinduting mga aytem kung naka-hover gamit ang mouse."
+        header-border-bottom-color: "Manipis na kinya sa ibaba ng header. Iwanan itong patlang walang laman kung ayaw mo sa kahit anong linya."
+        main-menu-bg-color: "Kabilang kaliwa ang kulay ng pagpipiliang nakapalibot na kulay."
+      theme_warning: Changing the theme will overwrite you custom style. The design will then be lost. Are you sure you want to continue?
     enterprise:
-      upgrade_to_ee: "I-upgrade sa Enterprise Edition"
+      upgrade_to_ee: "Upgrade to the Enterprise Edition"
       add_token: "I-upload ang isang Enterprise Edition support token"
       replace_token: "Palitan ang iyong kasulukuyang support token"
       order: "Order Enterprise Edition"
       paste: "Idikit ang iyong Enterprise Editoon ng support token"
       required_for_feature: "Ang tampok na ito ay magagamit lamang sa isang aktibong support token ng Enterprise Edition."
       enterprise_link: "Para sa karagdagang impormasyon, pindutin dito."
+      start_trial: 'Start free trial'
+      book_now: 'Book now'
+      get_quote: 'Get a quote'
   announcements:
     show_until: Ipakita hanggang
     is_active: kasalukuyang naka-displey
@@ -45,7 +88,48 @@ fil:
       no_results_content_title: Sa kasalukuyan ay walang mga authentication mode.
       no_results_content_text: Gumawa ng bagong authentication mode
   ldap_auth_sources:
+    technical_warning_html: |
+      This LDAP form requires technical knowledge of your LDAP / Active Directory setup.
+      <br/>
+      <a href="https://www.openproject.org/help/administration/manage-ldap-authentication/">Please visit our documentation for detailed instructions</a>.
+    attribute_texts:
+      name: Arbitrary name of the LDAP connection
+      host: LDAP host name or IP address
+      login_map: The attribute key in LDAP that is used to identify the unique user login. Usually, this will be `uid` or `samAccountName`.
+      generic_map: The attribute key in LDAP that is mapped to the OpenProject `%{attribute}` attribute
+      admin_map_html: "Optional: The attribute key in LDAP that <strong>if present</strong> marks the OpenProject user an admin. Leave empty when in doubt."
+      system_user_dn_html: |
+        Enter the DN of the system user used for read-only access.
+        <br/>
+        Example: uid=openproject,ou=system,dc=example,dc=com
+      system_user_password: Enter the bind password of the system user
+      base_dn: |
+        Enter the Base DN of the subtree in LDAP you want OpenProject to look for users and groups.
+        OpenProject will filter for provided usernames in this subtree only.
+        Example: ou=users,dc=example,dc=com
+      filter_string: |
+        Add an optional RFC4515 filter to apply to the results returned for users filtered in the LDAP.
+        This can be used to restrict the set of users that are found by OpenProject for authentication and group synchronization.
+      filter_string_concat: |
+        OpenProject will always filter for the login attribute provided by the user to identify the record. If you provide a filter here,
+        it will be concatenated with an AND. By default, a catch-all (objectClass=*) will be used as a filter.
+      onthefly_register: |
+        If you check this box, OpenProject will automatically create new users from their LDAP entries
+        when they first authenticate with OpenProject.
+        Leave this unchecked to only allow existing accounts in OpenProject to authenticate through LDAP!
+      onthefly_group_sync: |
+        If you enable group synchronization for this LDAP connection, users will also be automatically created
+        in OpenProject for synchronized groups. Without it, only existing accounts in OpenProject will be added to groups.
     connection_encryption: 'Connection encryption'
+    system_account: 'System account'
+    system_account_legend: |
+      OpenProject requires read-only access through a system account to lookup users and groups in your LDAP tree.
+      Please specify the bind credentials for that system user in the following section.
+    ldap_details: 'LDAP details'
+    user_settings: 'Attribute mapping'
+    user_settings_legend: |
+      The following fields are related to how users are created in OpenProject from LDAP entries and
+      what LDAP attributes are used to define the attributes of an OpenProject user (attribute mapping).
     tls_mode:
       plain: 'wala'
       simple_tls: 'simple_tls'
@@ -147,9 +231,10 @@ fil:
     index:
       no_results_title_text: Sa kasalukuyan ay walang mga balita para ma-ireport.
       no_results_content_text: Magdagdag ng bagong news item
-    my_page:
-      no_results_title_text: Walang bago para ireport.
   users:
+    groups:
+      member_in_these_groups: 'This user is currently a member of the following groups:'
+      no_results_title_text: This user is currently not a member in any group.
     memberships:
       no_results_title_text: Ang user na ito ay kasalukuyang hindi myembro ng proyekto.
   prioritiies:
@@ -208,15 +293,6 @@ fil:
     move:
       no_common_statuses_exists: "There is no status available for all selected work packages. Their status cannot be changed."
       unsupported_for_multiple_projects: 'Ang bulk na paglipat/kopya ay hindi suportado sa mga work packages mula sa iba''t ibang mga proyekto'
-    list_simple:
-      assigned:
-        no_results_title_text: Sa kasalukuyan ay walang mga work packages na nakatala sa akin.
-      reported:
-        no_results_title_text: Sa kasalukuyan ay walang mga work packages na aking na-ireport.
-      responsible:
-        no_results_title_text: There are currently no work packages that I am accountable for.
-      watched:
-        no_results_title_text: Sa kasalukuyan ay walang mga work packages na aking tinatanaw.
     summary:
       reports:
         category:
@@ -281,16 +357,16 @@ fil:
         account: "Akawnt"
         attr_firstname: "Ang katangian ng unang pangalan"
         attr_lastname: "Ang huling katangian ng apelyido"
-        attr_login: "Ang katangian ng pag-login"
+        attr_login: "Username attribute"
         attr_mail: "Ang katangian ng Email"
         base_dn: "Ang Base DN"
         host: "Host"
-        onthefly: "On-the-fly paglilikha ng gumagamit"
+        onthefly: "Automatic user creation"
         port: "Port"
       changeset:
         repository: "Repositoryo"
       comment:
-        commented: "Ang komento"
+        commented: "Ang komento" #an object that this comment belongs to
       custom_action:
         actions: "Mga aksyon"
       custom_field:
@@ -338,6 +414,13 @@ fil:
         types: "Mga uri"
         versions: "Mga bersyon"
         work_packages: "Ang mga pakete na ginawa"
+      projects/status:
+        code: 'Estado'
+        explanation: 'Status description'
+        codes:
+          on_track: 'On track'
+          at_risk: 'At risk'
+          off_track: 'Off track'
       query:
         column_names: "Mga hanay"
         relations_to_type_column: "Mga relasyon sa %{type}"
@@ -396,12 +479,13 @@ fil:
         done_ratio: "Isinasagawa (%)"
         end_insertion: "Katapusan na"
         end_deletion: "Katapusan ng pagbubura"
-        fixed_version: "Bersyon"
+        version: "Bersyon"
         parent: "Magulang"
         parent_issue: "Magulang"
         parent_work_package: "Magulang"
         priority: "Ang prayoridad"
         progress: "Isinasagawa (%)"
+        schedule_manually: "Schedule manually"
         spent_hours: "Nauubos na oras"
         spent_time: "Nauubos na oras"
         subproject: "Kahaliling proyekto"
@@ -429,6 +513,8 @@ fil:
         confirmation: "hindi tugma %{attribute}."
         could_not_be_copied: "dapat hindi masyado kinopya ang lahat."
         does_not_exist: "hindi umiiral."
+        error_unauthorized: "may not be accessed."
+        error_readonly: "was attempted to be written but is not writable."
         empty: "hindi pwedeng blanko."
         even: "dapat ay kapareho."
         exclusion: "ay nakareserba."
@@ -492,6 +578,8 @@ fil:
               invalid_values: "Ang halaga ay hindi balido."
               id_filter_required: "Isang'id' filter ay kinakailangan."
         project:
+          archived_ancestor: 'The project has an archived ancestor.'
+          foreign_wps_reference_version: 'Work packages in non descendant projects reference versions of the project or its descendants.'
           attributes:
             types:
               in_use_by_work_packages: "ginagamit pa sa mga work packages: %{types}"
@@ -525,6 +613,10 @@ fil:
         role:
           permissions:
             dependency_missing: "need to also include '%{dependency}' as '%{permission}' is selected."
+        time_entry:
+          attributes:
+            hours:
+              day_limit: "is too high as a maximum of 24 hours can be logged per date."
         work_package:
           is_not_a_valid_target_for_time_entries: "Ang work package #%{id} ay hindi balido sa target para mag-reassign ng mga oras na entry."
           attributes:
@@ -620,6 +712,7 @@ fil:
   activity:
     created: "Nilikha: %{title}"
     updated: "Naka-update: %{title}"
+  #common attributes of all models
   attributes:
     active: "Aktibo"
     assigned_to: "Naitalaga"
@@ -652,14 +745,16 @@ fil:
     is_default: "Ang default na halaga"
     is_for_all: "Para sa lahat ng mga proyekto"
     is_public: "Publiko"
+    #kept for backwards compatibility
     issue: "Work package"
     lastname: "Huling pangalan"
-    login: "Mag-login"
+    login: "Username"
     mail: "Email"
     name: "Pangalan"
     password: "Password"
     priority: "Ang prayoridad"
     project: "Proyekto"
+    public: "Publiko"
     responsible: "Accountable"
     role: "Tungkulin"
     roles: "Ang mga tungkulin"
@@ -671,10 +766,12 @@ fil:
     type: "Uri"
     updated_at: "Naka-update sa"
     updated_on: "Naka-update sa"
+    uploader: "Uploader"
     user: "Gumagamit"
     version: "Bersyon"
     work_package: "Work package"
   button_add: "Magdagdag"
+  button_add_comment: "Magdagdag ng komento"
   button_add_member: Magdagdag ng miyembro
   button_add_watcher: "Magdagdag ng manunuod"
   button_annotate: "Anotasyon"
@@ -795,9 +892,13 @@ fil:
       - "Biyernes"
       - "Sabado"
     formats:
+      #Use the strftime parameters for formats.
+      #When no format has been given, it uses default.
+      #You can provide other formats here if you like!
       default: "%m/%d/%Y"
       long: "%B %d, %Y"
       short: "%b%d"
+    #Don't forget the nil at the beginning; there's no such thing as a 0th month
     month_names:
       - null
       - "Enero"
@@ -812,6 +913,7 @@ fil:
       - "Oktubre"
       - "Nobyembre"
       - "Disyembre"
+    #Used in date_select and datime_select.
     order:
       - :taon
       - :buwan
@@ -941,6 +1043,7 @@ fil:
   description_sub_work_package: "Kasulukuyang sub work package"
   description_toc_toggle: "Ipakita/Itago ang talaan ng nilalaman"
   description_wiki_subpages_reassign: "Pumili ng bagong pahina na magulang"
+  #Text direction: Left-to-Right (ltr) or Right-to-Left (rtl)
   direction: ltr
   ee:
     upsale:
@@ -949,13 +1052,12 @@ fil:
         add_groups: "Magdgdag ng mga bagong attribute na grupo"
         rename_groups: "Palitan ng pangalan ang mga grupong attribute"
       project_filters:
-        description_html: "I-upgrade sa %{link} upang salain at isaayos sa mga custom na patlang"
-  enumeration_activities: "Mga aktibidad (time tracking)"
+        description_html: "Filtering and sorting on custom fields is an enterprise edition feature."
+  enumeration_activities: "Time tracking activities"
   enumeration_work_package_priorities: "Ang mga prioridad ng work package"
-  enumeration_system_activity: "Sistema ng aktibidad"
   enumeration_reported_project_statuses: "Estado ng inuulat na proyekto"
   error_auth_source_sso_failed: "Single Sign-On (SSO) para sa gumagamit ng '%{value}' ay nabigo"
-  error_can_not_archive_project: "This project cannot be archived: There is at least one work package assigned to a version defined in this project."
+  error_can_not_archive_project: "This project cannot be archived: %{errors}"
   error_can_not_delete_entry: "Hindi mabura na entry"
   error_can_not_delete_custom_field: "Hindi mabura ang custom field"
   error_can_not_delete_type: "Itong uri ay naglalaman ng mga work package at hindi pwedeng burahin."
@@ -964,6 +1066,7 @@ fil:
   error_can_not_remove_role: "Itong tungkulin ay ginamit pa at hindi pwedeng burahin."
   error_can_not_reopen_work_package_on_closed_version: "Ang work package ay nakatalaga sa isinarang bersyon na hindi pwede buksan muli"
   error_can_not_find_all_resources: "Could not find all related resources to this request."
+  error_can_not_unarchive_project: "This project cannot be unarchived: %{errors}"
   error_check_user_and_role: "Mangyaring pumili ng gumagamit at tungkulin."
   error_code: "Error %{code}"
   error_cookie_missing: 'Ang OpenProject cookie ay nawawala. Mangyaring siguraduhin na ang mga cookie ay pinagana, bilang aplikasyon na ito ay hindi gumagana ng maayos na hindi kasama ang.'
@@ -1021,6 +1124,8 @@ fil:
       pdf_with_descriptions: "PDF na may mga paglalarawan"
       pdf_with_descriptions_and_attachments: "PDF with descriptions and attachments"
       pdf_with_attachments: "PDF with attachments"
+    image:
+      omitted: "Image not exported."
   extraction:
     available:
       pdftotext: "Pdftotext ay magagamit (opsyonal)"
@@ -1051,13 +1156,8 @@ fil:
     blocks:
       community: "Komunidad ng OpenProject"
       upsale:
-        become_hero: "Maging isang bayani!"
         title: "I-upgrade sa Enterprise Edition"
-        description: "What are the benefits?"
         more_info: "Karagdagang impornasyon"
-        additional_features: "Karagdagang tampok ng powerful premium"
-        professional_support: "Propesyonal na suporta mula sa OpenProject eksperto"
-        you_contribute: "Ang mga developer ay kailangan rin magbayad sa kanilang bayarin. Kasama ang Enterprise Edition maaring kang mag-mabag ng marami para sa pagsisikap ng Open-Source community."
     links:
       upgrade_enterprise_edition: "I-upgrade sa Enterprise Edition"
       postgres_migration: "Migrating your installation to PostgreSQL"
@@ -1068,8 +1168,11 @@ fil:
       blog: "Blog ng OpenProject"
       forums: "Komunidad forum"
       newsletter: "Mga alertong seguridad/ Newsletter"
+  journals:
+    changes_retracted: "The changes were retracted."
   links:
     configuration_guide: 'Gabay ng kumpigurasyon'
+    get_in_touch: "You have questions? Get in touch with us."
   instructions_after_registration: "Maari kang mag-sign in sa lalong madaling panahon bilang ang iyong akwant ay naka-aktibo sa pamamagitan ng pagpipindut%{signin}."
   instructions_after_logout: "Maari kang maka-sign in ulit sa pamamagitan ng pagpipindut %{signin}."
   instructions_after_error: "Maaring mong subukan muli sa pamamagitan ng pagpipindut %{signin}. kung ang mali ay nagpatuloy, magtanong sa namuno para sa tulong."
@@ -1209,6 +1312,7 @@ fil:
   label_delete_project: "Burahin ang proyekto"
   label_deleted: "binura"
   label_deleted_custom_field: "(binurang custom field)"
+  label_deleted_custom_option: "(deleted option)"
   label_descending: "Pababa"
   label_details: "Mga detalye"
   label_development_roadmap: "Kaunlaran ng roadmao"
@@ -1226,6 +1330,7 @@ fil:
   label_duplicate: "gayahin"
   label_duplicates: "mga ginaya"
   label_edit: "I-edit"
+  label_edit_x: "Edit: %{x}"
   label_enable_multi_select: "Toggle multi select"
   label_enabled_project_custom_fields: 'Pinagana ang mga custom na patlang'
   label_enabled_project_modules: 'Pinagana ang mga modyul'
@@ -1332,7 +1437,6 @@ fil:
   label_member_new: "Bagong miyembro"
   label_member_all_admin: "(All roles due to admin status)"
   label_member_plural: "Mga miyembro"
-  label_view_all_members: "Tingnan ang lahat na mga miyembro"
   label_menu_item_name: "Pangalan ng pagpipiliang aytem"
   label_message: "Mensahe"
   label_message_last: "Huling mensahe"
@@ -1354,13 +1458,13 @@ fil:
   label_move_work_package: "Ilipat ang work package"
   label_my_account: "Ang aking akwant"
   label_my_account_data: "Ang data ng aking akwant"
-  label_my_page: "Ang aking pahina"
   label_my_projects: "Ang mga aking proyekto"
   label_my_queries: "Ang mga aking custom query"
   label_never: "Hindi kailanman"
   label_new: "Bago"
   label_new_features: "New features"
   label_new_statuses_allowed: "Pinayagang bagong estado"
+  label_news_singular: "Mga balita"
   label_news_added: "Bagong idinagdag"
   label_news_comment_added: "Ang komento idinagdag sa mga balita"
   label_news_latest: "Pinakamabagong balita"
@@ -1567,6 +1671,7 @@ fil:
   label_wiki_content_added: "Ang idinagdag na wiking pahina"
   label_wiki_content_updated: "Naka-update na wiking pahina"
   label_wiki_toc: "Talaan ng Nilalamn"
+  label_wiki_toc_empty: "Table of Contents is empty as no headings are present."
   label_wiki_dont_show_menu_item: "Huwag ipakita ang wikipage na ito sa oroject nabigasyon"
   label_wiki_edit: "I-edit ang wiki"
   label_wiki_edit_plural: "I-edit ang mga wiki"
@@ -1598,56 +1703,27 @@ fil:
   label_work_package_updated: "Naka-update na work package"
   label_work_package_tracking: "Ang pagtra-track ng work package"
   label_work_package_view_all: "Tanawin lahat ang mga package"
-  label_work_package_view_all_assigned_to_me: "Tanawin lahat ang mga work package nakatalaga sa akin"
-  label_work_package_view_all_reported_by_me: "Tanawin lahat ang mga work package inuulat sa akin"
-  label_work_package_view_all_responsible_for: "View all work packages that I am accountable for"
-  label_work_package_view_all_watched: "Tanawin lahat ang mga binabantayang work package"
-  label_work_package_watchers: "Manonood"
   label_workflow: "Daloy ng trabaho"
   label_workflow_plural: "Daloy ng trabaho"
   label_workflow_summary: "Buod"
   label_x_closed_work_packages_abbr:
+    zero: "0 closed"
     one: "Isa ang isinara"
     other: "%{count} ang isinara"
   label_x_comments:
+    zero: "no comments"
     one: "Isang komento"
     other: "%{count} mga komento"
   label_x_open_work_packages_abbr:
+    zero: "0 open"
     one: "Isa ang bukas"
     other: "%{count} ang bukas"
-  label_x_open_work_packages_abbr_on_total:
-    one: "Isa ang bukas / %{total}"
-    other: "%{count} bukas / %{total}"
   label_x_projects:
+    zero: "no projects"
     one: "Isang proyekto"
     other: "%{count} mga proyekto"
   label_year: "Taon"
   label_yesterday: "kahapon"
-  label_keyboard_function: "Gumana"
-  label_keyboard_shortcut: "Madalian"
-  label_keyboard_accesskey: "Accesskey"
-  label_keyboard_shortcut_help_heading: "Magagamit na mga keyboard shortcut"
-  label_keyboard_shortcut_within_project: "Proyektong kaugnau sa mga madalian:"
-  label_keyboard_shortcut_global_shortcuts: "Pandaigdigang mga shortcut:"
-  label_keyboard_shortcut_some_pages_only: "Espesyal na mga shortcut:"
-  label_keyboard_shortcut_search_global: "Pandaigdigang paghahanap"
-  label_keyboard_shortcut_search_project: "Humanap ng proyekto"
-  label_keyboard_shortcut_go_my_page: "Pumunta sa aking pahina"
-  label_keyboard_shortcut_show_help: "Ipakita ang itong mensaheng tulong"
-  label_keyboard_shortcut_go_overview: "Pumunta sa buod ng proyekto"
-  label_keyboard_shortcut_go_work_package: "Pumunta sa mga proyektong work package"
-  label_keyboard_shortcut_go_wiki: "Pumunta sa proyektong wiki"
-  label_keyboard_shortcut_go_activity: "Pumunta sa aktibidad ng wiki"
-  label_keyboard_shortcut_go_calendar: "Pumunya sa proyektong kalendaryo"
-  label_keyboard_shortcut_go_news: "Pumunta sa proyektong balita"
-  label_keyboard_shortcut_go_timelines: "Pumunta sa mga timenline"
-  label_keyboard_shortcut_new_work_package: "Lumikha ng bagong work package"
-  label_keyboard_shortcut_details_package: "Ipakita ang work package na detalyeng pane"
-  label_keyboard_shortcut_go_edit: "Pumunta sa i-edit kasulukuyang aytem (sa detalyeng proyekto lamang)"
-  label_keyboard_shortcut_open_more_menu: "Buksan ang more-menu (sa detalye ng pahina lamang)"
-  label_keyboard_shortcut_go_preview: "Pumunta sa prebyu ng kasulukuyang i-edit (sa mga edit pahina lamang)"
-  label_keyboard_shortcut_focus_previous_item: "Tumuon sa nakaraan listahan ng elemento (sa ilang listahan lamang)"
-  label_keyboard_shortcut_focus_next_item: "Tumuoj sa susunod na listahang elemento (sa ilang listahan lamang)"
   auth_source:
     using_abstract_auth_source: "Hindi magamit ang isang abstrak na pagpapatunay ng pinagmulan."
     ldap_error: "LDAP-Error: %{error_message}"
@@ -1661,9 +1737,10 @@ fil:
     legacy_warning:
       timeline: 'This legacy timeline macro has been removed and is no longer available. You can replace the functionality with an embedded table macro.'
     include_wiki_page:
+      removed: 'The macro does no longer exist.'
+    wiki_child_pages:
       errors:
         page_not_found: "Cannot find the wiki page '%{name}'."
-        circular_inclusion: "Circular inclusion of pages detected."
     create_work_package_link:
       errors:
         no_project_context: 'Pagtawag ng create_work_package macro mula sa labas ng proyektong konteksto.'
@@ -1678,12 +1755,14 @@ fil:
   mail_body_lost_password: "Upang baguhin ang iyong password, pindutin ang mga sumusunod na link:"
   mail_body_register: "Upang i-aktibo ang iyong akwant, pindutin ang sumusunod na link:"
   mail_body_reminder: "%{count} work package na nakatakaga sa iyo ay dapat isumite sa mga sumusunod na %{days} araw:"
+  mail_body_group_reminder: "%{count} work package(s) that are assigned to group \"%{group}\" are due in the next %{days} days:"
   mail_body_wiki_content_added: "Ang '%{id}' wiking pahina ay naidagdag sa %{author}."
   mail_body_wiki_content_updated: "Ang '%{id}' wiking pahina ay na i-update sa %{author}."
   mail_subject_account_activation_request: "%{value} kahilingan ng akwant aktibasyon"
   mail_subject_lost_password: "Ang iyong %{value} password"
   mail_subject_register: "Ang iyong %{value} akwant aktibasyon"
   mail_subject_reminder: "%{count} work package dahil sa susunod na mga %{days} araw"
+  mail_subject_group_reminder: "For group \"%{group}\" %{count} work package(s) due in the next %{days} days"
   mail_subject_wiki_content_added: "Ang '%{id}' wikin pahina ay naidagdag"
   mail_subject_wiki_content_updated: "'%{id}' wiking pahina ay naka-update na"
   mail_user_activation_limit_reached:
@@ -1693,8 +1772,8 @@ fil:
       The user cannot activate their account since the user limit has been reached.
     steps:
       label: "To allow the user to sign in you can either: "
-      a: "Upgrade your payment plan ([here](upgrade_url))"
-      b: "Lock or delete an existing user ([here](users_url))"
+      a: "Upgrade your payment plan ([here](upgrade_url))" #here turned into a link
+      b: "Lock or delete an existing user ([here](users_url))" #here turned into a link
   more_actions: "Karagdagang functio"
   noscript_description: "Kailangan mong i-aktibo ang JavaScript upang gamitin sa OpenProject!"
   noscript_heading: "Ang JavaScript ay hindi pinagana"
@@ -1761,6 +1840,7 @@ fil:
   notice_project_cannot_update_custom_fields: "Hindi mo pwedeng i-update ang mga patlang ng project's available custom. Ang proyekto ay hindi balido: %{errors}"
   notice_attachment_migration_wiki_page: >
     Ang pahinang ito ay awtomatikong binuo sa panahon ng pag-update sa OpenProject. Ito ay naglalaman ng lahat na mga nakakalakip sa nakaraang nauugnay sa %{container_type} "%{container_name}".
+  #Default format for numbers
   number:
     format:
       delimiter: ""
@@ -1866,6 +1946,7 @@ fil:
       title: Baguhin ang mga pagkakilanlan ng proyekto
     archive:
       are_you_sure: "Sigurado ka bang na gusto mong i-archive ang proyekto'%{name}'?"
+      archived: "Archived"
   project_module_activity: "Aktibidad"
   project_module_forums: "Mga forum"
   project_module_calendar: "Kalendaryo"
@@ -1877,6 +1958,8 @@ fil:
   project_module_wiki: "Wiki"
   query:
     attribute_and_direction: "%{attribute} (%{direction})"
+  #possible query parameters (e.g. issue queries),
+  #which are not attributes of an AR-Model.
   query_fields:
     active_or_archived: "Aktibo o naka-archieve"
     assigned_to_role: "Naitalagang tungkulin"
@@ -2090,7 +2173,6 @@ fil:
   setting_welcome_text: "Teskstong welcome block"
   setting_welcome_title: "Titulo ng welcome back"
   setting_welcome_on_homescreen: "I-display ang welcome block sa homescreen"
-  setting_wiki_compression: "Pag-compress ng wiki na kasaysayan"
   setting_work_package_group_assignment: "Pinayagan ang gawain sa mga grupo"
   setting_work_package_list_default_highlighting_mode: "Default highlighting mode"
   setting_work_package_list_default_highlighted_attributes: "Default inline highlighted attributes"
@@ -2118,6 +2200,7 @@ fil:
   status_invited: imbitado
   status_locked: nakakandado
   status_registered: narehistro
+  #Used in array.to_sentence.
   support:
     array:
       sentence_connector: "at"
@@ -2153,7 +2236,7 @@ fil:
   text_destroy_with_associated: "Mayroong karagdagang mga bagay naka-associaye sa work packGe na maaring burahin. Yung mga bagay ay ang mga sumusunod na uri:"
   text_destroy_what_to_do: "Ano gusto mong gawin?"
   text_diff_truncated: "... Itong diff ay naka-truncatw dahil ito ay lamps na sa pinakamataas na laki na maaring ipakita."
-  text_email_delivery_not_configured: "Ang email na pagpapadala ay hindi natukoy, at mga abiso ay hindi pinagana.\nI-configure ang iyong SMTP sever sa config/configuration.yml at i-restart muli ang aplikasyon upang paganahin ang mga ito."
+  text_email_delivery_not_configured: "Email delivery is not configured, and notifications are disabled.\nConfigure your SMTP server to enable them."
   text_enumeration_category_reassign_to: "Italaga sila ssa halaga na ito:"
   text_enumeration_destroy_question: "Ang %{count} mga bagay ay nakatalaga sa halaga na ito."
   text_file_repository_writable: "Paglalakip ng direktoryong masusulatan"
@@ -2166,7 +2249,8 @@ fil:
   text_work_package_category_destroy_question: "May mga ibang work package (%{count}) ay nakatakaga sa kategoryang ito. Ano gusto mong gawin?"
   text_work_package_category_reassign_to: "Magtalaga ulit ng mga work package para sa kategoryang ito"
   text_work_package_updated: "Ang work package %{id} ay naka-update na sab%{author}."
-  text_work_package_watcher_added: "Ikaw ay dinagdag bilang watcher sa Work package %{id} ng %{watcher_setter}."
+  text_work_package_watcher_added: "You have been added as a watcher to Work package %{id} by %{watcher_changer}."
+  text_work_package_watcher_removed: "You have been removed from watchers of Work package %{id} by %{watcher_changer}."
   text_work_packages_destroy_confirmation: "Sigurado ka ba na gusto mong burahin ang napiling work package?"
   text_work_packages_ref_in_commit_messages: "Pagsangguni at pagsaayos ng work package sa mga isinagawang mensahe"
   text_journal_added: "%{label}%{value} idinagdag"
@@ -2428,6 +2512,7 @@ fil:
       mail_self_notified: "Gusto kong mapa-alam sa mga pagbabago na ginagawa ko sa aking sarili"
     status_user_and_brute_force: "%{user} at %{brute_force}"
     status_change: "Pagbabago ng estado"
+    text_change_disabled_for_provider_login: "The name is set by your login provider and can thus not be changed."
     unlock: "I-unlock"
     unlock_and_reset_failed_logins: "I-unlock at i-reset ang mga nabigong paglog-im"
   version_status_closed: "isinara"
@@ -2446,6 +2531,17 @@ fil:
     User limit reached. You cannot activate any more users. Please <a href="%{upgrade_url}">upgrade your plan</a> or block members to allow for additional users.
   warning_user_limit_reached_instructions: >
     You reached your user limit (%{current}/%{max} active users). Please contact sales@openproject.com to upgrade your Enterprise Edition plan and add additional users.
+  0: >
+
+  warning_bar:
+    protocol_mismatch:
+      title: 'Protocol setting mismatch'
+      text_html: >
+        Your application is running with its protocol setting set to <code>%{set_protocol}</code>, but the request is an <code>%{actual_protocol}</code> request. This will result in errors! Go to <a href="%{setting_path}">System settings</a> and change the "Protocol" setting to correct this.
+    hostname_mismatch:
+      title: 'Hostname setting mismatch'
+      text_html: >
+        Your application is running with its host name setting set to <code>%{set_hostname}</code>, but the request is a <code>%{actual_hostname}</code> hostname. This will result in errors! Go to <a href="%{setting_path}">System settings</a> and change the "Host name" setting to correct this.
   menu_item: "Pagpipilian sa mga aytem"
   menu_item_setting: "Nakikita"
   wiki_menu_item_for: "Aytem na pagpipilian sa wikipage na \"%{title}\""
@@ -2454,6 +2550,7 @@ fil:
     Ikay ay nagtatanggal sa tanging pangunahing aytem sa wiki na pagpipilian. Ikaw ay pwede nang makapili ng isang pahinang wiki kung saan ang isang bagong pangunahing aytem ay magiging buo. Para matanggal ang wiki ang modyul na wiki ay hindi aktibo sa pamamagitan ng mga administrador sa proyekto.
   wiki_menu_item_delete_not_permitted: Ang wiki na aytem na pagpipilian sa pahinang wiki lamang ay hindi maibura.
   query_menu_item_for: "Aytem na pagpipilian sa query \"%{title}\""
+  #TODO: merge with work_packages top level key
   work_package:
     updated_automatically_by_child_changes: |
       _Awtomatikong nai-update sa pamamagitan ng pagbabago sa mga halaga sa loob ng pambatang gawain na pakete %{child}_
@@ -2498,7 +2595,9 @@ fil:
         estimated_hours: "Itinayang mga oras ay hindi mai-set sa mga package ng gawain ng magulang."
         invalid_user_assigned_to_work_package: "Ang piniling gumagamit ay hindi pinahihintulan sa '%{property}' na para sa package ng gawain ng magulang."
         start_date: "Sinimulang petsa ay hindi mai-set sa mga pakete ng gawain ng magulang."
-      writing_read_only_attributes: "Ikaw ay hindi pwedeng sumulat ng isang katangiang basa-lang."
+      eprops:
+        invalid_gzip: "is invalid gzip: %{message}"
+        invalid_json: "is invalid json: %{message}"
     resources:
       schema: 'Iskema'
   doorkeeper:
@@ -2506,18 +2605,22 @@ fil:
       status: 'Pre-authorization'
     errors:
       messages:
+        #Common error messages
         invalid_request: 'The request is missing a required parameter, includes an unsupported parameter value, or is otherwise malformed.'
-        invalid_redirect_uri: "The requested redirect uri is malformed or doesn't match client redirect URI."
+        invalid_redirect_uri: "The requested redirect URI is malformed or doesn't match client redirect URI."
         unauthorized_client: 'The client is not authorized to perform this request using this method.'
         access_denied: 'The resource owner or authorization server denied the request.'
         invalid_scope: 'The requested scope is invalid, unknown, or malformed.'
         invalid_code_challenge_method: 'The code challenge method must be plain or S256.'
         server_error: 'The authorization server encountered an unexpected condition which prevented it from fulfilling the request.'
         temporarily_unavailable: 'The authorization server is currently unable to handle the request due to a temporary overloading or maintenance of the server.'
+        #Configuration error messages
         credential_flow_not_configured: 'Resource Owner Password Credentials flow failed due to Doorkeeper.configure.resource_owner_from_credentials being unconfigured.'
         resource_owner_authenticator_not_configured: 'Resource Owner find failed due to Doorkeeper.configure.resource_owner_authenticator being unconfigured.'
         admin_authenticator_not_configured: 'Access to admin panel is forbidden due to Doorkeeper.configure.admin_authenticator being unconfigured.'
+        #Access grant errors
         unsupported_response_type: 'The authorization server does not support this response type.'
+        #Access token errors
         invalid_client: 'Client authentication failed due to unknown client, no client authentication included, or unsupported authentication method.'
         invalid_grant: 'The provided authorization grant is invalid, expired, revoked, does not match the redirection URI used in the authorization request, or was issued to another client.'
         unsupported_grant_type: 'The authorization grant type is not supported by the authorization server.'
@@ -2542,6 +2645,7 @@ fil:
         redirect_uri_html: >
           The allowed URLs authorized users can be redirected to. One entry per line. <br/> If you're registering a desktop application, use the following URL.
         confidential: "Check if the application will be used where the client secret can be kept confidential. Native mobile apps and Single Page Apps are assumed non-confidential."
+        scopes: "Check the scopes you want the application to grant access to. If no scope is checked, api_v3 is assumed."
         client_credential_user_id: "Optional user ID to impersonate when clients use this application. Leave empty to allow public access only"
         register_intro: "If you are developing an OAuth API client application for OpenProject, you can register it using this form for all users to use."
         default_scopes: ""
@@ -2556,8 +2660,8 @@ fil:
       wants_to_access_html: >
         This application requests access to your OpenProject account. <br/> <strong>It has requested the following permissions:</strong>
     scopes:
-      api_v3: "Full API access"
-      api_v3_text: "Application will receive full read & write access to the OpenProject API to perform actions on your behalf."
+      api_v3: "Full API v3 access"
+      api_v3_text: "Application will receive full read & write access to the OpenProject API v3 to perform actions on your behalf."
     grants:
       created_date: "Approved on"
       scopes: "Mga pahintulot"

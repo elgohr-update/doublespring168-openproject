@@ -1,8 +1,8 @@
 #-- encoding: UTF-8
 
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -76,6 +76,8 @@ describe Grids::UpdateService, type: :model do
     allow(service)
       .to receive(:call)
       .and_return(set_attributes_result)
+
+    service
   end
 
   describe 'call' do
@@ -142,6 +144,30 @@ describe Grids::UpdateService, type: :model do
 
     context 'with parameters' do
       let(:call_attributes) { { row_count: 5 } }
+
+      it_behaves_like 'service call'
+    end
+
+    context 'with parameters only for widgets' do
+      let(:call_attributes) { { widgets: [FactoryBot.build_stubbed(:grid_widget)] } }
+
+      before do
+        allow(set_attributes_service)
+          .to receive(:call) do |params|
+            grid.widgets.build(params[:widgets].first.attributes)
+
+            allow(grid.widgets.last)
+              .to receive(:saved_changes?)
+              .and_return(true)
+
+            if set_attributes_success && grid_valid
+              expect(grid)
+                .to receive(:touch)
+            end
+
+            set_attributes_result
+          end
+      end
 
       it_behaves_like 'service call'
     end

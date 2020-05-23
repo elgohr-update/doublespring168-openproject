@@ -1,6 +1,6 @@
 //-- copyright
-// OpenProject is a project management system.
-// Copyright (C) 2012-2015 the OpenProject Foundation (OPF)
+// OpenProject is an open source project management software.
+// Copyright (C) 2012-2020 the OpenProject GmbH
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License version 3.
@@ -23,30 +23,30 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //
-// See doc/COPYRIGHT.rdoc for more details.
+// See docs/COPYRIGHT.rdoc for more details.
 //++
 
 import {WorkPackageCacheService} from '../../work-packages/work-package-cache.service';
 import {WorkPackageResource} from 'core-app/modules/hal/resources/work-package-resource';
-import {WorkPackageNotificationService} from 'core-components/wp-edit/wp-notification.service';
 import {States} from '../../states.service';
-import {WorkPackageTableRefreshService} from '../../wp-table/wp-table-refresh-request.service';
 import {StateService} from '@uirouter/core';
 import {Injectable} from '@angular/core';
 import {PathHelperService} from 'core-app/modules/common/path-helper/path-helper.service';
+import {HalEventsService} from "core-app/modules/hal/services/hal-events.service";
+import {WorkPackageNotificationService} from "core-app/modules/work_packages/notifications/work-package-notification.service";
 
 @Injectable()
 export class WorkPackageRelationsHierarchyService {
   constructor(protected $state:StateService,
               protected states:States,
-              protected wpTableRefresh:WorkPackageTableRefreshService,
-              protected wpNotificationsService:WorkPackageNotificationService,
+              protected halEvents:HalEventsService,
+              protected notificationService:WorkPackageNotificationService,
               protected pathHelper:PathHelperService,
               protected wpCacheService:WorkPackageCacheService) {
 
   }
 
-  public changeParent(workPackage:WorkPackageResource, parentId:string | null) {
+  public changeParent(workPackage:WorkPackageResource, parentId:string|null) {
     let payload:any = {
       lockVersion: workPackage.lockVersion
     };
@@ -69,15 +69,17 @@ export class WorkPackageRelationsHierarchyService {
       .changeParent(payload)
       .then((wp:WorkPackageResource) => {
         this.wpCacheService.updateWorkPackage(wp);
-        this.wpNotificationsService.showSave(wp);
-        this.wpTableRefresh.request(
-          `Changed parent of ${workPackage.id} to ${parentId}`,
-          { visible: true }
-        );
+        this.notificationService.showSave(wp);
+        this.halEvents.push(workPackage, {
+          eventType: 'association',
+          relatedWorkPackage: parentId,
+          relationType: 'parent'
+        });
+
         return wp;
       })
       .catch((error) => {
-        this.wpNotificationsService.handleRawError(error, workPackage);
+        this.notificationService.handleRawError(error, workPackage);
         return Promise.reject(error);
       });
   }
@@ -89,23 +91,26 @@ export class WorkPackageRelationsHierarchyService {
   public addExistingChildWp(workPackage:WorkPackageResource, childWpId:string):Promise<WorkPackageResource> {
     return this.wpCacheService
       .require(childWpId)
-      .then((wpToBecomeChild:WorkPackageResource | undefined) => {
+      .then((wpToBecomeChild:WorkPackageResource|undefined) => {
         return this.changeParent(wpToBecomeChild!, workPackage.id!)
           .then(wp => {
             this.wpCacheService.loadWorkPackage(workPackage.id!, true);
-            this.wpTableRefresh.request(
-              `Added new child to ${workPackage.id}`,
-              { visible: true });
+            this.halEvents.push(workPackage, {
+              eventType: 'association',
+              relatedWorkPackage: wpToBecomeChild!.id!,
+              relationType: 'child'
+            });
+
             return wp;
           });
       });
   }
 
-  public addNewChildWp(workPackage:WorkPackageResource) {
+  public addNewChildWp(baseRoute:string, workPackage:WorkPackageResource) {
     workPackage.project.$load()
       .then(() => {
         const args = [
-          'work-packages.list.new',
+          baseRoute + '.new',
           {
             parent_id: workPackage.id
           }
@@ -134,7 +139,7 @@ export class WorkPackageRelationsHierarchyService {
         this.wpCacheService.updateWorkPackage(wp);
       })
         .catch((error) => {
-          this.wpNotificationsService.handleRawError(error, childWorkPackage);
+          this.notificationService.handleRawError(error, childWorkPackage);
           return Promise.reject(error);
         });
     });

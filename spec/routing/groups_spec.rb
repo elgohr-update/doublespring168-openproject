@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -66,12 +66,6 @@ describe 'groups routes', type: :routing do
     is_expected.to route(:delete, '/admin/groups/4').to(controller: 'groups',
                                                         action: 'destroy',
                                                         id: '4')
-  }
-
-  it {
-    is_expected.to route(:get, '/admin/groups/4/autocomplete_for_user').to(controller: 'groups',
-                                                                           action: 'autocomplete_for_user',
-                                                                           id: '4')
   }
 
   it {

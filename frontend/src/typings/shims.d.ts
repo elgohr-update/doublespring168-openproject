@@ -16,8 +16,7 @@
 /// <reference path="../../node_modules/@types/es6-shim/index.d.ts" />
 /// <reference path="../../node_modules/@types/dragula/index.d.ts" />
 
-declare module 'dom-autoscroller';
-
+import {ErrorReporter} from "core-app/sentry/sentry-reporter";
 import {Injector} from '@angular/core';
 
 import {OpenProject} from 'core-app/globals/openproject';
@@ -26,6 +25,8 @@ import * as TMoment from 'moment';
 import * as TSinon from 'sinon';
 import {GlobalI18n} from "core-app/modules/common/i18n/i18n.service";
 import {Dragula} from "dragula";
+
+declare module 'dom-autoscroller';
 
 declare global {
   const _:typeof TLodash;
@@ -50,12 +51,12 @@ declare global {
     appBasePath:string;
     ng2Injector:Injector;
     OpenProject:OpenProject;
+    ErrorReporter:ErrorReporter;
   }
 
   interface JQuery {
     topShelf:any;
     mark:any;
-    select2:any;
   }
 }
 

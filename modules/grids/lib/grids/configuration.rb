@@ -1,8 +1,8 @@
 #-- encoding: UTF-8
 
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -109,7 +109,7 @@ module Grids::Configuration
     end
 
     def widget_strategy(grid, identifier)
-      grid_register[grid.to_s]&.widget_strategy(identifier)
+      grid_register[grid.to_s]&.widget_strategy(identifier) || Grids::Configuration::WidgetStrategy
     end
 
     ##
@@ -125,6 +125,10 @@ module Grids::Configuration
     # @param user the current user to check against
     def writable?(grid, user)
       grid_register[grid.class.to_s]&.writable?(grid, user)
+    end
+
+    def validations(grid, mode)
+      grid_register[grid.class.to_s]&.validations(mode) || []
     end
 
     protected

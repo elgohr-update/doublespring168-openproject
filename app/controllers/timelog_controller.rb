@@ -1,8 +1,8 @@
 #-- encoding: UTF-8
 
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -29,24 +29,26 @@
 #++
 
 class TimelogController < ApplicationController
-  before_action :disable_api, except: %i[index destroy]
+  helper_method :gon
+
   before_action :find_work_package, only: %i[new create]
   before_action :find_project, only: %i[new create]
   before_action :find_time_entry, only: %i[show edit update destroy]
   before_action :authorize, except: [:index]
   before_action :find_optional_project, only: [:index]
-  accept_key_auth :index, :show, :create, :update, :destroy
 
   include SortHelper
   include TimelogHelper
   include CustomFieldsHelper
   include PaginationHelper
-  include Concerns::Layout
-  include OpenProject::ClientPreferenceExtractor
+  include Layout
 
   menu_item :time_entries
 
   def index
+    # Set tab param to recognize correct selected tab
+    params[:tab] = params[:tab] || 'details'
+
     sort_init 'spent_on', 'desc'
     sort_update 'spent_on' => 'spent_on',
                 'user' => 'user_id',
@@ -60,7 +62,7 @@ class TimelogController < ApplicationController
     if @issue
       cond << WorkPackage.self_and_descendants_of_condition(@issue)
     elsif @project
-      cond << @project.project_condition(Setting.display_subprojects_work_packages?)
+      cond << @project.project_condition(Setting.display_subprojects_work_packages?).to_sql
     end
 
     retrieve_date_range allow_nil: true

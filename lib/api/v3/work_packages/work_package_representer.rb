@@ -1,8 +1,8 @@
 #-- encoding: UTF-8
 
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -104,7 +104,6 @@ module API
 
         link :copy,
              cache_if: -> { current_user_allowed_to(:add_work_packages, context: represented.project) } do
-
           next if represented.new_record?
 
           {
@@ -149,7 +148,7 @@ module API
           next if represented.project.nil?
 
           {
-            href: settings_project_path(represented.project.identifier, tab: 'custom_fields'),
+            href: settings_custom_fields_project_path(represented.project.identifier),
             type: 'text/html',
             title: "Custom fields"
           }
@@ -328,8 +327,11 @@ module API
         property :subject,
                  render_nil: true
 
-        formattable_property :description,
-                             uncacheable: true
+        formattable_property :description
+
+        property :schedule_manually,
+                 exec_context: :decorator,
+                 getter: ->(*) { represented.schedule_manually? }
 
         date_property :start_date,
                       skip_render: ->(represented:, **) {
@@ -366,6 +368,14 @@ module API
                  exec_context: :decorator,
                  getter: ->(*) do
                    datetime_formatter.format_duration_from_hours(represented.estimated_hours,
+                                                                 allow_nil: true)
+                 end,
+                 render_nil: true
+
+        property :derived_estimated_time,
+                 exec_context: :decorator,
+                 getter: ->(*) do
+                   datetime_formatter.format_duration_from_hours(represented.derived_estimated_hours,
                                                                  allow_nil: true)
                  end,
                  render_nil: true
@@ -429,8 +439,7 @@ module API
                             setter: PrincipalSetter.lambda(:assigned_to, :assignee),
                             link: ::API::V3::Principals::AssociatedSubclassLambda.link(:assigned_to)
 
-        associated_resource :fixed_version,
-                            as: :version,
+        associated_resource :version,
                             v3_path: :version,
                             representer: ::API::V3::Versions::VersionRepresenter
 
@@ -539,10 +548,19 @@ module API
           @visible_children ||= represented.children.select(&:visible?)
         end
 
+        def schedule_manually=(value)
+          represented.schedule_manually = value
+        end
+
         def estimated_time=(value)
           represented.estimated_hours = datetime_formatter.parse_duration_to_hours(value,
                                                                                    'estimatedTime',
                                                                                    allow_nil: true)
+        end
+
+        def derived_estimated_time=(value)
+          represented.derived_estimated_hours = datetime_formatter
+            .parse_duration_to_hours(value, 'derivedEstimatedTime', allow_nil: true)
         end
 
         def spent_time=(value)

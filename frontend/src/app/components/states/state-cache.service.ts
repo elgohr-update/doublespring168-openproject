@@ -1,6 +1,6 @@
 // -- copyright
-// OpenProject is a project management system.
-// Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+// OpenProject is an open source project management software.
+// Copyright (C) 2012-2020 the OpenProject GmbH
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License version 3.
@@ -23,12 +23,12 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //
-// See doc/COPYRIGHT.rdoc for more details.
+// See docs/COPYRIGHT.rdoc for more details.
 // ++
 
 import {InputState, MultiInputState, State} from 'reactivestates';
 import {Observable} from "rxjs";
-import {auditTime, debounceTime, map, startWith, throttleTime} from "rxjs/operators";
+import {auditTime, map, startWith} from "rxjs/operators";
 
 export abstract class StateCacheService<T> {
   private cacheDurationInMs:number;
@@ -50,6 +50,13 @@ export abstract class StateCacheService<T> {
   }
 
   /**
+   * Get the current value
+   */
+  public current(id:string, fallback?:T):T|undefined {
+    return this.state(id).getValueOr(fallback);
+  }
+
+  /**
    * Update the value due to application changes.
    *
    * @param id The value's identifier.
@@ -64,6 +71,13 @@ export abstract class StateCacheService<T> {
    */
   public observe(id:string):Observable<T> {
     return this.state(id).values$();
+  }
+
+  /**
+   * Observe the changes of the given id
+   */
+  public changes$(id:string):Observable<T|undefined> {
+    return this.state(id).changes$();
   }
 
   /**
@@ -108,8 +122,9 @@ export abstract class StateCacheService<T> {
 
     // Refresh when stale or being forced
     if (this.stale(state) || force) {
-      state.clear();
-      state.putFromPromiseIfPristine(() => this.load(id));
+      let promise = this.load(id);
+      state.clearAndPutFromPromise(promise);
+      return promise;
     }
 
     return state.valuesPromise() as Promise<T>;
@@ -165,6 +180,11 @@ export abstract class StateCacheService<T> {
    * @return {boolean}
    */
   protected stale(state:InputState<T>):boolean {
+    // If there is an active request that is still pending
+    if (state.hasActivePromiseRequest()) {
+      return false;
+    }
+
     return state.isPristine() || state.isValueOlderThan(this.cacheDurationInMs);
   }
 

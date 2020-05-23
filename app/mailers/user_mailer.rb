@@ -1,7 +1,7 @@
 #-- encoding: UTF-8
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -74,10 +74,11 @@ class UserMailer < BaseMailer
     end
   end
 
-  def work_package_watcher_added(work_package, user, watcher_setter)
+  def work_package_watcher_changed(work_package, user, watcher_changer, action)
     User.execute_as user do
       @issue = work_package
-      @watcher_setter = watcher_setter
+      @watcher_changer = watcher_changer
+      @action = action
 
       set_work_package_headers(work_package)
       message_id work_package, user
@@ -210,8 +211,7 @@ class UserMailer < BaseMailer
                              action:     :diff,
                              project_id: wiki_content.project,
                              id:         wiki_content.page.slug,
-                             # using wiki_content.version + 1 because at this point the journal is not saved yet
-                             version:    wiki_content.version + 1)
+                             version:    wiki_content.version)
 
     open_project_headers 'Project'      => @wiki_content.project.identifier,
                          'Wiki-Page-Id' => @wiki_content.page.id,
@@ -280,20 +280,29 @@ class UserMailer < BaseMailer
     end
   end
 
-  def reminder_mail(user, issues, days)
+  def reminder_mail(user, issues, days, group = nil)
     @issues = issues
     @days   = days
+    @group  = group
 
-    @assigned_issues_url = url_for(controller:     :work_packages,
-                                   action:         :index,
-                                   set_filter:     1,
-                                   assigned_to_id: user.id,
-                                   sort:           'due_date:asc')
+    assigned_to_id = if group
+                       group.id
+                     else
+                       user.id
+                     end
+
+    @assigned_issues_url = url_for(controller: :work_packages,
+                                   action: :index,
+                                   query_props: '{"t":"dueDate:asc","f":[{"n":"status","o":"o","v":[]},{"n":"assignee","o":"=","v":["' + assigned_to_id.to_s + '"]},{"n":"dueDate","o":"<t+","v":["2"]}]}')
 
     open_project_headers 'Type' => 'Issue'
 
     with_locale_for(user) do
-      subject = t(:mail_subject_reminder, count: @issues.size, days: @days)
+      subject = if @group
+                  t(:mail_subject_group_reminder, count: @issues.size, days: @days, group: @group.groupname)
+                else
+                  t(:mail_subject_reminder, count: @issues.size, days: @days)
+                end
       mail to: user.mail, subject: subject
     end
   end
@@ -375,33 +384,5 @@ class DoNotSendMailsWithoutReceiverInterceptor
     # the above fields might be empty arrays (if entries have been removed
     # by another interceptor) or nil, therefore checking for blank?
     mail.perform_deliveries = false if receivers.all?(&:blank?)
-  end
-end
-
-# helper object for `rake redmine:send_reminders`
-
-class DueIssuesReminder
-  def initialize(days = nil, project_id = nil, type_id = nil, user_ids = [])
-    @days     = days ? days.to_i : 7
-    @project  = Project.find_by(id: project_id)
-    @type  = ::Type.find_by(id: type_id)
-    @user_ids = user_ids
-  end
-
-  def remind_users
-    s = ARCondition.new ["#{Status.table_name}.is_closed = ? AND #{WorkPackage.table_name}.due_date <= ?", false, @days.days.from_now.to_date]
-    s << "#{WorkPackage.table_name}.assigned_to_id IS NOT NULL"
-    s << ["#{WorkPackage.table_name}.assigned_to_id IN (?)", @user_ids] if @user_ids.any?
-    s << "#{Project.table_name}.status = #{Project::STATUS_ACTIVE}"
-    s << "#{WorkPackage.table_name}.project_id = #{@project.id}" if @project
-    s << "#{WorkPackage.table_name}.type_id = #{@type.id}" if @type
-
-    issues_by_assignee = WorkPackage.includes(:status, :assigned_to, :project, :type)
-                         .where(s.conditions)
-                         .references(:projects)
-                         .group_by(&:assigned_to)
-    issues_by_assignee.each do |assignee, issues|
-      UserMailer.reminder_mail(assignee, issues, @days).deliver_now if assignee && assignee.active?
-    end
   end
 end

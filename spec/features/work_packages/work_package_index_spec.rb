@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -30,7 +30,7 @@ require 'spec_helper'
 
 RSpec.feature 'Work package index view' do
   let(:user) { FactoryBot.create(:admin) }
-  let(:project) { FactoryBot.create(:project) }
+  let(:project) { FactoryBot.create(:project, enabled_module_names: %w[work_package_tracking]) }
   let(:wp_table) { Pages::WorkPackagesTable.new(project) }
 
   before do

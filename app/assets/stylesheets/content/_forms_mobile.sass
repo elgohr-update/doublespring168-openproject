@@ -1,6 +1,6 @@
 //-- copyright
-// OpenProject is a project management system.
-// Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+// OpenProject is an open source project management software.
+// Copyright (C) 2012-2020 the OpenProject GmbH
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License version 3.
@@ -49,24 +49,18 @@
       flex-basis: 100%
       max-width: 100%
 
-  #tab-content-info form
+  #tab-content-info form,
+  .op-modal--modal-body,
+  form.-wide-labels .op-modal--modal-body
     .form--label,
     .form--field-container
-      flex-basis: 100%
-
-  .ui-select-dropdown
-    .select2-search
-      &:before
-        top: 8px !important
-
-    &.select2-drop.select2-with-searchbox.select2-drop-active
-      margin-top: 0 !important
-      top: 1px !important
+      flex-basis: 100% !important
+      max-width: 100% !important
 
   autocomplete-select-decoration
     width: 100%
 
-  html.-browser-safari
+  .-browser-safari
     // Special rule for mobile safari to prevent zooming into the text field
     // when focussed.
     select,
@@ -84,5 +78,5 @@
     input[type="url"],
     input[type="search"],
     input[type="tel"],
-    input[type="color"]
-      font-size: 16px
+    input[type="color"],
+      font-size: 16px !important

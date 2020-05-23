@@ -1,7 +1,7 @@
 #-- encoding: UTF-8
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -91,7 +91,9 @@ describe Setting, type: :model do
     end
 
     it "returns unknown if the settings table isn't available yet" do
-      Setting.stub(settings_table_exists_yet?: false)
+      allow(Setting)
+        .to receive(:settings_table_exists_yet?)
+        .and_return(false)
       expect(Setting.installation_uuid).to eq("unknown")
     end
 

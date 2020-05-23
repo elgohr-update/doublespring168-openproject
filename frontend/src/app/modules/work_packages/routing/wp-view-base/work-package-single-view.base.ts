@@ -1,6 +1,6 @@
 //-- copyright
-// OpenProject is a project management system.
-// Copyright (C) 2012-2015 the OpenProject Foundation (OPF)
+// OpenProject is an open source project management software.
+// Copyright (C) 2012-2020 the OpenProject GmbH
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License version 3.
@@ -23,15 +23,13 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //
-// See doc/COPYRIGHT.rdoc for more details.
+// See docs/COPYRIGHT.rdoc for more details.
 //++
 
-import {ChangeDetectorRef, Injector, OnDestroy} from '@angular/core';
+import {ChangeDetectorRef, Injector} from '@angular/core';
 import {I18nService} from 'core-app/modules/common/i18n/i18n.service';
 import {PathHelperService} from 'core-app/modules/common/path-helper/path-helper.service';
-import {WorkPackageTableFocusService} from 'core-components/wp-fast-table/state/wp-table-focus.service';
-import {componentDestroyed} from 'ng2-rx-componentdestroyed';
-import {takeUntil} from 'rxjs/operators';
+import {WorkPackageViewFocusService} from 'core-app/modules/work_packages/routing/wp-view-base/view-services/wp-view-focus.service';
 import {WorkPackageResource} from 'core-app/modules/hal/resources/work-package-resource';
 import {ProjectCacheService} from 'core-components/projects/project-cache.service';
 import {OpTitleService} from 'core-components/html/op-title.service';
@@ -39,25 +37,25 @@ import {AuthorisationService} from "core-app/modules/common/model-auth/model-aut
 import {WorkPackageCacheService} from "core-components/work-packages/work-package-cache.service";
 import {States} from "core-components/states.service";
 import {KeepTabService} from "core-components/wp-single-view-tabs/keep-tab/keep-tab.service";
-import {WorkPackageTableRefreshService} from "core-components/wp-table/wp-table-refresh-request.service";
-import {
-  IWorkPackageEditingService,
-  IWorkPackageEditingServiceToken
-} from "core-components/wp-edit-form/work-package-editing.service.interface";
 
-export class WorkPackageSingleViewBase implements OnDestroy {
+import {HalResourceEditingService} from "core-app/modules/fields/edit/services/hal-resource-editing.service";
+import {WorkPackageNotificationService} from "core-app/modules/work_packages/notifications/work-package-notification.service";
+import {InjectField} from "core-app/helpers/angular/inject-field.decorator";
+import {UntilDestroyedMixin} from "core-app/helpers/angular/until-destroyed.mixin";
 
-  public wpCacheService:WorkPackageCacheService = this.injector.get(WorkPackageCacheService);
-  public states:States = this.injector.get(States);
-  public I18n:I18nService = this.injector.get(I18nService);
-  public keepTab:KeepTabService = this.injector.get(KeepTabService);
-  public PathHelper:PathHelperService = this.injector.get(PathHelperService);
-  public wpTableRefresh:WorkPackageTableRefreshService = this.injector.get(WorkPackageTableRefreshService);
-  protected wpEditing:IWorkPackageEditingService = this.injector.get(IWorkPackageEditingServiceToken);
-  protected wpTableFocus:WorkPackageTableFocusService = this.injector.get(WorkPackageTableFocusService);
-  protected projectCacheService:ProjectCacheService = this.injector.get(ProjectCacheService);
-  protected authorisationService:AuthorisationService = this.injector.get(AuthorisationService);
-  protected cdRef:ChangeDetectorRef = this.injector.get(ChangeDetectorRef);
+export class WorkPackageSingleViewBase extends UntilDestroyedMixin {
+
+  @InjectField() wpCacheService:WorkPackageCacheService;
+  @InjectField() states:States;
+  @InjectField() I18n:I18nService;
+  @InjectField() keepTab:KeepTabService;
+  @InjectField() PathHelper:PathHelperService;
+  @InjectField() halEditing:HalResourceEditingService;
+  @InjectField() wpTableFocus:WorkPackageViewFocusService;
+  @InjectField() notificationService:WorkPackageNotificationService;
+  @InjectField() projectCacheService:ProjectCacheService;
+  @InjectField() authorisationService:AuthorisationService;
+  @InjectField() cdRef:ChangeDetectorRef;
 
   // Static texts
   public text:any = {};
@@ -69,14 +67,11 @@ export class WorkPackageSingleViewBase implements OnDestroy {
   public focusAnchorLabel:string;
   public showStaticPagePath:string;
 
-  readonly titleService:OpTitleService = this.injector.get(OpTitleService);
+  @InjectField() readonly titleService:OpTitleService;
 
   constructor(public injector:Injector, protected workPackageId:string) {
+    super();
     this.initializeTexts();
-  }
-
-  ngOnDestroy():void {
-    // Created for interface compliance
   }
 
   /**
@@ -84,9 +79,15 @@ export class WorkPackageSingleViewBase implements OnDestroy {
    * Needs to be run explicitly by descendants.
    */
   protected observeWorkPackage() {
-    this.wpCacheService.loadWorkPackage(this.workPackageId).values$()
+    /** Require the work package once to ensure we're displaying errors */
+    this.wpCacheService.require(this.workPackageId)
+      .catch((error) => this.notificationService.handleRawError(error));
+
+    /** Stream updates of the work package */
+    this.wpCacheService.state(this.workPackageId)
+      .values$()
       .pipe(
-        takeUntil(componentDestroyed(this))
+        this.untilDestroyed()
       )
       .subscribe((wp:WorkPackageResource) => {
         this.workPackage = wp;
@@ -113,8 +114,8 @@ export class WorkPackageSingleViewBase implements OnDestroy {
     this.projectCacheService
       .require(this.workPackage.project.idFromLink)
       .then(() => {
-      this.projectIdentifier = this.workPackage.project.identifier;
-    });
+        this.projectIdentifier = this.workPackage.project.identifier;
+      });
 
     // Set authorisation data
     this.authorisationService.initModelAuth('work_package', this.workPackage.$links);
@@ -128,7 +129,7 @@ export class WorkPackageSingleViewBase implements OnDestroy {
     // Listen to tab changes to update the tab label
     this.keepTab.observable
       .pipe(
-        takeUntil(componentDestroyed(this))
+        this.untilDestroyed()
       )
       .subscribe((tabs:any) => {
         this.updateFocusAnchorLabel(tabs.active);

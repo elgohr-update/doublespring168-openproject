@@ -14,12 +14,11 @@ import {VersionAutocompleterComponent} from "core-app/modules/common/autocomplet
 import {OpContextMenuItem} from "core-components/op-context-menu/op-context-menu.types";
 import {LinkHandling} from "core-app/modules/common/link-handling/link-handling";
 import {StateService} from "@uirouter/core";
-import {WorkPackageNotificationService} from "core-components/wp-edit/wp-notification.service";
+import {HalResourceNotificationService} from "core-app/modules/hal/services/hal-resource-notification.service";
 import {VersionCacheService} from "core-components/versions/version-cache.service";
 import {VersionBoardHeaderComponent} from "core-app/modules/boards/board/board-actions/version/version-board-header.component";
 import {FormResource} from "core-app/modules/hal/resources/form-resource";
 import {FormsCacheService} from "core-components/forms/forms-cache.service";
-import {CallableHalLink} from "core-app/modules/hal/hal-link/hal-link";
 
 @Injectable()
 export class BoardVersionActionService implements BoardActionService {
@@ -29,7 +28,7 @@ export class BoardVersionActionService implements BoardActionService {
               protected versionDm:VersionDmService,
               protected versionCache:VersionCacheService,
               protected currentProject:CurrentProjectService,
-              protected wpNotifications:WorkPackageNotificationService,
+              protected halNotification:HalResourceNotificationService,
               protected state:StateService,
               protected formCache:FormsCacheService,
               protected pathHelper:PathHelperService) {
@@ -171,6 +170,10 @@ export class BoardVersionActionService implements BoardActionService {
     return value instanceof VersionResource && value.isOpen();
   }
 
+  public warningTextWhenNoOptionsAvailable() {
+    return Promise.resolve(undefined);
+  }
+
   private getVersions():Promise<VersionResource[]> {
     if (this.currentProject.id === null) {
       return Promise.resolve([]);
@@ -188,7 +191,7 @@ export class BoardVersionActionService implements BoardActionService {
         this.versionCache.updateValue(version.id!, version);
         this.state.go('.', {}, { reload: true });
       })
-      .catch(error => this.wpNotifications.handleRawError(error));
+      .catch(error => this.halNotification.handleRawError(error));
   }
 
   private buildItemsForVersion(version:VersionResource):OpContextMenuItem[] {
@@ -234,7 +237,7 @@ export class BoardVersionActionService implements BoardActionService {
         // Show link
         linkText: this.I18n.t('js.boards.version.show_version'),
         href: this.pathHelper.versionShowPath(id),
-        onClick: (evt:JQuery.Event) => {
+        onClick: (evt:JQuery.TriggeredEvent) => {
           if (!LinkHandling.isClickedWithModifier(evt)) {
             window.open(this.pathHelper.versionShowPath(id), '_blank');
             return true;
@@ -248,7 +251,7 @@ export class BoardVersionActionService implements BoardActionService {
         hidden: !version.$links.update,
         linkText: this.I18n.t('js.boards.version.edit_version'),
         href: this.pathHelper.versionEditPath(id),
-        onClick: (evt:JQuery.Event) => {
+        onClick: (evt:JQuery.TriggeredEvent) => {
           if (!LinkHandling.isClickedWithModifier(evt)) {
             window.open(this.pathHelper.versionEditPath(id), '_blank');
             return true;

@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -172,6 +172,19 @@ describe MyController, type: :controller do
       it 'has a successful flash' do
         expect(flash[:notice]).to eql I18n.t(:notice_account_updated)
       end
+
+      context 'when user is invalid' do
+        let(:user) do
+          FactoryBot.create(:user).tap do |u|
+            u.update_column(:mail, 'something invalid')
+          end
+        end
+
+        it 'shows a flash error' do
+          expect(flash[:error]).to include 'Email is invalid.'
+          expect(request.path).to eq(my_settings_path)
+        end
+      end
     end
   end
 
@@ -229,7 +242,7 @@ describe MyController, type: :controller do
       end
 
       context 'with existing key' do
-        let!(:key) { ::Token::Rss.create user: user }
+        let!(:key) { ::Token::RSS.create user: user }
 
         it 'replaces the key' do
           expect(user.rss_token).to eq(key)
@@ -264,7 +277,7 @@ describe MyController, type: :controller do
       end
 
       context 'with existing key' do
-        let!(:key) { ::Token::Api.create user: user }
+        let!(:key) { ::Token::API.create user: user }
 
         it 'replaces the key' do
           expect(user.reload.api_token).to eq(key)

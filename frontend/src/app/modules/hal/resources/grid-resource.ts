@@ -1,6 +1,6 @@
 //-- copyright
-// OpenProject is a project management system.
-// Copyright (C) 2012-2015 the OpenProject Foundation (OPF)
+// OpenProject is an open source project management software.
+// Copyright (C) 2012-2020 the OpenProject GmbH
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License version 3.
@@ -23,16 +23,12 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //
-// See doc/COPYRIGHT.rdoc for more details.
+// See docs/COPYRIGHT.rdoc for more details.
 //++
 
 import {HalResource} from 'core-app/modules/hal/resources/hal-resource';
 import {GridWidgetResource} from "core-app/modules/hal/resources/grid-widget-resource";
-import {
-  WorkPackageBaseResource,
-  WorkPackageResourceEmbedded,
-  WorkPackageResourceLinks
-} from "core-app/modules/hal/resources/work-package-resource";
+import {Attachable} from "core-app/modules/hal/resources/mixins/attachable-mixin";
 
 export interface GridResourceLinks {
   update(payload:unknown):Promise<unknown>;
@@ -40,7 +36,7 @@ export interface GridResourceLinks {
   delete():Promise<unknown>;
 }
 
-export class GridResource extends HalResource {
+export class GridBaseResource extends HalResource {
   public widgets:GridWidgetResource[];
   public name:string;
   public options:{[key:string]:unknown};
@@ -52,16 +48,32 @@ export class GridResource extends HalResource {
 
     this.widgets = this
       .widgets
-      .map((widget:Object) => new GridWidgetResource(
-        this.injector,
-        widget,
-        true,
-        this.halInitializer,
-        'GridWidget'
-        )
-      );
+      .map((widget:Object) => {
+        let widgetResource = new GridWidgetResource( this.injector,
+                                                     widget,
+                                                     true,
+                                                     this.halInitializer,
+                                                     'GridWidget'
+                                                   );
+
+        widgetResource.grid = this;
+
+        return widgetResource;
+      });
+  }
+
+  readonly attachmentsBackend = true;
+
+  public async updateAttachments():Promise<HalResource> {
+    return this.attachments.$update().then(() => {
+      this.states.forResource(this)!.putValue(this);
+      return this.attachments;
+    });
   }
 }
 
-export interface GridResource extends Partial<GridResourceLinks> {
+
+export const GridResource = Attachable(GridBaseResource);
+
+export interface GridResource extends Partial<GridResourceLinks>, GridBaseResource {
 }

@@ -1,7 +1,7 @@
 #-- encoding: UTF-8
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -29,6 +29,8 @@
 
 module Redmine
   module I18n
+    include ActionView::Helpers::NumberHelper
+
     IN_CONTEXT_TRANSLATION_CODE = :lol
     IN_CONTEXT_TRANSLATION_NAME = 'In-Context Crowdin Translation'.freeze
 
@@ -69,8 +71,15 @@ module Redmine
     end
 
     def l_hours(hours)
-      hours = hours.to_f
-      l((hours < 2.0 ? :label_f_hour : :label_f_hour_plural), value: ('%.2f' % hours.to_f))
+      formatted = localized_float(hours)
+      ::I18n.t(:label_f_hour_plural, value: formatted)
+    end
+
+    def localized_float(number, locale: ::I18n.locale, precision: 2)
+      number_with_precision(number, locale: locale, precision: precision)
+    rescue StandardError => e
+      Rails.logger.error("Failed to localize float number #{number}: #{e}")
+      ('%.2f' % hours.to_f)
     end
 
     def ll(lang, str, value = nil)

@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -36,7 +36,14 @@ describe Authorization::UserAllowedService do
   let(:project) { FactoryBot.build_stubbed(:project) }
   let(:other_project) { FactoryBot.build_stubbed(:project) }
   let(:role) { FactoryBot.build_stubbed(:role) }
-  let(:user_roles_in_project) { [role] }
+  let(:user_roles_in_project) do
+    array = [role]
+    allow(array)
+      .to receive(:eager_load)
+      .and_return(array)
+
+    array
+  end
   let(:role_grants_action) { true }
   let(:project_allows_to) { true }
 
@@ -55,7 +62,7 @@ describe Authorization::UserAllowedService do
   shared_examples_for 'allowed to checked' do
     before do
       Array(context).each do |project|
-        project.status = Project::STATUS_ACTIVE
+        project.active = true
 
         allow(project)
           .to receive(:allows_to?)
@@ -123,7 +130,7 @@ describe Authorization::UserAllowedService do
     context 'with the project not being active' do
       before do
         Array(context).each do |project|
-          project.status = Project::STATUS_ARCHIVED
+          project.active = false
         end
       end
 
@@ -272,7 +279,7 @@ describe Authorization::UserAllowedService do
           allow(Authorization)
             .to receive(:roles)
             .with(user, nil)
-            .and_return([role])
+            .and_return(user_roles_in_project)
 
           allow(role)
             .to receive(:allowed_to?)
@@ -294,7 +301,7 @@ describe Authorization::UserAllowedService do
           allow(Authorization)
             .to receive(:roles)
             .with(user, nil)
-            .and_return([role])
+            .and_return(user_roles_in_project)
 
           allow(role)
             .to receive(:allowed_to?)

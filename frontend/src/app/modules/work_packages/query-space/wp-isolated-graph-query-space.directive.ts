@@ -1,6 +1,6 @@
 // -- copyright
-// OpenProject is a project management system.
-// Copyright (C) 2012-2015 the OpenProject Foundation (OPF)
+// OpenProject is an open source project management software.
+// Copyright (C) 2012-2020 the OpenProject GmbH
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License version 3.
@@ -23,31 +23,29 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //
-// See doc/COPYRIGHT.rdoc for more details.
+// See docs/COPYRIGHT.rdoc for more details.
 // ++
 
-import {Directive, ElementRef, Injector} from '@angular/core';
+import {Directive} from '@angular/core';
 import {IsolatedQuerySpace} from "core-app/modules/work_packages/query-space/isolated-query-space";
 import {OpTableActionsService} from "core-components/wp-table/table-actions/table-actions.service";
-import {WorkPackageTableRelationColumnsService} from "core-components/wp-fast-table/state/wp-table-relation-columns.service";
-import {WorkPackageTablePaginationService} from "core-components/wp-fast-table/state/wp-table-pagination.service";
-import {WorkPackageTableGroupByService} from "core-components/wp-fast-table/state/wp-table-group-by.service";
-import {WorkPackageTableHierarchiesService} from "core-components/wp-fast-table/state/wp-table-hierarchy.service";
-import {WorkPackageTableSortByService} from "core-components/wp-fast-table/state/wp-table-sort-by.service";
-import {WorkPackageTableColumnsService} from "core-components/wp-fast-table/state/wp-table-columns.service";
-import {WorkPackageTableFiltersService} from "core-components/wp-fast-table/state/wp-table-filters.service";
-import {WorkPackageTableTimelineService} from "core-components/wp-fast-table/state/wp-table-timeline.service";
-import {WorkPackageTableSelection} from "core-components/wp-fast-table/state/wp-table-selection.service";
-import {WorkPackageTableSumService} from "core-components/wp-fast-table/state/wp-table-sum.service";
-import {WorkPackageTableAdditionalElementsService} from "core-components/wp-fast-table/state/wp-table-additional-elements.service";
-import {WorkPackageTableRefreshService} from "core-components/wp-table/wp-table-refresh-request.service";
-import {WorkPackageTableHighlightingService} from "core-components/wp-fast-table/state/wp-table-highlighting.service";
-import {IWorkPackageCreateServiceToken} from "core-components/wp-new/wp-create.service.interface";
+import {WorkPackageViewRelationColumnsService} from "core-app/modules/work_packages/routing/wp-view-base/view-services/wp-view-relation-columns.service";
+import {WorkPackageViewPaginationService} from "core-app/modules/work_packages/routing/wp-view-base/view-services/wp-view-pagination.service";
+import {WorkPackageViewGroupByService} from "core-app/modules/work_packages/routing/wp-view-base/view-services/wp-view-group-by.service";
+import {WorkPackageViewHierarchiesService} from "core-app/modules/work_packages/routing/wp-view-base/view-services/wp-view-hierarchy.service";
+import {WorkPackageViewSortByService} from "core-app/modules/work_packages/routing/wp-view-base/view-services/wp-view-sort-by.service";
+import {WorkPackageViewColumnsService} from "core-app/modules/work_packages/routing/wp-view-base/view-services/wp-view-columns.service";
+import {WorkPackageViewFiltersService} from "core-app/modules/work_packages/routing/wp-view-base/view-services/wp-view-filters.service";
+import {WorkPackageViewTimelineService} from "core-app/modules/work_packages/routing/wp-view-base/view-services/wp-view-timeline.service";
+import {WorkPackageViewSelectionService} from "core-app/modules/work_packages/routing/wp-view-base/view-services/wp-view-selection.service";
+import {WorkPackageViewSumService} from "core-app/modules/work_packages/routing/wp-view-base/view-services/wp-view-sum.service";
+import {WorkPackageViewAdditionalElementsService} from "core-app/modules/work_packages/routing/wp-view-base/view-services/wp-view-additional-elements.service";
+import {WorkPackageViewHighlightingService} from "core-app/modules/work_packages/routing/wp-view-base/view-services/wp-view-highlighting.service";
 import {WorkPackageCreateService} from "core-components/wp-new/wp-create.service";
 import {WorkPackageStatesInitializationService} from "core-components/wp-list/wp-states-initialization.service";
-import {WorkPackageTableFocusService} from "core-components/wp-fast-table/state/wp-table-focus.service";
-import {IWorkPackageEditingServiceToken} from "core-components/wp-edit-form/work-package-editing.service.interface";
-import {WorkPackageEditingService} from "core-components/wp-edit-form/work-package-editing-service";
+import {WorkPackageViewFocusService} from "core-app/modules/work_packages/routing/wp-view-base/view-services/wp-view-focus.service";
+
+import {HalResourceEditingService} from "core-app/modules/fields/edit/services/hal-resource-editing.service";
 import {WorkPackagesListService} from "core-components/wp-list/wp-list.service";
 import {WorkPackageService} from "core-components/work-packages/work-package.service";
 import {WorkPackageRelationsHierarchyService} from "core-components/wp-relations/wp-relations-hierarchy/wp-relations-hierarchy.service";
@@ -57,37 +55,34 @@ import {WorkPackageInlineCreateService} from "core-components/wp-inline-create/w
 import {WpChildrenInlineCreateService} from "core-components/wp-relations/embedded/children/wp-children-inline-create.service";
 import {WpRelationInlineCreateService} from "core-components/wp-relations/embedded/relations/wp-relation-inline-create.service";
 import {WorkPackagesListChecksumService} from "core-components/wp-list/wp-list-checksum.service";
-import {debugLog} from "core-app/helpers/debug_output";
-import {PortalCleanupService} from "core-app/modules/fields/display/display-portal/portal-cleanup.service";
 import {TableDragActionsRegistryService} from "core-components/wp-table/drag-and-drop/actions/table-drag-actions-registry.service";
-import {ReorderQueryService} from "core-app/modules/common/drag-and-drop/reorder-query.service";
 import {IsolatedGraphQuerySpace} from "core-app/modules/work_packages/query-space/isolated-graph-query-space";
 import {WorkPackageIsolatedQuerySpaceDirective} from "core-app/modules/work_packages/query-space/wp-isolated-query-space.directive";
+import {WorkPackageViewHierarchyIdentationService} from "core-app/modules/work_packages/routing/wp-view-base/view-services/wp-view-hierarchy-indentation.service";
 
 export const WpIsolatedGraphQuerySpaceProviders = [
   // Open the isolated space first, order is important here
   { provide: IsolatedQuerySpace, useClass: IsolatedGraphQuerySpace },
   OpTableActionsService,
 
-  WorkPackageTableRefreshService,
-
   // Work package table services
   WorkPackagesListChecksumService,
   WorkPackagesListService,
-  WorkPackageTableRelationColumnsService,
-  WorkPackageTablePaginationService,
-  WorkPackageTableGroupByService,
-  WorkPackageTableHierarchiesService,
-  WorkPackageTableSortByService,
-  WorkPackageTableColumnsService,
-  WorkPackageTableFiltersService,
-  WorkPackageTableTimelineService,
-  WorkPackageTableSelection,
-  WorkPackageTableSumService,
-  WorkPackageTableAdditionalElementsService,
-  WorkPackageTableFocusService,
-  WorkPackageTableHighlightingService,
+  WorkPackageViewRelationColumnsService,
+  WorkPackageViewPaginationService,
+  WorkPackageViewGroupByService,
+  WorkPackageViewHierarchiesService,
+  WorkPackageViewSortByService,
+  WorkPackageViewColumnsService,
+  WorkPackageViewFiltersService,
+  WorkPackageViewTimelineService,
+  WorkPackageViewSelectionService,
+  WorkPackageViewSumService,
+  WorkPackageViewAdditionalElementsService,
+  WorkPackageViewFocusService,
+  WorkPackageViewHighlightingService,
   WorkPackageService,
+  WorkPackageViewHierarchyIdentationService,
   WorkPackageRelationsHierarchyService,
   WorkPackageFiltersService,
   WorkPackageContextMenuHelperService,
@@ -98,19 +93,14 @@ export const WpIsolatedGraphQuerySpaceProviders = [
   WpChildrenInlineCreateService,
   WpRelationInlineCreateService,
 
-  // Provide both serves with tokens to avoid tight dependency cycles
-  { provide: IWorkPackageCreateServiceToken, useClass: WorkPackageCreateService },
-  { provide: IWorkPackageEditingServiceToken, useClass: WorkPackageEditingService },
+  HalResourceEditingService,
+  WorkPackageCreateService,
 
   WorkPackageStatesInitializationService,
-  ReorderQueryService,
-
-  PortalCleanupService,
 
   // Table Drag & Drop actions
   TableDragActionsRegistryService,
 ];
-
 
 
 /**
@@ -125,10 +115,4 @@ export const WpIsolatedGraphQuerySpaceProviders = [
   providers: WpIsolatedGraphQuerySpaceProviders
 })
 export class WorkPackageIsolatedGraphQuerySpaceDirective extends WorkPackageIsolatedQuerySpaceDirective {
-
-  //constructor(private elementRef:ElementRef,
-  //            public querySpace:IsolatedQuerySpace,
-  //            private injector:Injector) {
-  //  debugLog("Opening isolated query space %O in %O", injector, elementRef.nativeElement);
-  //}
 }

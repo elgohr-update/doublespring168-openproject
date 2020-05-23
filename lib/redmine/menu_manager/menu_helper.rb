@@ -1,7 +1,7 @@
 #-- encoding: UTF-8
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -166,9 +166,9 @@ module Redmine::MenuManager::MenuHelper
     caption, url, selected = extract_node_details(item, project)
 
     link_text = ''.html_safe
-    link_text << op_icon(item.icon) if item.icon.present?
+    link_text << op_icon(item.icon(project)) if item.icon(project).present?
     link_text << content_tag(:span,
-                             class: "menu-item--title ellipsis #{item.badge.present? ? '-has-badge' : ''}",
+                             class: "menu-item--title ellipsis #{item.badge(project).present? ? '-has-badge' : ''}",
                              lang: menu_item_locale(item)) do
       ''.html_safe + caption + badge_for(item)
     end
@@ -215,9 +215,9 @@ module Redmine::MenuManager::MenuHelper
   def render_unattached_menu_item(menu_item, project)
     raise Redmine::MenuManager::MenuError, ':child_menus must be an array of MenuItems' unless menu_item.is_a? Redmine::MenuManager::MenuItem
 
-    if User.current.allowed_to?(menu_item.url, project)
+    if User.current.allowed_to?(menu_item.url(project), project)
       link_to(menu_item.caption,
-              menu_item.url,
+              menu_item.url(project),
               menu_item.html_options)
     end
   end
@@ -243,23 +243,35 @@ module Redmine::MenuManager::MenuHelper
   end
 
   def extract_node_details(node, project = nil)
-    url = node_url(node, project)
+    url = allowed_node_url(node, project)
     caption = node.caption(project)
     selected = node_or_children_selected?(node)
 
     [caption, url, selected]
   end
 
+  def allowed_node_url(node, project)
+    user = User.current
+    if !(node_action_allowed? node, project, user) && node.allow_deeplink?
+      allowed_child = node.children.find { |child| node_action_allowed? child, project, user }
+      if allowed_child
+        node_url allowed_child, project
+      end
+    else
+      node_url node, project
+    end
+  end
+
   def node_url(node, project)
     engine = node_engine(node)
 
-    case node.url
+    case node.url(project)
     when Hash
-      engine.url_for(project.nil? ? node.url : { node.param => project }.merge(node.url))
+      engine.url_for(project.nil? ? node.url(project) : { node.param => project }.merge(node.url(project)))
     when Symbol
-      engine.send(node.url)
+      engine.send(node.url(project))
     else
-      engine.url_for(node.url)
+      engine.url_for(node.url(project))
     end
   end
 
@@ -290,11 +302,27 @@ module Redmine::MenuManager::MenuHelper
     end
 
     if project
-      user&.allowed_to?(node.url, project)
+      allowed_project_node?(node, project, user)
     else
       # outside a project, all menu items allowed
       true
     end
+  end
+
+  def allowed_project_node?(node, project, user)
+    if node_action_allowed?(node, project, user)
+      true
+    elsif node.allow_deeplink?
+      node.children.any? do |child|
+        node_action_allowed?(child, project, user)
+      end
+    else
+      false
+    end
+  end
+
+  def node_action_allowed?(node, project, user)
+    user&.allowed_to?(node.url(project), project)
   end
 
   def visible_node?(menu, node)
@@ -326,8 +354,9 @@ module Redmine::MenuManager::MenuHelper
 
   def badge_for(item)
     badge = ''.html_safe
-    if item.badge.present?
-      badge += content_tag('span', I18n.t(item.badge), class: 'main-item--badge')
+
+    if item.badge(@project).present?
+      badge += content_tag('span', I18n.t(item.badge(@project)), class: 'main-item--badge')
     end
     badge
   end

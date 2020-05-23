@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -36,8 +36,6 @@ describe 'Login', type: :feature do
 
   after do
     Capybara.ignore_hidden_elements = @capybara_ignore_elements
-    User.delete_all
-    User.current = nil
   end
 
   def expect_being_logged_in(user)
@@ -47,7 +45,7 @@ describe 'Login', type: :feature do
 
   def expect_not_being_logged_in
     expect(page)
-      .to have_field('Login')
+      .to have_field('Username')
   end
 
   context 'sign in user' do
@@ -65,6 +63,17 @@ describe 'Login', type: :feature do
                         lastname: 'B',
                         password: user_password,
                         password_confirmation: user_password)
+    end
+
+    context 'with leading and trailing space in login' do
+      it 'can still login' do
+        # first login
+        login_with(" #{user.login} ", user.password)
+
+        # on the my page
+        expect(page)
+          .to have_current_path my_page_path
+      end
     end
 
     context 'with force password change' do
@@ -113,7 +122,7 @@ describe 'Login', type: :feature do
       visit my_page_path
 
       expect(page)
-        .to have_field('Login')
+        .to have_field('Username')
 
       login_with(user.login, user_password)
 

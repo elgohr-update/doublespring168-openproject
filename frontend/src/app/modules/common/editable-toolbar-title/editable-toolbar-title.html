@@ -15,6 +15,7 @@
          [attr.name]="selectableTitleIdentifier"
          [focus]="this.initialFocus || undefined"
          (focus)="onFocus($event)"
+         (blur)="onBlur()"
          (keydown.escape)="reset($event)"
          (keydown.enter)="save($event)"
          [attr.placeholder]="text.input_placeholder"
@@ -27,5 +28,5 @@
 <h2 *ngIf="!editable"
     [attr.title]="selectedTitle"
     [ngClass]="{ '-disabled': disabled, '-small': smallHeader }"
-    class="editable-toolbar-title--fixed"> {{ selectedTitle | slice:0:50 }}
+    class="editable-toolbar-title--fixed"> {{ selectedTitle }}
 </h2>

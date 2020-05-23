@@ -1,6 +1,6 @@
 //-- copyright
-// OpenProject is a project management system.
-// Copyright (C) 2012-2017 the OpenProject Foundation (OPF)
+// OpenProject is an open source project management software.
+// Copyright (C) 2012-2020 the OpenProject GmbH
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License version 3.
@@ -23,10 +23,9 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //
-// See doc/COPYRIGHT.rdoc for more details.
+// See docs/COPYRIGHT.rdoc for more details.
 //++
 
-import {WorkPackageTableRefreshService} from '../wp-table/wp-table-refresh-request.service';
 import {StateService} from '@uirouter/core';
 import {Injectable} from "@angular/core";
 import {HttpClient} from "@angular/common/http";
@@ -34,6 +33,7 @@ import {PathHelperService} from "core-app/modules/common/path-helper/path-helper
 import {UrlParamsHelperService} from "core-components/wp-query/url-params-helper";
 import {NotificationsService} from "core-app/modules/common/notifications/notifications.service";
 import {I18nService} from "core-app/modules/common/i18n/i18n.service";
+import {HalDeletedEvent, HalEventsService} from "core-app/modules/hal/services/hal-events.service";
 
 @Injectable()
 export class WorkPackageService {
@@ -48,7 +48,7 @@ export class WorkPackageService {
               private readonly UrlParamsHelper:UrlParamsHelperService,
               private readonly NotificationsService:NotificationsService,
               private readonly I18n:I18nService,
-              private readonly wpTableRefresh:WorkPackageTableRefreshService) {
+              private readonly halEvents:HalEventsService) {
   }
 
   public performBulkDelete(ids:string[], defaultHandling:boolean) {
@@ -56,18 +56,22 @@ export class WorkPackageService {
       'ids[]': ids
     };
     const promise = this.http
-      .delete(this.PathHelper.workPackagesBulkDeletePath(), {params: params})
+      .delete(
+        this.PathHelper.workPackagesBulkDeletePath(),
+        {params: params, withCredentials: true}
+      )
       .toPromise();
 
     if (defaultHandling) {
       promise
         .then(() => {
           this.NotificationsService.addSuccess(this.text.successful_delete);
-          this.wpTableRefresh.request('Bulk delete removed elements', { visible: true });
+
+          ids.forEach(id => this.halEvents.push({_type:'WorkPackage', id: id}, { eventType: 'deleted'} as HalDeletedEvent));
 
           if (this.$state.includes('**.list.details.**')
             && ids.indexOf(this.$state.params.workPackageId) > -1) {
-            this.$state.go('work-packages.list', this.$state.params);
+            this.$state.go('work-packages.partitioned.list', this.$state.params);
           }
         })
         .catch(() => {

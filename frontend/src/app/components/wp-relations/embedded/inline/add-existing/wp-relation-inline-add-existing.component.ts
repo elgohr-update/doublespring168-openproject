@@ -1,6 +1,6 @@
 // -- copyright
-// OpenProject is a project management system.
-// Copyright (C) 2012-2015 the OpenProject Foundation (OPF)
+// OpenProject is an open source project management software.
+// Copyright (C) 2012-2020 the OpenProject GmbH
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License version 3.
@@ -23,7 +23,7 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //
-// See doc/COPYRIGHT.rdoc for more details.
+// See docs/COPYRIGHT.rdoc for more details.
 // ++
 
 import {Component, Inject} from '@angular/core';
@@ -31,15 +31,15 @@ import {I18nService} from 'core-app/modules/common/i18n/i18n.service';
 import {WorkPackageInlineCreateService} from "core-components/wp-inline-create/wp-inline-create.service";
 import {WorkPackageInlineCreateComponent} from "core-components/wp-inline-create/wp-inline-create.component";
 import {WorkPackageRelationsService} from "core-components/wp-relations/wp-relations.service";
-import {WorkPackageNotificationService} from "core-components/wp-edit/wp-notification.service";
 import {WorkPackageCacheService} from "core-components/work-packages/work-package-cache.service";
 import {WpRelationInlineCreateServiceInterface} from "core-components/wp-relations/embedded/wp-relation-inline-create.service.interface";
-import {WorkPackageTableRefreshService} from "core-components/wp-table/wp-table-refresh-request.service";
 import {WorkPackageResource} from "core-app/modules/hal/resources/work-package-resource";
 import {IsolatedQuerySpace} from "core-app/modules/work_packages/query-space/isolated-query-space";
 import {ApiV3Filter} from "core-components/api/api-v3/api-v3-filter-builder";
 import {UrlParamsHelperService} from "core-components/wp-query/url-params-helper";
 import {RelationResource} from "core-app/modules/hal/resources/relation-resource";
+import {HalEventsService} from "core-app/modules/hal/services/hal-events.service";
+import {WorkPackageNotificationService} from "core-app/modules/work_packages/notifications/work-package-notification.service";
 
 @Component({
   templateUrl: './wp-relation-inline-add-existing.component.html'
@@ -51,7 +51,6 @@ export class WpRelationInlineAddExistingComponent {
   public queryFilters = this.buildQueryFilters();
 
   public text = {
-    save: this.I18n.t('js.relation_buttons.save'),
     abort: this.I18n.t('js.relation_buttons.abort'),
   };
 
@@ -59,8 +58,8 @@ export class WpRelationInlineAddExistingComponent {
               @Inject(WorkPackageInlineCreateService) protected readonly wpInlineCreate:WpRelationInlineCreateServiceInterface,
               protected wpCacheService:WorkPackageCacheService,
               protected wpRelations:WorkPackageRelationsService,
-              protected wpNotificationsService:WorkPackageNotificationService,
-              protected wpTableRefresh:WorkPackageTableRefreshService,
+              protected notificationService:WorkPackageNotificationService,
+              protected halEvents:HalEventsService,
               protected urlParamsHelper:UrlParamsHelperService,
               protected querySpace:IsolatedQuerySpace,
               protected readonly I18n:I18nService) {
@@ -77,19 +76,25 @@ export class WpRelationInlineAddExistingComponent {
     this.wpInlineCreate.add(this.workPackage, newRelationId)
       .then(() => {
         this.wpCacheService.loadWorkPackage(this.workPackage.id!, true);
-        this.wpTableRefresh.request(`Added relation ${newRelationId}`, { visible: true });
+
+        this.halEvents.push(this.workPackage, {
+          eventType: 'association',
+          relatedWorkPackage: newRelationId,
+          relationType: this.relationType,
+        });
+
         this.isDisabled = false;
         this.wpInlineCreate.newInlineWorkPackageReferenced.next(newRelationId);
         this.cancel();
       })
       .catch((err:any) => {
-        this.wpNotificationsService.handleRawError(err, this.workPackage);
+        this.notificationService.handleRawError(err, this.workPackage);
         this.isDisabled = false;
         this.cancel();
       });
   }
 
-  public onReferenced(workPackage?:WorkPackageResource) {
+  public onSelected(workPackage?:WorkPackageResource) {
     if (workPackage) {
       this.selectedWpId = workPackage.id!;
       this.addExisting();
@@ -103,7 +108,6 @@ export class WpRelationInlineAddExistingComponent {
   public get workPackage() {
     return this.wpInlineCreate.referenceTarget!;
   }
-
 
   public cancel() {
     this.parent.resetRow();

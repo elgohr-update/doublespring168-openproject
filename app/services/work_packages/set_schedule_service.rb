@@ -1,8 +1,8 @@
 #-- encoding: UTF-8
 
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -152,6 +152,6 @@ class WorkPackages::SetScheduleService
     required_delta = [min_start_date - scheduled.start_date, [delta, 0].min].max
 
     scheduled.start_date += required_delta
-    scheduled.due_date += required_delta
+    scheduled.due_date += required_delta if scheduled.due_date
   end
 end

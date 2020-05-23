@@ -1,6 +1,6 @@
 // -- copyright
-// OpenProject is a project management system.
-// Copyright (C) 2012-2015 the OpenProject Foundation (OPF)
+// OpenProject is an open source project management software.
+// Copyright (C) 2012-2020 the OpenProject GmbH
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License version 3.
@@ -23,15 +23,14 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //
-// See doc/COPYRIGHT.rdoc for more details.
+// See docs/COPYRIGHT.rdoc for more details.
 // ++
 
-import {WorkPackageTableTimelineService} from '../../wp-fast-table/state/wp-table-timeline.service';
 import {AbstractWorkPackageButtonComponent, ButtonControllerText} from '../wp-buttons.module';
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {I18nService} from 'core-app/modules/common/i18n/i18n.service';
 import {TimelineZoomLevel} from 'core-app/modules/hal/resources/query-resource';
-import {componentDestroyed, untilComponentDestroyed} from "ng2-rx-componentdestroyed";
+import {WorkPackageViewTimelineService} from "core-app/modules/work_packages/routing/wp-view-base/view-services/wp-view-timeline.service";
 
 export interface TimelineButtonText extends ButtonControllerText {
   zoomOut:string;
@@ -41,10 +40,11 @@ export interface TimelineButtonText extends ButtonControllerText {
 
 @Component({
   templateUrl: './wp-timeline-toggle-button.html',
+  styleUrls: ['./wp-timeline-toggle-button.sass'],
   selector: 'wp-timeline-toggle-button',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class WorkPackageTimelineButtonComponent extends AbstractWorkPackageButtonComponent implements OnInit, OnDestroy {
+export class WorkPackageTimelineButtonComponent extends AbstractWorkPackageButtonComponent implements OnInit {
   public buttonId:string = 'work-packages-timeline-toggle-button';
   public iconClass:string = 'icon-view-timeline';
 
@@ -63,7 +63,7 @@ export class WorkPackageTimelineButtonComponent extends AbstractWorkPackageButto
 
   constructor(readonly I18n:I18nService,
               readonly cdRef:ChangeDetectorRef,
-              public wpTableTimeline:WorkPackageTableTimelineService) {
+              public wpTableTimeline:WorkPackageViewTimelineService) {
     super(I18n);
 
     this.activateLabel = I18n.t('js.timelines.button_activate');
@@ -78,7 +78,7 @@ export class WorkPackageTimelineButtonComponent extends AbstractWorkPackageButto
     this.wpTableTimeline
       .live$()
       .pipe(
-        untilComponentDestroyed(this)
+        this.untilDestroyed()
       )
       .subscribe(() => {
         this.isAutoZoom = this.wpTableTimeline.isAutoZoom();
@@ -90,17 +90,13 @@ export class WorkPackageTimelineButtonComponent extends AbstractWorkPackageButto
       .appliedZoomLevel$
       .values$()
       .pipe(
-        untilComponentDestroyed(this)
+        this.untilDestroyed()
       )
       .subscribe((current) => {
         this.isMaxLevel = current === this.maxZoomLevel;
         this.isMinLevel = current === this.minZoomLevel;
         this.cdRef.detectChanges();
       });
-  }
-
-  ngOnDestroy():void {
-    // Nothing to do
   }
 
   public get label():string {

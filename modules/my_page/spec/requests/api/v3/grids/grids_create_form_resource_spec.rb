@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -78,8 +78,8 @@ describe "POST /api/v3/grids/form", type: :request, content_type: :json do
 
       it 'contains default data in the payload' do
         expected = {
-          "rowCount": 7,
-          "columnCount": 4,
+          "rowCount": 1,
+          "columnCount": 2,
           "options": {},
           "widgets": [
             {
@@ -93,9 +93,9 @@ describe "POST /api/v3/grids/form", type: :request, content_type: :json do
                 }
               },
               startRow: 1,
-              endRow: 7,
+              endRow: 2,
               startColumn: 1,
-              endColumn: 3
+              endColumn: 2
             },
             {
               "_type": "GridWidget",
@@ -108,12 +108,13 @@ describe "POST /api/v3/grids/form", type: :request, content_type: :json do
                 }
               },
               startRow: 1,
-              endRow: 7,
-              startColumn: 3,
-              endColumn: 5
+              endRow: 2,
+              startColumn: 2,
+              endColumn: 3
             }
           ],
           "_links": {
+            "attachments": [],
             "scope": {
               "href": "/my/page",
               "type": "text/html"
@@ -151,8 +152,8 @@ describe "POST /api/v3/grids/form", type: :request, content_type: :json do
             {
               "_type": "GridWidget",
               "identifier": "bogus_identifier",
-              "startRow": 4,
-              "endRow": 5,
+              "startRow": 1,
+              "endRow": 2,
               "startColumn": 1,
               "endColumn": 2
             }

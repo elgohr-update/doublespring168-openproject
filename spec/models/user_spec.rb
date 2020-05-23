@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -32,18 +32,34 @@ describe User, type: :model do
   let(:user) { FactoryBot.build(:user) }
   let(:project) { FactoryBot.create(:project_with_types) }
   let(:role) { FactoryBot.create(:role, permissions: [:view_work_packages]) }
-  let(:member) {
+  let(:member) do
     FactoryBot.build(:member, project: project,
-                               roles: [role],
-                               principal: user)
-  }
+                              roles: [role],
+                              principal: user)
+  end
   let(:status) { FactoryBot.create(:status) }
-  let(:issue) {
+  let(:issue) do
     FactoryBot.build(:work_package, type: project.types.first,
-                                     author: user,
-                                     project: project,
-                                     status: status)
-  }
+                                    author: user,
+                                    project: project,
+                                    status: status)
+  end
+
+  describe '.not_builtin' do
+    let!(:anonymous_user) { FactoryBot.create(:anonymous) }
+    let!(:system_user) { FactoryBot.create(:system) }
+    let!(:deleted_user) { FactoryBot.create(:deleted_user) }
+    let!(:user) { FactoryBot.create(:user) }
+
+    subject { described_class.not_builtin }
+
+    it 'returns only actual users', :aggregate_failures do
+      expect(subject).to include(user)
+      expect(subject).not_to include(anonymous_user)
+      expect(subject).not_to include(system_user)
+      expect(subject).not_to include(deleted_user)
+    end
+  end
 
   describe 'a user with a long login (<= 256 chars)' do
     let(:login) { 'a' * 256 }
@@ -209,8 +225,8 @@ describe User, type: :model do
   describe '#blocked' do
     let!(:blocked_user) do
       FactoryBot.create(:user,
-                         failed_login_count: 3,
-                         last_failed_login_on: Time.now)
+                        failed_login_count: 3,
+                        last_failed_login_on: Time.now)
     end
 
     before do
@@ -284,10 +300,10 @@ describe User, type: :model do
     end
 
     describe 'WHEN the user is watching' do
-      let(:watcher) {
+      let(:watcher) do
         Watcher.new(watchable: issue,
                     user: user)
-      }
+      end
 
       before do
         issue.save!
@@ -420,11 +436,11 @@ describe User, type: :model do
       end
 
       it 'creates a SystemUser' do
-        expect {
+        expect do
           system_user = User.system
           expect(system_user.new_record?).to be_falsey
           expect(system_user.is_a?(SystemUser)).to be_truthy
-        }.to change(User, :count).by(1)
+        end.to change(User, :count).by(1)
       end
     end
 
@@ -434,11 +450,11 @@ describe User, type: :model do
         expect(SystemUser.first).to eq(@u)
       end
 
-      it 'returns existing SystemUser'  do
-        expect {
+      it 'returns existing SystemUser' do
+        expect do
           system_user = User.system
           expect(system_user).to eq(@u)
-        }.to change(User, :count).by(0)
+        end.to change(User, :count).by(0)
       end
     end
   end
@@ -511,9 +527,9 @@ describe User, type: :model do
   describe '#notify_about?' do
     let(:work_package) do
       FactoryBot.build_stubbed(:work_package,
-                                assigned_to: assignee,
-                                responsible: responsible,
-                                author: author)
+                               assigned_to: assignee,
+                               responsible: responsible,
+                               author: author)
     end
     let(:author) do
       FactoryBot.build_stubbed(:user)
@@ -551,7 +567,7 @@ describe User, type: :model do
       it "is false for a user with :only_my_events who has no relation to the work package" do
         user = FactoryBot.build_stubbed(:user, mail_notification: 'only_my_events')
         (Member.new.tap do |m|
-          m.attributes = { user: user, project: project, role_ids: [role.id] }
+          m.attributes = { principal: user, project: project, role_ids: [role.id] }
         end)
         expect(user.notify_about?(work_package)).to be_falsey
       end
@@ -609,7 +625,7 @@ describe User, type: :model do
       it "is false for a user with :only_my_events who has no relation to the work package" do
         user = FactoryBot.build(:user, mail_notification: 'selected')
         (Member.new.tap do |m|
-          m.attributes = { user: user, project: project, role_ids: [role.id] }
+          m.attributes = { principal: user, project: project, role_ids: [role.id] }
         end)
         expect(user.notify_about?(work_package)).to be_falsey
       end
@@ -617,12 +633,16 @@ describe User, type: :model do
   end
 
   describe 'scope.newest' do
-    let!(:anonymous) { FactoryBot.create(:anonymous) }
+    let!(:anonymous) { User.anonymous }
     let!(:user1) { FactoryBot.create(:user) }
     let!(:user2) { FactoryBot.create(:user) }
 
-    it 'without anonymous user' do
-      expect(User.newest).to match_array([user1, user2])
+    let(:newest) { User.newest.to_a }
+
+    it 'without anonymous user', :aggregate_failures do
+      expect(newest).to include(user1)
+      expect(newest).to include(user2)
+      expect(newest).not_to include(anonymous)
     end
   end
 

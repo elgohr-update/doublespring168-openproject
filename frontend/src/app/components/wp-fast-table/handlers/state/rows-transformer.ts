@@ -3,16 +3,17 @@ import {filter, takeUntil} from 'rxjs/operators';
 import {WorkPackageTable} from '../../wp-fast-table';
 import {IsolatedQuerySpace} from "core-app/modules/work_packages/query-space/isolated-query-space";
 import {States} from 'core-components/states.service';
-import {WorkPackageTableOrderService} from "core-components/wp-fast-table/state/wp-table-order.service";
-import {WorkPackageTableSortByService} from "core-components/wp-fast-table/state/wp-table-sort-by.service";
+import {WorkPackageViewOrderService} from "core-app/modules/work_packages/routing/wp-view-base/view-services/wp-view-order.service";
+import {WorkPackageViewSortByService} from "core-app/modules/work_packages/routing/wp-view-base/view-services/wp-view-sort-by.service";
 import {WorkPackageResource} from "core-app/modules/hal/resources/work-package-resource";
+import {InjectField} from "core-app/helpers/angular/inject-field.decorator";
 
 export class RowsTransformer {
 
-  public querySpace:IsolatedQuerySpace = this.injector.get(IsolatedQuerySpace);
-  public wpTableSortBy = this.injector.get(WorkPackageTableSortByService);
-  public wpTableOrder = this.injector.get(WorkPackageTableOrderService);
-  public states:States = this.injector.get(States);
+  @InjectField() querySpace:IsolatedQuerySpace;
+  @InjectField() wpTableSortBy:WorkPackageViewSortByService;
+  @InjectField() wpTableOrder:WorkPackageViewOrderService;
+  @InjectField() states:States;
 
   constructor(public readonly injector:Injector,
               public table:WorkPackageTable) {
@@ -40,7 +41,10 @@ export class RowsTransformer {
     this.states.workPackages.observeChange()
       .pipe(
         takeUntil(this.querySpace.stopAllSubscriptions.asObservable()),
-        filter(() => !!this.querySpace.rendered.hasValue())
+        filter(() => {
+          let rendered = this.querySpace.tableRendered.getValueOr([]);
+          return rendered && rendered.length > 0;
+        })
       )
       .subscribe(([changedId, wp]) => {
         if (wp === undefined) {

@@ -1,6 +1,6 @@
 // -- copyright
-// OpenProject is a project management system.
-// Copyright (C) 2012-2015 the OpenProject Foundation (OPF)
+// OpenProject is an open source project management software.
+// Copyright (C) 2012-2020 the OpenProject GmbH
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License version 3.
@@ -23,7 +23,7 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //
-// See doc/COPYRIGHT.rdoc for more details.
+// See docs/COPYRIGHT.rdoc for more details.
 // ++
 
 const cssClassRowHovered = 'row-hovered';
@@ -32,24 +32,23 @@ export class WpTableHoverSync {
 
   private lastHoveredElement:Element | null = null;
 
-  private $body = jQuery('body');
-
-  private lastAffectedElements:JQuery[] = [];
+  private eventListener = (evt:MouseEvent) => {
+    const target = evt.target as Element|null;
+    if (target && target !== this.lastHoveredElement) {
+      this.handleHover(target);
+    }
+    this.lastHoveredElement = target;
+  }
 
   constructor(private tableAndTimeline:JQuery) {
   }
 
   activate() {
-    this.$body.on('mousemove.hoverSync', (event:JQueryEventObject) => {
-      if (event.target !== this.lastHoveredElement) {
-        this.handleHover(event.target);
-      }
-      this.lastHoveredElement = event.target;
-    });
+    window.addEventListener('mousemove', this.eventListener, { passive: true });
   }
 
   deactivate() {
-    this.$body.off('.hoverSync');
+    window.removeEventListener('mousemove', this.eventListener);
     this.removeAllHoverClasses();
   }
 
@@ -98,17 +97,12 @@ export class WpTableHoverSync {
       this.removeAllHoverClasses();
       timelineRow.addClass(cssClassRowHovered);
       tableRow.addClass(cssClassRowHovered);
-      this.lastAffectedElements.push(tableRow);
-      this.lastAffectedElements.push(timelineRow);
     });
-
   }
 
   private removeAllHoverClasses() {
-    this.lastAffectedElements.forEach(e => {
-      e.removeClass(cssClassRowHovered);
-    });
-    this.lastAffectedElements = [];
+    this.tableAndTimeline
+      .find(`.${cssClassRowHovered}`)
+      .removeClass(cssClassRowHovered);
   }
-
 }

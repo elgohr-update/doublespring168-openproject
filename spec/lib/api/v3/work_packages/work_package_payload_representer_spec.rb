@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -343,7 +343,7 @@ describe ::API::V3::WorkPackages::WorkPackagePayloadRepresenter do
         let(:version) { FactoryBot.build_stubbed(:version) }
 
         before do
-          work_package.fixed_version = version
+          work_package.version = version
         end
 
         it_behaves_like 'linked property' do
@@ -351,7 +351,7 @@ describe ::API::V3::WorkPackages::WorkPackagePayloadRepresenter do
           let(:link) { "/api/v3/versions/#{version.id}" }
         end
 
-        it_behaves_like 'linked property with 0 value', :version, :fixed_version
+        it_behaves_like 'linked property with 0 value', :version, :version
       end
 
       describe 'category' do
@@ -421,6 +421,8 @@ describe ::API::V3::WorkPackages::WorkPackagePayloadRepresenter do
 
     describe 'caching' do
       it 'does not cache' do
+        representer.to_json
+
         expect(Rails.cache)
           .not_to receive(:fetch)
 
@@ -479,6 +481,28 @@ describe ::API::V3::WorkPackages::WorkPackagePayloadRepresenter do
 
         it 'raises an error' do
           expect { subject }.to raise_error(API::Errors::PropertyFormatError)
+        end
+      end
+    end
+
+    describe 'scheduleManually' do
+      let(:value) { raise "define value" }
+
+      let(:attributes) { { scheduleManually: value } }
+
+      context 'with true' do
+        let(:value) { true }
+
+        it 'reads true' do
+          expect(subject.schedule_manually).to eq true
+        end
+      end
+
+      context 'with false' do
+        let(:value) { false }
+
+        it 'reads false' do
+          expect(subject.schedule_manually).to eq false
         end
       end
     end
@@ -565,12 +589,12 @@ describe ::API::V3::WorkPackages::WorkPackagePayloadRepresenter do
 
     describe 'version' do
       before do
-        work_package.fixed_version_id = 1
+        work_package.version_id = 1
       end
 
       it_behaves_like 'linked resource' do
         let(:attribute_name) { 'version' }
-        let(:association_name) { 'fixed_version_id' }
+        let(:association_name) { 'version_id' }
       end
     end
 

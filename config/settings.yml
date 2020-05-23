@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -57,8 +57,6 @@ smtp_user_name:
   default: ""
 smtp_password:
   default: ""
-smtp_domain:
-  default: "example.com"
 additional_footer_content:
   default: ''
 # The instance name
@@ -138,6 +136,8 @@ activity_days_default:
   default: 30
 per_page_options:
   default: '20, 100'
+forced_single_page_size:
+  default: 250
 mail_from:
   default: openproject@example.net
 bcc_recipients:

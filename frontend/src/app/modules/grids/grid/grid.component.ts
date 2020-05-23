@@ -2,10 +2,9 @@ import {Component,
   ComponentRef,
   OnDestroy,
   OnInit,
-  Input} from "@angular/core";
+  Input,
+  HostListener} from "@angular/core";
 import {GridResource} from "app/modules/hal/resources/grid-resource";
-import {GridWidgetResource} from "app/modules/hal/resources/grid-widget-resource";
-import {debugLog} from "app/helpers/debug_output";
 import {DomSanitizer} from "@angular/platform-browser";
 import {GridWidgetsService} from "app/modules/grids/widgets/widgets.service";
 import {AbstractWidgetComponent} from "app/modules/grids/widgets/abstract-widget.component";
@@ -17,6 +16,8 @@ import {GridAreaService} from "core-app/modules/grids/grid/area.service";
 import {GridAddWidgetService} from "core-app/modules/grids/grid/add-widget.service";
 import {GridRemoveWidgetService} from "core-app/modules/grids/grid/remove-widget.service";
 import {WidgetWpGraphComponent} from "core-app/modules/grids/widgets/wp-graph/wp-graph.component";
+import {GridWidgetArea} from "core-app/modules/grids/areas/grid-widget-area";
+import {BrowserDetector} from "core-app/modules/common/browser/browser-detector.service";
 
 export interface WidgetRegistration {
   identifier:string;
@@ -25,21 +26,23 @@ export interface WidgetRegistration {
   properties?:any;
 }
 
+export const GRID_PROVIDERS = [
+  GridAreaService,
+  GridMoveService,
+  GridDragAndDropService,
+  GridResizeService,
+  GridAddWidgetService,
+  GridRemoveWidgetService
+];
+
 @Component({
   templateUrl: './grid.component.html',
-  selector: 'grid',
-  providers: [
-    GridAreaService,
-    GridMoveService,
-    GridDragAndDropService,
-    GridResizeService,
-    GridAddWidgetService,
-    GridRemoveWidgetService
-  ]
+  selector: 'grid'
 })
 export class GridComponent implements OnDestroy, OnInit {
   public uiWidgets:ComponentRef<any>[] = [];
-  public GRID_AREA_HEIGHT = 100;
+  public GRID_AREA_HEIGHT = 'auto';
+  public GRID_GAP_DIMENSION = '20px';
 
   public component = WidgetWpGraphComponent;
 
@@ -51,7 +54,8 @@ export class GridComponent implements OnDestroy, OnInit {
               public resize:GridResizeService,
               public layout:GridAreaService,
               public add:GridAddWidgetService,
-              public remove:GridRemoveWidgetService) {
+              public remove:GridRemoveWidgetService,
+              readonly browserDetector:BrowserDetector) {
   }
 
   ngOnInit() {
@@ -62,7 +66,20 @@ export class GridComponent implements OnDestroy, OnInit {
     this.uiWidgets.forEach((widget) => widget.destroy());
   }
 
-  public widgetComponent(widget:GridWidgetResource|null) {
+  @HostListener('window:keyup', ['$event'])
+  handleKeyboardEvent(event:KeyboardEvent) {
+    if (event.key !== 'Escape') {
+      return;
+    } else if (this.drag.currentlyDragging) {
+      this.drag.abort();
+    } else if (this.resize.currentlyResizing) {
+      this.resize.abort();
+    }
+  }
+
+  public widgetComponent(area:GridWidgetArea) {
+    let widget = area.widget;
+
     if (!widget) {
       return null;
     }
@@ -70,7 +87,7 @@ export class GridComponent implements OnDestroy, OnInit {
     let registration = this.widgetsService.registered.find((reg) => reg.identifier === widget.identifier);
 
     if (!registration) {
-      debugLog(`No widget registered with identifier ${widget.identifier}`);
+      // debugLog(`No widget registered with identifier ${widget.identifier}`);
 
       return null;
     } else {
@@ -78,30 +95,44 @@ export class GridComponent implements OnDestroy, OnInit {
     }
   }
 
-  public widgetComponentInput(resource:GridWidgetResource) {
-    return { resource: resource };
+  public widgetComponentInput(area:GridWidgetArea) {
+    return { resource: area.widget };
   }
 
-  public widgetComponentOutput = { resourceChanged: this.layout.saveGrid.bind(this.layout) };
+  public widgetComponentOutput(area:GridWidgetArea) {
+    return { resourceChanged: this.layout.saveWidgetChangeset.bind(this.layout) };
+  }
 
   public get gridColumnStyle() {
-    return this.sanitization.bypassSecurityTrustStyle(`repeat(${this.layout.numColumns}, 1fr)`);
-  }
-
-  // array containing Numbers from 1 to this.numColumns
-  public get columnNumbers() {
-    return Array.from(Array(this.layout.numColumns + 1).keys()).slice(1);
+    return this.gridStyle(this.layout.numColumns,
+                          `calc((100% - ${this.GRID_GAP_DIMENSION} * ${this.layout.numColumns + 1}) / ${this.layout.numColumns})`);
   }
 
   public get gridRowStyle() {
-    return this.sanitization.bypassSecurityTrustStyle(`repeat(${this.layout.numRows}, ${this.GRID_AREA_HEIGHT}px)`);
-  }
-
-  public get rowNumbers() {
-    return Array.from(Array(this.layout.numRows + 1).keys()).slice(1);
+    return this.gridStyle(this.layout.numRows,
+                         this.GRID_AREA_HEIGHT);
   }
 
   public identifyGridArea(index:number, area:GridArea) {
     return area.guid;
+  }
+
+  public get isHeadersDisplayed() {
+    return this.layout.isEditable;
+  }
+
+  public get isMobileDevice() {
+    return this.browserDetector.isMobile;
+  }
+
+  private gridStyle(amount:number, itemStyle:string) {
+    let style = '';
+    for (let i = 0; i < amount; i++) {
+      style += `${this.GRID_GAP_DIMENSION} ${itemStyle} `;
+    }
+
+    style += `${this.GRID_GAP_DIMENSION}`;
+
+    return this.sanitization.bypassSecurityTrustStyle(style);
   }
 }

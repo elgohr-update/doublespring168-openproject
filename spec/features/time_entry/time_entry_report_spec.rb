@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -70,6 +70,31 @@ describe 'time entry report', type: :feature, js: true do
 
       find('.timelog-report-selection').click_button('Apply')
       expect(page).to have_selector('.total-hours', text: 'Total: 10.00 hours')
+    end
+  end
+
+  describe 'with more precise values' do
+    let!(:project_time_entry) {
+      FactoryBot.create_list(:time_entry,
+                             2,
+                             project: project,
+                             work_package: work_package,
+                             hours: 2.249999999)
+    }
+
+    it 'rounds them to two decimals precision (Regression #30743)' do
+      visit time_entries_report_path
+
+      select 'Project', from: 'criterias'
+      select 'Month', from: 'columns'
+      find('.timelog-report-selection').click_button('Apply')
+
+      expect(page).to have_selector('.total-hours', text: 'Total: 9.50 hours')
+      expect(page).to have_selector('tr.total .hours', text: '4.50')
+      select 'Year', from: 'columns'
+
+      find('.timelog-report-selection').click_button('Apply')
+      expect(page).to have_selector('.total-hours', text: 'Total: 9.50 hours')
     end
   end
 end

@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -135,7 +135,7 @@ describe 'Work package with relation query group', js: true, selenium: true do
 
     context 'with a user who has permission in one project' do
       let(:role) { FactoryBot.create(:role, permissions: permissions) }
-      let(:permissions) { [:view_work_packages, :add_work_packages, :manage_work_package_relations] }
+      let(:permissions) { %i[view_work_packages add_work_packages edit_work_packages manage_work_package_relations] }
       let(:user) do
         FactoryBot.create(:user,
                           member_in_project: project,
@@ -218,7 +218,6 @@ describe 'Work package with relation query group', js: true, selenium: true do
                           query: independent_work_package.subject,
                           select_text: independent_work_package.subject
 
-      container.find('.wp-create-relation--save').click
       embedded_table.expect_work_package_listed(independent_work_package)
       relations.expect_relation(independent_work_package)
 

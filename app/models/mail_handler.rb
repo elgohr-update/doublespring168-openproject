@@ -1,7 +1,7 @@
 #-- encoding: UTF-8
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -34,29 +34,27 @@ class MailHandler < ActionMailer::Base
   class UnauthorizedAction < StandardError; end
   class MissingInformation < StandardError; end
 
-  attr_reader :email, :user
+  attr_reader :email, :user, :options
 
-  def self.receive(email, options = {})
-    @@handler_options = options.dup
+  ##
+  # Code copied from base class and extended with optional options parameter
+  # as well as force_encoding support.
+  def self.receive(raw_mail, options = {})
+    raw_mail.force_encoding('ASCII-8BIT') if raw_mail.respond_to?(:force_encoding)
 
-    @@handler_options[:issue] ||= {}
+    ActiveSupport::Notifications.instrument("receive.action_mailer") do |payload|
+      mail = Mail.new(raw_mail)
+      set_payload_for_mail(payload, mail)
+      with_options(options).receive(mail)
+    end
+  end
 
-    @@handler_options[:allow_override] =
-      if @@handler_options[:allow_override].is_a?(String)
-        @@handler_options[:allow_override].split(',').map(&:strip)
-      else
-        @@handler_options[:allow_override] || []
-      end.map(&:to_sym).to_set
+  def self.with_options(options)
+    handler = new
 
-    # Project needs to be overridable if not specified
-    @@handler_options[:allow_override] << :project unless @@handler_options[:issue].has_key?(:project)
-    # Status overridable by default
-    @@handler_options[:allow_override] << :status unless @@handler_options[:issue].has_key?(:status)
+    handler.options = options
 
-    @@handler_options[:no_permission_check] = @@handler_options[:no_permission_check].to_s == '1'
-
-    email.force_encoding('ASCII-8BIT') if email.respond_to?(:force_encoding)
-    super email
+    handler
   end
 
   cattr_accessor :ignored_emails_headers
@@ -86,6 +84,7 @@ class MailHandler < ActionMailer::Base
         end
       end
     end
+
     @user = User.find_by_mail(sender_email) if sender_email.present?
     if @user && !@user.active?
       log "ignoring email from non-active user [#{@user.login}]"
@@ -93,14 +92,14 @@ class MailHandler < ActionMailer::Base
     end
     if @user.nil?
       # Email was submitted by an unknown user
-      case @@handler_options[:unknown_user]
+      case options[:unknown_user]
       when 'accept'
         @user = User.anonymous
       when 'create'
         @user = MailHandler.create_user_from_email(email)
         if @user
           log "[#{@user.login}] account created"
-          UserMailer.account_information(@user, @user.password).deliver_now
+          UserMailer.account_information(@user, @user.password).deliver_later
         else
           log "could not create account for [#{sender_email}]", :error
           return false
@@ -113,6 +112,18 @@ class MailHandler < ActionMailer::Base
     end
     User.current = @user
     dispatch
+  end
+
+  def options=(value)
+    @options = value.dup
+
+    options[:issue] ||= {}
+    options[:allow_override] = allow_override_option(options).map(&:to_sym).to_set
+    # Project needs to be overridable if not specified
+    options[:allow_override] << :project unless options[:issue].has_key?(:project)
+    # Status overridable by default
+    options[:allow_override] << :status unless options[:issue].has_key?(:status)
+    options[:no_permission_check] = options[:no_permission_check].to_s == '1'
   end
 
   private
@@ -179,7 +190,7 @@ class MailHandler < ActionMailer::Base
     work_package = WorkPackage.find_by(id: work_package_id)
     return unless work_package
     # ignore CLI-supplied defaults for new work_packages
-    @@handler_options[:issue].clear
+    options[:issue].clear
 
     result = update_work_package(work_package)
 
@@ -208,7 +219,7 @@ class MailHandler < ActionMailer::Base
     if message
       message = message.root
 
-      unless @@handler_options[:no_permission_check]
+      unless options[:no_permission_check]
         raise UnauthorizedAction unless user.allowed_to?(:add_messages, message.project)
       end
 
@@ -251,7 +262,8 @@ class MailHandler < ActionMailer::Base
         container: container,
         file: file,
         author: user,
-        content_type: attachment.mime_type)
+        content_type: attachment.mime_type
+      )
     end
   end
 
@@ -281,12 +293,12 @@ class MailHandler < ActionMailer::Base
       @keywords[attr]
     else
       @keywords[attr] = begin
-        if (options[:override] || @@handler_options[:allow_override].include?(attr)) &&
-          (v = extract_keyword!(plain_text_body, attr, options[:format]))
+        if (options[:override] || self.options[:allow_override].include?(attr)) &&
+           (v = extract_keyword!(plain_text_body, attr, options[:format]))
           v
         else
           # Return either default or nil
-          @@handler_options[:issue][attr]
+          self.options[:issue][attr]
         end
       end
     end
@@ -323,13 +335,13 @@ class MailHandler < ActionMailer::Base
     project = issue.project
 
     attrs = {
-      'type_id' => (k = get_keyword(:type)) && project.types.find_by(name: k).try(:id),
-      'status_id' => (k = get_keyword(:status)) && Status.find_by(name: k).try(:id),
+      'type_id' => lookup_case_insensitive_key(project.types, :type),
+      'status_id' => lookup_case_insensitive_key(Status, :status),
       'parent_id' => (k = get_keyword(:parent)),
-      'priority_id' => (k = get_keyword(:priority)) && IssuePriority.find_by(name: k).try(:id),
-      'category_id' => (k = get_keyword(:category)) && project.categories.find_by(name: k).try(:id),
+      'priority_id' => lookup_case_insensitive_key(IssuePriority, :priority),
+      'category_id' => lookup_case_insensitive_key(project.categories, :category),
       'assigned_to_id' => assigned_to.try(:id),
-      'fixed_version_id' => (k = get_keyword(:fixed_version)) && project.shared_versions.find_by(name: k).try(:id),
+      'version_id' => lookup_case_insensitive_key(project.shared_versions, :version, Arel.sql("#{Version.table_name}.name")),
       'start_date' => get_keyword(:start_date, override: true, format: '\d{4}-\d{2}-\d{2}'),
       'due_date' => get_keyword(:due_date, override: true, format: '\d{4}-\d{2}-\d{2}'),
       'estimated_hours' => get_keyword(:estimated_hours, override: true),
@@ -346,9 +358,15 @@ class MailHandler < ActionMailer::Base
   def custom_field_values_from_keywords(customized)
     "#{customized.class.name}CustomField".constantize.all.inject({}) do |h, v|
       if value = get_keyword(v.name, override: true)
-        h[v.id.to_s] = value
+        h[v.id.to_s] = v.value_of value
       end
       h
+    end
+  end
+
+  def lookup_case_insensitive_key(scope, attribute, column_name = Arel.sql('name'))
+    if k = get_keyword(attribute)
+      scope.find_by("lower(#{column_name}) = ?", k.downcase).try(:id)
     end
   end
 
@@ -423,6 +441,14 @@ class MailHandler < ActionMailer::Base
   end
 
   private
+
+  def allow_override_option(options)
+    if options[:allow_override].is_a?(String)
+      options[:allow_override].split(',').map(&:strip)
+    else
+      options[:allow_override] || []
+    end
+  end
 
   # Removes the email body of text after the truncation configurations.
   def cleanup_body(body)
@@ -529,12 +555,11 @@ class MailHandler < ActionMailer::Base
 
   def log(message, level = :info)
     message = "MailHandler: #{message}"
-
-    logger.send(level, message) if logger&.send(level)
+    logger.public_send(level, message)
   end
 
   def work_package_create_contract_class
-    if @@handler_options[:no_permission_check]
+    if options[:no_permission_check]
       CreateWorkPackageWithoutAuthorizationsContract
     else
       WorkPackages::CreateContract
@@ -542,7 +567,7 @@ class MailHandler < ActionMailer::Base
   end
 
   def work_package_update_contract_class
-    if @@handler_options[:no_permission_check]
+    if options[:no_permission_check]
       UpdateWorkPackageWithoutAuthorizationsContract
     else
       WorkPackages::UpdateContract

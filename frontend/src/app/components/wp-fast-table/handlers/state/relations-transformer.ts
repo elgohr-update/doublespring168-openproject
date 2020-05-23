@@ -1,14 +1,14 @@
 import {Injector} from '@angular/core';
-import {WorkPackageTableRelationColumnsService} from '../../state/wp-table-relation-columns.service';
 import {WorkPackageTable} from '../../wp-fast-table';
 import {IsolatedQuerySpace} from "core-app/modules/work_packages/query-space/isolated-query-space";
-import {untilComponentDestroyed} from "ng2-rx-componentdestroyed";
 import {takeUntil} from "rxjs/operators";
+import {WorkPackageViewRelationColumnsService} from "core-app/modules/work_packages/routing/wp-view-base/view-services/wp-view-relation-columns.service";
+import {InjectField} from "core-app/helpers/angular/inject-field.decorator";
 
 export class RelationsTransformer {
 
-  public wpTableRelationColumns = this.injector.get(WorkPackageTableRelationColumnsService);
-  public querySpace:IsolatedQuerySpace = this.injector.get(IsolatedQuerySpace);
+  @InjectField() public wpTableRelationColumns:WorkPackageViewRelationColumnsService;
+  @InjectField() public querySpace:IsolatedQuerySpace;
 
   constructor(public readonly injector:Injector,
               table:WorkPackageTable) {

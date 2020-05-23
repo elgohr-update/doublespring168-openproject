@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -78,7 +78,7 @@ module OpenProject
     # delivered (although it is not at the moment), so don't count on object equality
     # for the payload.
     def send(name, payload)
-      ActiveSupport::Notifications.instrument(name, payload)
+      ActiveSupport::Notifications.instrument(name.to_s, payload)
     end
 
     def subscriptions

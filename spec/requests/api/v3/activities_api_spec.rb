@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -33,7 +33,8 @@ describe API::V3::Activities::ActivitiesAPI, type: :request do
   include Rack::Test::Methods
   include API::V3::Utilities::PathHelper
 
-  let(:admin) { FactoryBot.create(:admin) }
+  using_shared_fixtures :admin
+
   let(:comment) { 'This is a test comment!' }
 
   shared_examples_for 'safeguarded API' do

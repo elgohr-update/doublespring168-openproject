@@ -1,7 +1,6 @@
 <widget-header
     [name]="widgetName"
-    [icon]="'notes'"
-    (onRenamed)="renameWidget($event)">
+    [editable]="isEditable">
 
   <widget-menu
       [resource]="resource">

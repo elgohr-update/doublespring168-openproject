@@ -1,6 +1,7 @@
+#English strings go here
 ru:
   label_avatar: "Аватар"
-  label_avatar_plural: "Avatars"
+  label_avatar_plural: "Аватары"
   label_current_avatar: "Текущий аватар"
   label_choose_avatar: "Выбрать аватар из файла"
   message_avatar_uploaded: "Аватар успешно изменен."
@@ -31,7 +32,7 @@ ru:
       OpenProject использует зарегистрированные вами граватар, изображение или иконку по уполчанию, если такие существуют.
       Текущий граватар следующий:
     settings:
-      enable_gravatars: 'Включить гравитаторы пользователя'
+      enable_gravatars: 'Использовать Gravatar'
       gravatar_default: "Картинка Gravitar по умолчанию"
       enable_local_avatars: 'Включить пользовательские аватары'
 

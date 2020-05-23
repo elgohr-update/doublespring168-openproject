@@ -1,7 +1,7 @@
 #-- encoding: UTF-8
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -42,14 +42,14 @@ module Redmine::MenuManager::MenuController
     #   * menu_item :tickets, only: :list # => sets the menu name to :tickets for the 'list' action only
     #   * menu_item :tickets, only: [:list, :show] # => sets the menu name to :tickets for 2 actions only
     #
-    # The default menu item name for a controller is controller_name by default
+    # The default menu item name for a controller is controller_path by default
     # Eg. the default menu item name for ProjectsController is :projects
     def menu_item(id, options = {})
       if actions = options[:only]
         actions = [] << actions unless actions.is_a?(Array)
-        actions.each { |a| menu_items[controller_name.to_sym][:actions][a.to_sym] = id }
+        actions.each { |a| menu_items[controller_path.to_sym][:actions][a.to_sym] = id }
       else
-        menu_items[controller_name.to_sym][:default] = id
+        menu_items[controller_path.to_sym][:default] = id
       end
     end
 
@@ -57,10 +57,10 @@ module Redmine::MenuManager::MenuController
       raise ArgumentError '#current_menu_item requires a block' unless block_given?
 
       if actions == :default
-        menu_items[controller_name.to_sym][:default] = block
+        menu_items[controller_path.to_sym][:default] = block
       else
         actions = [] << actions unless actions.is_a?(Array)
-        actions.each { |a| menu_items[controller_name.to_sym][:actions][a.to_sym] = block }
+        actions.each { |a| menu_items[controller_path.to_sym][:actions][a.to_sym] = block }
       end
     end
   end
@@ -68,13 +68,13 @@ module Redmine::MenuManager::MenuController
   def menu_items
     self.class.menu_items
   end
-
+  
   # Returns the menu item name according to the current action
   def current_menu_item
     return @current_menu_item if @current_menu_item_determined
 
-    @current_menu_item = menu_items[controller_name.to_sym][:actions][action_name.to_sym] ||
-                         menu_items[controller_name.to_sym][:default]
+    @current_menu_item = menu_items[controller_path.to_sym][:actions][action_name.to_sym] ||
+                         menu_items[controller_path.to_sym][:default]
 
     @current_menu_item = if @current_menu_item.is_a?(Symbol)
                            @current_menu_item
@@ -92,11 +92,25 @@ module Redmine::MenuManager::MenuController
   # Redirects user to the menu item of the given project
   # Returns false if user is not authorized
   def redirect_to_project_menu_item(project, name)
-    item = Redmine::MenuManager.items(:project_menu).detect { |i| i.name.to_s == name.to_s }
-    if item && User.current.allowed_to?(item.url, project) && (item.condition.nil? || item.condition.call(project))
-      redirect_to({ item.param => project }.merge(item.url))
+    item = project_menu_item(name)
+    if user_allowed_to_access_item?(project, item)
+      engine = item.engine ? send(item.engine) : main_app
+
+      redirect_to(engine.url_for({ item.param => project }.merge(item.url(project))))
       return true
     end
     false
+  end
+
+  def project_menu_item(name)
+    Redmine::MenuManager.items(:project_menu).detect { |i| i.name.to_s == name.to_s }
+  end
+
+  def admin_menu_item(name)
+    Redmine::MenuManager.items(:admin_menu).detect { |i| i.name.to_s == name.to_s }
+  end
+
+  def user_allowed_to_access_item?(project, item)
+    item && User.current.allowed_to?(item.url(project), project) && (item.condition.nil? || item.condition.call(project))
   end
 end

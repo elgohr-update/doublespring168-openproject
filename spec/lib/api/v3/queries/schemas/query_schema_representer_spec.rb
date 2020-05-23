@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -112,8 +112,6 @@ describe ::API::V3::Queries::Schemas::QuerySchemaRepresenter do
           let(:required) { true }
           let(:writable) { false }
         end
-
-        it_behaves_like 'has no visibility property'
       end
 
       describe 'name' do
@@ -130,8 +128,6 @@ describe ::API::V3::Queries::Schemas::QuerySchemaRepresenter do
           let(:min_length) { 1 }
           let(:max_length) { 255 }
         end
-
-        it_behaves_like 'has no visibility property'
       end
 
       describe 'createdAt' do
@@ -143,8 +139,6 @@ describe ::API::V3::Queries::Schemas::QuerySchemaRepresenter do
           let(:required) { true }
           let(:writable) { false }
         end
-
-        it_behaves_like 'has no visibility property'
       end
 
       describe 'updatedAt' do
@@ -156,8 +150,6 @@ describe ::API::V3::Queries::Schemas::QuerySchemaRepresenter do
           let(:required) { true }
           let(:writable) { false }
         end
-
-        it_behaves_like 'has no visibility property'
       end
 
       describe 'user' do
@@ -170,8 +162,6 @@ describe ::API::V3::Queries::Schemas::QuerySchemaRepresenter do
           let(:writable) { false }
           let(:has_default) { true }
         end
-
-        it_behaves_like 'has no visibility property'
       end
 
       describe 'project' do
@@ -183,8 +173,6 @@ describe ::API::V3::Queries::Schemas::QuerySchemaRepresenter do
           let(:required) { false }
           let(:writable) { true }
         end
-
-        it_behaves_like 'has no visibility property'
 
         it_behaves_like 'does not link to allowed values'
 
@@ -207,8 +195,6 @@ describe ::API::V3::Queries::Schemas::QuerySchemaRepresenter do
           let(:writable) { false }
           let(:has_default) { true }
         end
-
-        it_behaves_like 'has no visibility property'
 
         context 'when having the :manage_public_queries permission' do
           before do
@@ -248,8 +234,6 @@ describe ::API::V3::Queries::Schemas::QuerySchemaRepresenter do
           let(:writable) { true }
           let(:has_default) { true }
         end
-
-        it_behaves_like 'has no visibility property'
       end
 
       describe 'timelineVisible' do
@@ -262,8 +246,6 @@ describe ::API::V3::Queries::Schemas::QuerySchemaRepresenter do
           let(:writable) { true }
           let(:has_default) { true }
         end
-
-        it_behaves_like 'has no visibility property'
       end
 
       describe 'timelineZoomLevel' do
@@ -276,8 +258,6 @@ describe ::API::V3::Queries::Schemas::QuerySchemaRepresenter do
           let(:writable) { true }
           let(:has_default) { true }
         end
-
-        it_behaves_like 'has no visibility property'
       end
 
       describe 'timelineLabels' do
@@ -290,8 +270,6 @@ describe ::API::V3::Queries::Schemas::QuerySchemaRepresenter do
           let(:writable) { true }
           let(:has_default) { true }
         end
-
-        it_behaves_like 'has no visibility property'
       end
 
       describe 'show hierarchies' do
@@ -304,8 +282,6 @@ describe ::API::V3::Queries::Schemas::QuerySchemaRepresenter do
           let(:writable) { true }
           let(:has_default) { true }
         end
-
-        it_behaves_like 'has no visibility property'
       end
 
       describe 'starred' do
@@ -318,8 +294,6 @@ describe ::API::V3::Queries::Schemas::QuerySchemaRepresenter do
           let(:writable) { false }
           let(:has_default) { true }
         end
-
-        it_behaves_like 'has no visibility property'
       end
 
       describe 'highlighting_mode' do
@@ -332,8 +306,18 @@ describe ::API::V3::Queries::Schemas::QuerySchemaRepresenter do
           let(:writable) { true }
           let(:has_default) { true }
         end
+      end
 
-        it_behaves_like 'has no visibility property'
+      describe 'display_representation' do
+        let(:path) { 'displayRepresentation' }
+
+        it_behaves_like 'has basic schema properties' do
+          let(:type) { 'String' }
+          let(:name) { Query.human_attribute_name('display_representation') }
+          let(:required) { false }
+          let(:writable) { true }
+          let(:has_default) { true }
+        end
       end
 
       describe 'columns' do
@@ -346,8 +330,6 @@ describe ::API::V3::Queries::Schemas::QuerySchemaRepresenter do
           let(:writable) { true }
           let(:has_default) { true }
         end
-
-        it_behaves_like 'has no visibility property'
 
         it_behaves_like 'does not link to allowed values'
 
@@ -427,8 +409,6 @@ describe ::API::V3::Queries::Schemas::QuerySchemaRepresenter do
           let(:has_default) { true }
         end
 
-        it_behaves_like 'has no visibility property'
-
         it_behaves_like 'does not link to allowed values'
 
         context 'when global query' do
@@ -463,8 +443,6 @@ describe ::API::V3::Queries::Schemas::QuerySchemaRepresenter do
           let(:writable) { true }
         end
 
-        it_behaves_like 'has no visibility property'
-
         it_behaves_like 'does not link to allowed values'
 
         context 'when embedding' do
@@ -496,8 +474,6 @@ describe ::API::V3::Queries::Schemas::QuerySchemaRepresenter do
           let(:writable) { true }
           let(:has_default) { true }
         end
-
-        it_behaves_like 'has no visibility property'
 
         it_behaves_like 'does not link to allowed values'
 
@@ -539,8 +515,6 @@ describe ::API::V3::Queries::Schemas::QuerySchemaRepresenter do
           let(:required) { false }
           let(:writable) { false }
         end
-
-        it_behaves_like 'has no visibility property'
       end
     end
 

@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -25,7 +25,7 @@
 #
 # See docs/COPYRIGHT.rdoc for more details.
 #++
-class EnterpriseToken < ActiveRecord::Base
+class EnterpriseToken < ApplicationRecord
   class << self
     def current
       RequestStore.fetch(:current_ee_token) do
@@ -48,7 +48,7 @@ class EnterpriseToken < ActiveRecord::Base
     def set_current_token
       token = EnterpriseToken.order(Arel.sql('created_at DESC')).first
 
-      if token && token.token_object
+      if token&.token_object
         token
       end
     end

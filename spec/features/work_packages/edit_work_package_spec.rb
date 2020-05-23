@@ -50,7 +50,7 @@ describe 'edit work package', js: true do
                                      created_at: 5.days.ago.to_date.to_s(:db))
 
     note_journal = work_package.journals.last
-    note_journal.update_attributes(created_at: 5.days.ago.to_date.to_s)
+    note_journal.update(created_at: 5.days.ago.to_date.to_s)
 
     work_package
   end
@@ -214,7 +214,7 @@ describe 'edit work package', js: true do
     wp_page.save_comment
 
     wp_page.expect_notification(message: 'The comment was successfully added.')
-    expect(page).to have_selector('.user-comment .message', text: 'hallo welt', wait: 10)
+    wp_page.expect_comment text: 'hallo welt'
   end
 
   it 'updates the presented custom fields based on the selected type' do

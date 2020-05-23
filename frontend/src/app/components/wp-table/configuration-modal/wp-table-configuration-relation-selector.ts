@@ -5,7 +5,7 @@ import {
 } from '@angular/core';
 import {ConfigurationService} from 'core-app/modules/common/config/configuration.service';
 import {I18nService} from "core-app/modules/common/i18n/i18n.service";
-import {WorkPackageTableFiltersService} from "core-components/wp-fast-table/state/wp-table-filters.service";
+import {WorkPackageViewFiltersService} from "core-app/modules/work_packages/routing/wp-view-base/view-services/wp-view-filters.service";
 import {QueryFilterResource} from "core-app/modules/hal/resources/query-filter-resource";
 import {QueryOperatorResource} from "core-app/modules/hal/resources/query-operator-resource";
 import {QueryFilterInstanceResource} from "core-app/modules/hal/resources/query-filter-instance-resource";
@@ -35,26 +35,27 @@ export class WpTableConfigurationRelationSelectorComponent implements OnInit  {
   public selectedRelationFilter:QueryFilterResource|undefined = undefined;
 
   public text = {
+    filter_work_packages_by_relation_type: this.I18n.t('js.work_packages.table_configuration.relation_filters.filter_work_packages_by_relation_type'),
     please_select: this.I18n.t('js.placeholders.selection'),
-    first_part:    this.I18n.t('js.work_packages.table_configuration.relation_filters.first_part'),
-    second_part:   this.I18n.t('js.work_packages.table_configuration.relation_filters.second_part'),
-    parent:        this.I18n.t('js.types.attribute_groups.filter_types.parent'),
-    precedes:      this.I18n.t('js.types.attribute_groups.filter_types.precedes'),
-    follows:       this.I18n.t('js.types.attribute_groups.filter_types.follows'),
-    relates:     this.I18n.t('js.types.attribute_groups.filter_types.relates'),
-    duplicates:    this.I18n.t('js.types.attribute_groups.filter_types.duplicates'),
-    duplicated:  this.I18n.t('js.types.attribute_groups.filter_types.duplicated'),
-    blocks:        this.I18n.t('js.types.attribute_groups.filter_types.blocks'),
-    blocked:     this.I18n.t('js.types.attribute_groups.filter_types.blocked'),
-    requires:      this.I18n.t('js.types.attribute_groups.filter_types.requires'),
-    required:    this.I18n.t('js.types.attribute_groups.filter_types.required'),
-    partof:        this.I18n.t('js.types.attribute_groups.filter_types.partof'),
-    includes:      this.I18n.t('js.types.attribute_groups.filter_types.includes')
+    // We need to inverse the translation strings, as the filters's are named the other way around than what
+    // a user knows from the relations tab:
+    parent:        this.I18n.t('js.relation_labels.children'),
+    precedes:      this.I18n.t('js.relation_labels.follows'),
+    follows:       this.I18n.t('js.relation_labels.precedes'),
+    relates:     this.I18n.t('js.relation_labels.relates'),
+    duplicates:    this.I18n.t('js.relation_labels.duplicated'),
+    duplicated:  this.I18n.t('js.relation_labels.duplicates'),
+    blocks:        this.I18n.t('js.relation_labels.blocked'),
+    blocked:     this.I18n.t('js.relation_labels.blocks'),
+    requires:      this.I18n.t('js.relation_labels.required'),
+    required:    this.I18n.t('js.relation_labels.requires'),
+    partof:        this.I18n.t('js.relation_labels.includes'),
+    includes:      this.I18n.t('js.relation_labels.partof')
   };
 
   constructor(readonly injector:Injector,
               readonly I18n:I18nService,
-              readonly wpTableFilters:WorkPackageTableFiltersService,
+              readonly wpTableFilters:WorkPackageViewFiltersService,
               readonly ConfigurationService:ConfigurationService) {
   }
 

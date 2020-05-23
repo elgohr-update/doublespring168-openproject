@@ -4,7 +4,6 @@ module Components
     include RSpec::Matchers
     attr_reader :context_selector, :attachments
 
-
     def initialize(context = '#content')
       @context_selector = context
       @attachments = ::Components::Attachments.new
@@ -55,6 +54,11 @@ module Components
       expect(editor_element.text).to eq(value)
     end
 
+    def expect_supports_no_macros
+      expect(container)
+        .to have_no_selector('.ck-button', visible: :all, text: 'Macros')
+    end
+
     def within_enabled_preview
       click_toolbar_button 'Toggle preview mode'
       begin
@@ -86,18 +90,27 @@ module Components
         # Besides testing caption functionality this also slows down clicking on the submit button
         # so that the image is properly embedded
         editable.all('figure').each do |figure|
-
           # Locate image within figure
           # Click on image to show figcaption
-          img = figure.find('img')
-          img.click
-          sleep 0.5
+          figure.find('img')
 
-          # Locate figcaption to create comment
-          figcaption = figure.find('figcaption')
-          figcaption.click
-          figcaption.send_keys(caption)
-          sleep 0.5
+          # Click the figure
+          retry_block do
+            figure.click
+            sleep 1
+
+            # Locate figcaption to create comment
+            figcaption = figure.find('figcaption')
+
+            # Insert the caption with JS to circumvent chrome error
+            script = <<-JS
+              arguments[0].textContent = '' + arguments[1]
+            JS
+            page.execute_script(script, figcaption.native, caption)
+
+            # Expect caption set
+            figure.find('figcaption', text: caption)
+          end
         end
       end
     end
@@ -108,8 +121,8 @@ module Components
       warn "Failed to refocus on first editor element #{e}"
     end
 
-  def insert_link(link)
-      click_toolbar_button 'Link (Ctrl+K)'
+    def insert_link(link)
+      click_toolbar_button /Link \([^)]+\)/
       page.find('.ck-input-text').set link
       page.find('.ck-button-save').click
     end
@@ -119,14 +132,16 @@ module Components
       container.find('.ck-button', visible: :all, text: label).click
     end
 
+    def type_slowly(*text)
+      editor_element.send_keys *text
+      sleep 0.5
+    end
+
     def click_and_type_slowly(*text)
       sleep 0.5
       editor_element.click
 
-      sleep 0.5
-      editor_element.send_keys *text
-
-      sleep 0.5
+      type_slowly *text
     end
 
     def click_hover_toolbar_button(label)

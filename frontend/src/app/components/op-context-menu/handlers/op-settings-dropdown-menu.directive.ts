@@ -1,6 +1,6 @@
 //-- copyright
-// OpenProject is a project management system.
-// Copyright (C) 2012-2015 the OpenProject Foundation (OPF)
+// OpenProject is an open source project management software.
+// Copyright (C) 2012-2020 the OpenProject GmbH
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License version 3.
@@ -23,18 +23,16 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //
-// See doc/COPYRIGHT.rdoc for more details.
+// See docs/COPYRIGHT.rdoc for more details.
 //++
 
-import {Directive, ElementRef, Injector, Input, OnDestroy} from '@angular/core';
+import {Directive, ElementRef, Injector, Input} from '@angular/core';
 import {I18nService} from 'core-app/modules/common/i18n/i18n.service';
 import {AuthorisationService} from 'core-app/modules/common/model-auth/model-auth.service';
 import {OpContextMenuTrigger} from 'core-components/op-context-menu/handlers/op-context-menu-trigger.directive';
 import {OPContextMenuService} from 'core-components/op-context-menu/op-context-menu.service';
 import {States} from 'core-components/states.service';
 import {WorkPackagesListService} from 'core-components/wp-list/wp-list.service';
-import {componentDestroyed} from 'ng2-rx-componentdestroyed';
-import {takeUntil} from 'rxjs/operators';
 import {QueryFormResource} from 'core-app/modules/hal/resources/query-form-resource';
 import {QueryResource} from 'core-app/modules/hal/resources/query-resource';
 import {OpModalService} from "core-components/op-modals/op-modal.service";
@@ -51,7 +49,7 @@ import {
 @Directive({
   selector: '[opSettingsContextMenu]'
 })
-export class OpSettingsMenuDirective extends OpContextMenuTrigger implements OnDestroy {
+export class OpSettingsMenuDirective extends OpContextMenuTrigger {
   @Input('opSettingsContextMenu-query') public query:QueryResource;
   private form:QueryFormResource;
   private loadingPromise:PromiseLike<any>;
@@ -70,16 +68,12 @@ export class OpSettingsMenuDirective extends OpContextMenuTrigger implements OnD
     super(elementRef, opContextMenu);
   }
 
-  ngOnDestroy():void {
-    // Nothing to do
-  }
-
   ngAfterViewInit():void {
     super.ngAfterViewInit();
 
     this.querySpace.query.values$()
       .pipe(
-        takeUntil(componentDestroyed(this))
+        this.untilDestroyed()
       )
       .subscribe(queryUpdate => {
         this.query = queryUpdate;
@@ -89,14 +83,14 @@ export class OpSettingsMenuDirective extends OpContextMenuTrigger implements OnD
 
     this.querySpace.queryForm.values$()
       .pipe(
-        takeUntil(componentDestroyed(this))
+        this.untilDestroyed()
       )
       .subscribe(formUpdate => {
         this.form = formUpdate;
       });
   }
 
-  protected open(evt:JQueryEventObject) {
+  protected open(evt:JQuery.TriggeredEvent) {
     this.loadingPromise.then(() => {
       this.buildItems();
       this.opContextMenu.show(this, evt);
@@ -115,7 +109,7 @@ export class OpSettingsMenuDirective extends OpContextMenuTrigger implements OnD
    *
    * @param {Event} openerEvent
    */
-  public positionArgs(evt:JQueryEventObject) {
+  public positionArgs(evt:JQuery.TriggeredEvent) {
     let additionalPositionArgs = {
       my: 'right top',
       at: 'right bottom'
@@ -133,15 +127,15 @@ export class OpSettingsMenuDirective extends OpContextMenuTrigger implements OnD
     }
   }
 
-  private allowQueryAction(event:JQueryEventObject, action:any) {
+  private allowQueryAction(event:JQuery.TriggeredEvent, action:any) {
     return this.allowAction(event, 'query', action);
   }
 
-  private allowWorkPackageAction(event:JQueryEventObject, action:any) {
+  private allowWorkPackageAction(event:JQuery.TriggeredEvent, action:any) {
     return this.allowAction(event, 'work_packages', action);
   }
 
-  private allowFormAction(event:JQueryEventObject, action:string) {
+  private allowFormAction(event:JQuery.TriggeredEvent, action:string) {
     if (this.form.$links[action]) {
       return true;
     } else {
@@ -150,7 +144,7 @@ export class OpSettingsMenuDirective extends OpContextMenuTrigger implements OnD
     }
   }
 
-  private allowAction(event:JQueryEventObject, modelName:string, action:any) {
+  private allowAction(event:JQuery.TriggeredEvent, modelName:string, action:any) {
     if (this.authorisationService.can(modelName, action)) {
       return true;
     } else {
@@ -166,10 +160,51 @@ export class OpSettingsMenuDirective extends OpContextMenuTrigger implements OnD
         disabled: false,
         linkText: this.I18n.t('js.toolbar.settings.configure_view'),
         icon: 'icon-settings',
-        onClick: ($event:JQueryEventObject) => {
+        onClick: ($event:JQuery.TriggeredEvent) => {
           this.opContextMenu.close();
           this.opModalService.show(WpTableConfigurationModalComponent, this.injector);
 
+          return true;
+        }
+      },
+      {
+        // Insert columns
+        linkText: this.I18n.t('js.work_packages.query.insert_columns'),
+        icon: 'icon-columns',
+        class: 'hidden-for-mobile',
+        onClick: () => {
+          this.opModalService.show<WpTableConfigurationModalComponent>(
+            WpTableConfigurationModalComponent,
+            this.injector,
+            { initialTab: 'columns' }
+          );
+          return true;
+        }
+      },
+      {
+        // Sort by
+        linkText: this.I18n.t('js.toolbar.settings.sort_by'),
+        icon: 'icon-sort-by',
+        onClick: () => {
+          this.opModalService.show<WpTableConfigurationModalComponent>(
+            WpTableConfigurationModalComponent,
+            this.injector,
+            { initialTab: 'sort-by' }
+          );
+          return true;
+        }
+      },
+      {
+        // Group by
+        linkText: this.I18n.t('js.toolbar.settings.group_by'),
+        icon: 'icon-group-by',
+        class: 'hidden-for-mobile',
+        onClick: () => {
+          this.opModalService.show<WpTableConfigurationModalComponent>(
+            WpTableConfigurationModalComponent,
+            this.injector,
+            { initialTab: 'display-settings' }
+          );
           return true;
         }
       },
@@ -178,7 +213,7 @@ export class OpSettingsMenuDirective extends OpContextMenuTrigger implements OnD
         disabled: !this.query.id || this.authorisationService.cannot('query', 'updateImmediately'),
         linkText: this.I18n.t('js.toolbar.settings.page_settings'),
         icon: 'icon-edit',
-        onClick: ($event:JQueryEventObject) => {
+        onClick: ($event:JQuery.TriggeredEvent) => {
           if (this.allowQueryAction($event, 'update')) {
             this.focusAfterClose = false;
             jQuery(`${selectableTitleIdentifier}`).trigger(triggerEditingEvent);
@@ -192,7 +227,7 @@ export class OpSettingsMenuDirective extends OpContextMenuTrigger implements OnD
         disabled: this.authorisationService.cannot('query', 'updateImmediately'),
         linkText: this.I18n.t('js.toolbar.settings.save'),
         icon: 'icon-save',
-        onClick: ($event:JQueryEventObject) => {
+        onClick: ($event:JQuery.TriggeredEvent) => {
           const query = this.query;
           if (!query.persisted && this.allowQueryAction($event, 'updateImmediately')) {
             this.opModalService.show(SaveQueryModal, this.injector);
@@ -208,7 +243,7 @@ export class OpSettingsMenuDirective extends OpContextMenuTrigger implements OnD
         disabled: this.form ? !this.form.$links.create_new : this.authorisationService.cannot('query', 'updateImmediately'),
         linkText: this.I18n.t('js.toolbar.settings.save_as'),
         icon: 'icon-save',
-        onClick: ($event:JQueryEventObject) => {
+        onClick: ($event:JQuery.TriggeredEvent) => {
           if (this.allowFormAction($event, 'create_new')) {
             this.opModalService.show(SaveQueryModal, this.injector);
           }
@@ -221,7 +256,7 @@ export class OpSettingsMenuDirective extends OpContextMenuTrigger implements OnD
         disabled: this.authorisationService.cannot('query', 'delete'),
         linkText: this.I18n.t('js.toolbar.settings.delete'),
         icon: 'icon-delete',
-        onClick: ($event:JQueryEventObject) => {
+        onClick: ($event:JQuery.TriggeredEvent) => {
           if (this.allowQueryAction($event, 'delete') &&
             window.confirm(this.I18n.t('js.text_query_destroy_confirmation'))) {
             this.wpListService.delete();
@@ -235,7 +270,7 @@ export class OpSettingsMenuDirective extends OpContextMenuTrigger implements OnD
         disabled: this.authorisationService.cannot('work_packages', 'representations'),
         linkText: this.I18n.t('js.toolbar.settings.export'),
         icon: 'icon-export',
-        onClick: ($event:JQueryEventObject) => {
+        onClick: ($event:JQuery.TriggeredEvent) => {
           if (this.allowWorkPackageAction($event, 'representations')) {
             this.opModalService.show(WpTableExportModal, this.injector);
           }
@@ -248,7 +283,7 @@ export class OpSettingsMenuDirective extends OpContextMenuTrigger implements OnD
         disabled: this.authorisationService.cannot('query', 'unstar') && this.authorisationService.cannot('query', 'star'),
         linkText: this.I18n.t('js.toolbar.settings.visibility_settings'),
         icon: 'icon-watched',
-        onClick: ($event:JQueryEventObject) => {
+        onClick: ($event:JQuery.TriggeredEvent) => {
           if (this.allowQueryAction($event, 'unstar') || this.allowQueryAction($event, 'star')) {
             this.opModalService.show(QuerySharingModal, this.injector);
           }

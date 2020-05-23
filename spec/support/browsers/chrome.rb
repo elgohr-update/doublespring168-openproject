@@ -1,9 +1,12 @@
-# Force the latest version of chromedriver using the chromedriver-helper gem
-Chromedriver.set_version "2.44"
+# Force the latest version of chromedriver using the webdriver gem
+require 'webdrivers/chromedriver'
 
-def register_chrome_headless(language)
-  name = :"chrome_headless_#{language}"
+if ENV['CI']
+  ::Webdrivers.logger.level = :DEBUG
+  ::Webdrivers::Chromedriver.update
+end
 
+def register_chrome_headless(language, name: :"chrome_headless_#{language}")
   Capybara.register_driver name do |app|
     options = Selenium::WebDriver::Chrome::Options.new
 
@@ -18,6 +21,8 @@ def register_chrome_headless(language)
       options.add_argument('--disable-gpu')
     end
 
+    options.add_argument("--remote-debugging-port=9222")
+
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-gpu')
     options.add_argument('--disable-popup-blocking')
@@ -30,6 +35,12 @@ def register_chrome_headless(language)
 
     options.add_preference(:browser, set_download_behavior: { behavior: 'allow' })
 
+    capabilities = Selenium::WebDriver::Remote::Capabilities.chrome(
+      loggingPrefs: { browser: 'ALL' }
+    )
+
+    yield(options, capabilities) if block_given?
+
     client = Selenium::WebDriver::Remote::Http::Default.new
     client.read_timeout = 180
     client.open_timeout = 180
@@ -37,6 +48,7 @@ def register_chrome_headless(language)
     driver = Capybara::Selenium::Driver.new(
       app,
       browser: :chrome,
+      desired_capabilities: capabilities,
       http_client: client,
       options: options
     )
@@ -61,3 +73,12 @@ end
 register_chrome_headless 'en'
 # Register german locale for custom field decimal test
 register_chrome_headless 'de'
+
+# Register mocking proxy driver
+register_chrome_headless 'en', name: :headless_chrome_billy do |options, capabilities|
+  options.add_argument("--proxy-server=#{Billy.proxy.host}:#{Billy.proxy.port}")
+  options.add_argument('--proxy-bypass-list=127.0.0.1;localhost')
+
+  capabilities[:acceptInsecureCerts] = true
+end
+

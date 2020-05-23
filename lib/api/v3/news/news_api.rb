@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -51,13 +51,13 @@ module API
 
           route_param :id, type: Integer, desc: 'News ID' do
             after_validation do
-              @time_entry = ::News
-                            .visible
-                            .find(params[:id])
+              @news = ::News
+                      .visible
+                      .find(params[:id])
             end
 
             get do
-              NewsRepresenter.create(@time_entry,
+              NewsRepresenter.create(@news,
                                      current_user: current_user,
                                      embed_links: true)
             end

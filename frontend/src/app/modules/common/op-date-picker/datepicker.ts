@@ -1,6 +1,6 @@
 //-- copyright
-// OpenProject is a project management system.
-// Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+// OpenProject is an open source project management software.
+// Copyright (C) 2012-2020 the OpenProject GmbH
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License version 3.
@@ -52,9 +52,11 @@ export class DatePicker {
       showWeeks: true,
       changeMonth: true,
       changeYear: true,
+      closeText: I18n.t('js.button_confirm'),
       dateFormat: this.datepickerFormat,
       defaultDate: this.timezoneService.formattedISODate(this.date),
-      showButtonPanel: true
+      showButtonPanel: true,
+      yearRange: "-15:+20"
     });
 
     this.datepickerInstance = this.datepickerCont.datepicker(mergedOptions);
@@ -106,7 +108,13 @@ export class DatePicker {
 
   private visibleAndActive() {
     var input = this.datepickerCont;
-    return document.elementFromPoint(input.offset()!.left, input.offset()!.top) === input[0] &&
-      document.activeElement === input[0];
+
+    try {
+      return document.elementFromPoint(input.offset()!.left, input.offset()!.top) === input[0] &&
+        document.activeElement === input[0];
+    } catch(e) {
+      console.error("Failed to test visibleAndActive " + e)
+      return false;
+    }
   };
 }

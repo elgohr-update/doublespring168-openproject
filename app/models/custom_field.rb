@@ -1,8 +1,8 @@
 #-- encoding: UTF-8
 
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -28,7 +28,7 @@
 # See docs/COPYRIGHT.rdoc for more details.
 #++
 
-class CustomField < ActiveRecord::Base
+class CustomField < ApplicationRecord
   include CustomField::OrderStatements
 
   has_many :custom_values, dependent: :delete_all
@@ -136,6 +136,14 @@ class CustomField < ActiveRecord::Base
       possible_list_values_options
     else
       possible_values
+    end
+  end
+
+  def value_of(value)
+    if list?
+      custom_options.where(value: value).pluck(:id).first
+    else
+      CustomValue.new(custom_field: self, value: value).valid? && value
     end
   end
 

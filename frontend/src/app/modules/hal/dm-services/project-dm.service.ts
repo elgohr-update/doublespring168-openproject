@@ -1,6 +1,6 @@
 //-- copyright
-// OpenProject is a project management system.
-// Copyright (C) 2012-2015 the OpenProject Foundation (OPF)
+// OpenProject is an open source project management software.
+// Copyright (C) 2012-2020 the OpenProject GmbH
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License version 3.
@@ -23,23 +23,32 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //
-// See doc/COPYRIGHT.rdoc for more details.
+// See docs/COPYRIGHT.rdoc for more details.
 //++
 
-import {HalResourceService} from 'core-app/modules/hal/services/hal-resource.service';
-import {Inject, Injectable} from '@angular/core';
-import {PathHelperService} from 'core-app/modules/common/path-helper/path-helper.service';
+import {Injectable} from '@angular/core';
 import {ProjectResource} from 'core-app/modules/hal/resources/project-resource';
+import {SchemaResource} from "core-app/modules/hal/resources/schema-resource";
+import {Apiv3ProjectsPaths} from "core-app/modules/common/path-helper/apiv3/projects/apiv3-projects-paths";
+import {AbstractDmService} from "core-app/modules/hal/dm-services/abstract-dm.service";
 
 @Injectable()
-export class ProjectDmService {
-  constructor(protected halResourceService:HalResourceService,
-              protected pathHelper:PathHelperService) {
+export class ProjectDmService extends AbstractDmService<ProjectResource> {
+  public schema():Promise<SchemaResource> {
+    return this.halResourceService
+      .get<SchemaResource>(this.projectsPath.schema)
+      .toPromise();
   }
 
-  public load(id:string|number):Promise<ProjectResource> {
-    return this.halResourceService
-      .get<ProjectResource>(this.pathHelper.api.v3.projects.id(id).toString())
-      .toPromise();
+  protected listUrl():string {
+    return this.projectsPath.toString();
+  }
+
+  protected oneUrl(id:number|string):string {
+    return this.projectsPath.id(id).toString();
+  }
+
+  private get projectsPath():Apiv3ProjectsPaths {
+    return this.pathHelper.api.v3.projects;
   }
 }

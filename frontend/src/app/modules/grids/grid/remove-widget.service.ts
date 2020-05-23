@@ -14,17 +14,7 @@ export class GridRemoveWidgetService {
   }
 
   public widget(widget:GridWidgetResource) {
-    let removedWidget = widget;
-
-    this.layout.widgetResources = this.layout.widgetResources.filter((widget) => {
-      return widget.identifier !== removedWidget.identifier ||
-        widget.startColumn !== removedWidget.startColumn ||
-        widget.endColumn !== removedWidget.endColumn ||
-        widget.startRow !== removedWidget.startRow ||
-        widget.endRow !== removedWidget.endRow;
-    });
-
-    this.layout.buildAreas();
+    this.layout.removeWidget(widget);
   }
 
 }

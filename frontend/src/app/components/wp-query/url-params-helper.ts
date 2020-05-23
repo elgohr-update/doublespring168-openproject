@@ -1,6 +1,6 @@
 //-- copyright
-// OpenProject is a project management system.
-// Copyright (C) 2012-2017 the OpenProject Foundation (OPF)
+// OpenProject is an open source project management software.
+// Copyright (C) 2012-2020 the OpenProject GmbH
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License version 3.
@@ -23,7 +23,7 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //
-// See doc/COPYRIGHT.rdoc for more details.
+// See docs/COPYRIGHT.rdoc for more details.
 //++
 
 import {QueryResource} from 'core-app/modules/hal/resources/query-resource';
@@ -34,7 +34,7 @@ import {PaginationService} from 'core-components/table-pagination/pagination-ser
 import {QueryFilterInstanceResource} from 'core-app/modules/hal/resources/query-filter-instance-resource';
 import {ApiV3Filter, FilterOperator} from "core-components/api/api-v3/api-v3-filter-builder";
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class UrlParamsHelperService {
 
   public constructor(public paginationService:PaginationService) {
@@ -77,6 +77,7 @@ export class UrlParamsHelperService {
     paramsData = this.encodeFilters(paramsData, query.filters);
     paramsData.pa = additional.page;
     paramsData.pp = additional.perPage;
+    paramsData.dr = query.displayRepresentation;
 
     return JSON.stringify(paramsData);
   }
@@ -97,7 +98,7 @@ export class UrlParamsHelperService {
   }
 
   private encodeHighlightingMode(paramsData:any, query:QueryResource) {
-    if (query.highlightingMode && query.highlightingMode !== 'inline') {
+    if (query.highlightingMode && (query.persisted || query.highlightingMode !== 'inline')) {
       paramsData.hl = query.highlightingMode;
     }
     return paramsData;
@@ -153,6 +154,8 @@ export class UrlParamsHelperService {
       }
 
       paramsData.tzl = query.timelineZoomLevel;
+    } else {
+      paramsData.tv = false;
     }
     return paramsData;
   }
@@ -175,9 +178,10 @@ export class UrlParamsHelperService {
     if (!!properties.s) {
       queryData.showSums = properties.s;
     }
-    if (!!properties.tv) {
-      queryData.timelineVisible = properties.tv;
 
+    queryData.timelineVisible = properties.tv;
+
+    if (!!properties.tv) {
       if (!!properties.tll) {
         queryData.timelineLabels = properties.tll;
       }
@@ -185,6 +189,10 @@ export class UrlParamsHelperService {
       if (properties.tzl) {
         queryData.timelineZoomLevel = properties.tzl;
       }
+    }
+
+    if (properties.dr) {
+      queryData.displayRepresentation = properties.dr;
     }
 
     if (properties.hl) {
@@ -255,7 +263,11 @@ export class UrlParamsHelperService {
     }
 
     if (query.highlightedAttributes && query.highlightingMode === 'inline') {
-      queryData.highlightedAttributes = query.highlightedAttributes.map(el => el.href);
+      queryData['highlightedAttributes[]'] = query.highlightedAttributes.map(el => el.href);
+    }
+
+    if (query.displayRepresentation) {
+      queryData.displayRepresentation = query.displayRepresentation;
     }
 
     queryData.showHierarchies = !!query.showHierarchies;

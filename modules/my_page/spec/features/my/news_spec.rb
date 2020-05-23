@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -61,13 +61,12 @@ describe 'My page news widget spec', type: :feature, js: true do
   end
 
   it 'can add the widget and see the visible news' do
-    # within top-right area, add an additional widget
-    my_page.add_widget(1, 3, 'News')
+    # No other widgets exist as the user lacks the permissions for the default widgets
+    # add widget in top right corner
+    my_page.add_widget(1, 1, :within, 'News')
 
-    document_area = Components::Grids::GridArea.new('.grid--area.-widgeted:nth-of-type(1)')
-    document_area.expect_to_span(1, 3, 4, 5)
-
-    document_area.resize_to(7, 4)
+    news_area = Components::Grids::GridArea.new('.grid--area.-widgeted:nth-of-type(1)')
+    news_area.expect_to_span(1, 1, 2, 2)
 
     expect(page)
       .to have_content visible_news.title
@@ -76,7 +75,7 @@ describe 'My page news widget spec', type: :feature, js: true do
     expect(page)
       .to have_content visible_news.project.name
     expect(page)
-      .to have_content visible_news.created_on.strftime('%m/%d/%Y')
+      .to have_content visible_news.created_at.strftime('%m/%d/%Y')
 
     expect(page)
       .to have_no_content invisible_news.title

@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -32,7 +32,7 @@ require 'support/pages/work_packages/work_packages_table'
 module Pages
   class WorkPackagesTimeline < WorkPackagesTable
     def toggle_timeline
-      find('#work-packages-timeline-toggle-button').click
+      ::Components::WorkPackages::DisplayRepresentation.new.switch_to_gantt_layout
     end
 
     def timeline_row_selector(wp_id)
@@ -52,7 +52,7 @@ module Pages
     def expect_work_package_listed(*work_packages)
       super(*work_packages)
 
-      if page.has_selector?('#work-packages-timeline-toggle-button.-active')
+      if page.has_selector?('#wp-view-toggle-button', text: 'Gantt')
         within(timeline_container) do
           work_packages.each do |wp|
             expect(page).to have_selector(".wp-row-#{wp.id}-timeline", visible: true)
@@ -64,7 +64,7 @@ module Pages
     def expect_work_package_not_listed(*work_packages)
       super(*work_packages)
 
-      if page.has_selector?('#work-packages-timeline-toggle-button.-active')
+      if page.has_selector?('#wp-view-toggle-button', text: 'Gantt')
         within(timeline_container) do
           work_packages.each do |wp|
             expect(page).to have_no_selector(".wp-row-#{wp.id}-timeline", visible: true)
@@ -85,10 +85,10 @@ module Pages
 
     def expect_timeline!(open: true)
       if open
-        expect(page).to have_selector('#work-packages-timeline-toggle-button.-active')
+        expect(page).to have_selector('#wp-view-toggle-button', text: 'Gantt')
         expect(page).to have_selector('.wp-table-timeline--container .wp-timeline-cell')
       else
-        expect(page).to have_no_selector('#work-packages-timeline-toggle-button.-active')
+        expect(page).to have_no_selector('#wp-view-toggle-button', text: 'Gantt')
         expect(page).to have_no_selector('.wp-table-timeline--container .wp-timeline-cell', visible: true)
       end
     end

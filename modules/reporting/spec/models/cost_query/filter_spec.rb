@@ -1,11 +1,18 @@
 #-- copyright
-# OpenProject Reporting Plugin
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
-# Copyright (C) 2010 - 2014 the OpenProject Foundation (OPF)
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License version 3.
+#
+# OpenProject is a fork of ChiliProject, which is a fork of Redmine. The copyright follows:
+# Copyright (C) 2006-2017 Jean-Philippe Lang
+# Copyright (C) 2010-2013 the ChiliProject Team
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
-# version 3.
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -15,6 +22,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+#
+# See docs/COPYRIGHT.rdoc for more details.
 #++
 
 require File.expand_path(File.dirname(__FILE__) + '/../../spec_helper')
@@ -245,9 +254,9 @@ describe CostQuery, type: :model, reporting_query_helper: true do
 
       it "filters target version" do
         matching_version = FactoryBot.create(:version, project: project)
-        create_work_packages_and_time_entries(3, fixed_version: matching_version)
+        create_work_packages_and_time_entries(3, version: matching_version)
 
-        @query.filter :fixed_version_id, operator: '=', value: matching_version.id
+        @query.filter :version_id, operator: '=', value: matching_version.id
         expect(@query.result.count).to eq(3)
       end
 
@@ -296,7 +305,7 @@ describe CostQuery, type: :model, reporting_query_helper: true do
     [
       CostQuery::Filter::AssignedToId,
       CostQuery::Filter::CategoryId,
-      CostQuery::Filter::FixedVersionId
+      CostQuery::Filter::VersionId
     ].each do |filter|
       it "should only allow default+null operators for #{filter}" do
         expect(filter.new.available_operators.uniq.sort).to eq((CostQuery::Operator.default_operators + CostQuery::Operator.null_operators).sort)
@@ -305,7 +314,7 @@ describe CostQuery, type: :model, reporting_query_helper: true do
 
     #filter for specific objects, which can only have the default operator
     [
-      CostQuery::Filter::WorkPackageId,
+      CostQuery::Filter::WorkPackageId
     ].each do |filter|
       it "should only allow default operators for #{filter}" do
         expect(filter.new.available_operators.uniq).to match_array([CostQuery::Operator.default_operator])

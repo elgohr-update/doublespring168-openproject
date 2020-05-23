@@ -1,6 +1,6 @@
 //-- copyright
-// OpenProject is a project management system.
-// Copyright (C) 2012-2015 the OpenProject Foundation (OPF)
+// OpenProject is an open source project management software.
+// Copyright (C) 2012-2020 the OpenProject GmbH
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License version 3.
@@ -23,7 +23,7 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //
-// See doc/COPYRIGHT.rdoc for more details.
+// See docs/COPYRIGHT.rdoc for more details.
 //++
 
 import {DmListParameter, DmServiceInterface} from "core-app/modules/hal/dm-services/dm.service.interface";
@@ -42,13 +42,27 @@ export abstract class AbstractDmService<T extends HalResource> implements DmServ
   }
 
   public list(params:DmListParameter|null):Promise<CollectionResource<T>> {
+    return this.listRequest(this.listUrl(), params) as Promise<CollectionResource<T>>;
+  }
+
+
+  public one(id:number):Promise<T> {
+    return this.halResourceService.get<T>(this.oneUrl(id).toString()).toPromise();
+  }
+
+  protected listRequest(url:string, params:DmListParameter|null) {
+    return this.halResourceService.get(url + this.listParamsString(params)).toPromise();
+  }
+
+  protected listParamsString(params:DmListParameter|null):string {
     let queryProps = [];
 
     if (params && params.sortBy) {
       queryProps.push(`sortBy=${JSON.stringify(params.sortBy)}`);
     }
 
-    if (params && params.pageSize) {
+    // 0 should not be treated as false
+    if (params && params.pageSize !== undefined) {
       queryProps.push(`pageSize=${params.pageSize}`);
     }
 
@@ -68,11 +82,7 @@ export abstract class AbstractDmService<T extends HalResource> implements DmServ
       queryPropsString = `?${queryProps.join('&')}`;
     }
 
-    return this.halResourceService.get<CollectionResource<T>>(this.listUrl() + queryPropsString).toPromise();
-  }
-
-  public one(id:number):Promise<T> {
-    return this.halResourceService.get<T>(this.oneUrl(id).toString()).toPromise();
+    return queryPropsString;
   }
 
 

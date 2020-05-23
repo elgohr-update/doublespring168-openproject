@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -353,7 +353,7 @@ describe Query, type: :model do
                               category created_at due_date estimated_hours
                               parent done_ratio priority responsible
                               spent_hours start_date status subject type
-                              updated_at fixed_version) +
+                              updated_at version) +
                            [:"cf_#{custom_field.id}"] +
                            [:"relations_to_type_#{type.id}"] +
                            %i(relations_of_type_relation1 relations_of_type_relation2)
@@ -370,7 +370,7 @@ describe Query, type: :model do
                               category created_at due_date estimated_hours
                               parent done_ratio priority responsible
                               spent_hours start_date status subject type
-                              updated_at fixed_version) +
+                              updated_at version) +
                            [:"cf_#{custom_field.id}"]
 
         unexpected_columns = [:"relations_to_type_#{type.id}"] +

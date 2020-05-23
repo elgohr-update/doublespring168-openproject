@@ -1,42 +1,36 @@
 import {Injector} from '@angular/core';
 import {WorkPackageTable} from '../../wp-fast-table';
 import {IsolatedQuerySpace} from "core-app/modules/work_packages/query-space/isolated-query-space";
-import {PathHelperService} from "core-app/modules/common/path-helper/path-helper.service";
-import {mergeMap, take, takeUntil} from "rxjs/operators";
+import {take, takeUntil} from "rxjs/operators";
 import {WorkPackageInlineCreateService} from "core-components/wp-inline-create/wp-inline-create.service";
-import {RequestSwitchmap} from "core-app/helpers/rxjs/request-switchmap";
-import {Observable, of} from "rxjs";
-import {WorkPackageNotificationService} from "core-components/wp-edit/wp-notification.service";
-import {RenderedRow} from "core-components/wp-fast-table/builders/primary-render-pass";
-import {WorkPackageTableSortByService} from "core-components/wp-fast-table/state/wp-table-sort-by.service";
+import {HalResourceNotificationService} from "core-app/modules/hal/services/hal-resource-notification.service";
+import {WorkPackageViewSortByService} from "core-app/modules/work_packages/routing/wp-view-base/view-services/wp-view-sort-by.service";
 import {TableDragActionsRegistryService} from "core-components/wp-table/drag-and-drop/actions/table-drag-actions-registry.service";
 import {TableDragActionService} from "core-components/wp-table/drag-and-drop/actions/table-drag-action.service";
 import {States} from "core-components/states.service";
-import {WorkPackageTableTimelineService} from "core-components/wp-fast-table/state/wp-table-timeline.service";
 import {tableRowClassName} from "core-components/wp-fast-table/builders/rows/single-row-builder";
 import {DragAndDropService} from "core-app/modules/common/drag-and-drop/drag-and-drop.service";
-import {ReorderQueryService} from "core-app/modules/common/drag-and-drop/reorder-query.service";
 import {DragAndDropHelpers} from "core-app/modules/common/drag-and-drop/drag-and-drop.helpers";
-import {WorkPackageTableOrderService} from "core-components/wp-fast-table/state/wp-table-order.service";
+import {WorkPackageViewOrderService} from "core-app/modules/work_packages/routing/wp-view-base/view-services/wp-view-order.service";
+import {RenderedWorkPackage} from "core-app/modules/work_packages/render-info/rendered-work-package.type";
+import {BrowserDetector} from "core-app/modules/common/browser/browser-detector.service";
+import {WorkPackageCacheService} from "core-components/work-packages/work-package-cache.service";
+import {WorkPackagesListService} from "core-components/wp-list/wp-list.service";
+import {InjectField} from "core-app/helpers/angular/inject-field.decorator";
 
 export class DragAndDropTransformer {
 
-  private readonly states:States = this.injector.get(States);
-  private readonly querySpace:IsolatedQuerySpace = this.injector.get(IsolatedQuerySpace);
-  private readonly dragService:DragAndDropService|null = this.injector.get(DragAndDropService, null);
-  private readonly reorderService = this.injector.get(ReorderQueryService);
-  private readonly inlineCreateService = this.injector.get(WorkPackageInlineCreateService);
-  private readonly wpNotifications = this.injector.get(WorkPackageNotificationService);
-  private readonly wpTableSortBy = this.injector.get(WorkPackageTableSortByService);
-  private readonly pathHelper = this.injector.get(PathHelperService);
-  private readonly wpTableTimeline = this.injector.get(WorkPackageTableTimelineService);
-  private readonly wpTableOrder = this.injector.get(WorkPackageTableOrderService);
-
-  // We remember when we want to update the query with a given order
-  private queryUpdates = new RequestSwitchmap(
-    (order:string[]) => this.saveOrderInQuery(order)
-  );
-  private readonly dragActionRegistry = this.injector.get(TableDragActionsRegistryService);
+  @InjectField() private readonly states:States;
+  @InjectField() private readonly querySpace:IsolatedQuerySpace;
+  @InjectField() private readonly inlineCreateService:WorkPackageInlineCreateService;
+  @InjectField() private readonly halNotification:HalResourceNotificationService;
+  @InjectField() private readonly wpTableSortBy:WorkPackageViewSortByService;
+  @InjectField() private readonly wpTableOrder:WorkPackageViewOrderService;
+  @InjectField() private readonly browserDetector:BrowserDetector;
+  @InjectField() private readonly wpCacheService:WorkPackageCacheService;
+  @InjectField() private readonly wpListService:WorkPackagesListService;
+  @InjectField() private readonly dragActionRegistry:TableDragActionsRegistryService;
+  @InjectField(DragAndDropService, null) private readonly dragService:DragAndDropService|null;
 
   constructor(public readonly injector:Injector,
               public table:WorkPackageTable) {
@@ -49,22 +43,9 @@ export class DragAndDropTransformer {
 
     this.inlineCreateService.newInlineWorkPackageCreated
       .pipe(takeUntil(this.querySpace.stopAllSubscriptions))
-      .subscribe((wpId) => {
-        const newOrder = this.reorderService.add(this.currentOrder, wpId);
-        this.updateOrder(newOrder);
-      });
-
-    // Keep query loading requests
-    this.queryUpdates
-      .observe(this.querySpace.stopAllSubscriptions.pipe(take(1)))
-      .subscribe({
-        next: () =>  {
-          if (this.wpTableTimeline.isVisible) {
-            this.table.originalRows = this.currentRenderedOrder.map((e) => e.workPackageId!);
-            this.table.redrawTableAndTimeline();
-          }
-        },
-        error: (error:any) => this.wpNotifications.handleRawError(error)
+      .subscribe(async (wpId) => {
+        const newOrder = await this.wpTableOrder.add(this.currentOrder, wpId);
+        this.updateRenderedOrder(newOrder);
       });
 
     this.querySpace.stopAllSubscriptions
@@ -75,7 +56,7 @@ export class DragAndDropTransformer {
 
     this.dragService.register({
       dragContainer: this.table.tbody,
-      scrollContainers: [this.table.tbody],
+      scrollContainers: [this.table.scrollContainer],
       accepts: () => true,
       moves: (el:any, source:any, handle:HTMLElement) => {
         if (!handle.classList.contains('wp-table--drag-and-drop-handle')) {
@@ -83,72 +64,90 @@ export class DragAndDropTransformer {
         }
 
         const wpId:string = el.dataset.workPackageId!;
-        const workPackage = this.states.workPackages.get(wpId).value!;
-        return this.actionService.canPickup(workPackage);
+        const workPackage = this.states.workPackages.get(wpId).value;
+        return !!workPackage && this.actionService.canPickup(workPackage);
       },
-      onMoved: (el:HTMLElement, target:HTMLElement, source:HTMLElement) => {
+      onMoved: async (el:HTMLElement, target:HTMLElement, source:HTMLElement) => {
         const wpId:string = el.dataset.workPackageId!;
-        const workPackage = this.states.workPackages.get(wpId).value!;
         const rowIndex = this.findRowIndex(el);
 
-        this.actionService
-          .handleDrop(workPackage, el)
-          .then(() => {
-            const newOrder = this.reorderService.move(this.currentOrder, wpId, rowIndex);
-            this.updateOrder(newOrder);
-            this.actionService.onNewOrder(newOrder);
-            this.wpTableSortBy.switchToManualSorting();
-          })
-          .catch(() => {
-            // Restore element in from container
-            DragAndDropHelpers.reinsert(el, el.dataset.sourceIndex || -1, source);
-          });
+        try {
+          const workPackage = await this.wpCacheService.require(wpId);
+          const newOrder = await this.wpTableOrder.move(this.currentOrder, wpId, rowIndex);
+          await this.actionService.handleDrop(workPackage, el);
+          this.updateRenderedOrder(newOrder);
+          this.actionService.onNewOrder(newOrder);
+
+          // Save the query when switching to manual
+          let query = this.querySpace.query.value;
+          if (query && this.wpTableSortBy.switchToManualSorting(query)) {
+            await this.wpListService.save(query);
+          }
+        } catch (e) {
+          this.halNotification.handleRawError(e);
+
+          // Restore element in from container
+          DragAndDropHelpers.reinsert(el, el.dataset.sourceIndex || -1, source);
+        }
       },
       onRemoved: (el:HTMLElement) => {
         const wpId:string = el.dataset.workPackageId!;
-        const newOrder = this.reorderService.remove(this.currentOrder, wpId);
-        this.updateOrder(newOrder);
+        const newOrder = this.wpTableOrder.remove(this.currentOrder, wpId);
+        this.updateRenderedOrder(newOrder);
       },
-      onAdded: (el:HTMLElement) => {
+      onAdded: async (el:HTMLElement) => {
         const wpId:string = el.dataset.workPackageId!;
-        const workPackage = this.states.workPackages.get(wpId).value!;
+        const workPackage = await this.wpCacheService.require(wpId);
         const rowIndex = this.findRowIndex(el);
 
         return this.actionService
           .handleDrop(workPackage, el)
-          .then(() => {
-            const newOrder = this.reorderService.add(this.currentOrder, wpId, rowIndex);
-            this.updateOrder(newOrder);
+          .then(async () => {
+            const newOrder = await this.wpTableOrder.add(this.currentOrder, wpId, rowIndex);
+            this.updateRenderedOrder(newOrder);
             this.actionService.onNewOrder(newOrder);
 
             return true;
           })
           .catch(() => false);
       },
-      onCloned: (clone:HTMLElement, original:HTMLElement) => {
-        // Maintain widths from original
-        Array.from(original.children).forEach((source:HTMLElement, index:number) => {
-          const target = clone.children.item(index) as HTMLElement;
-          target.style.width = source.offsetWidth + "px";
-        });
+      onCloned: async (clone:HTMLElement, original:HTMLElement) => {
+        // Replace clone with one TD of the subject
+        const wpId:string = original.dataset.workPackageId!;
+        const workPackage = await this.wpCacheService.require(wpId);
+
+        const colspan = clone.children.length;
+        const td = document.createElement('td');
+        td.textContent = workPackage.subjectWithId();
+        td.colSpan = colspan;
+        td.classList.add('wp-table--cell-td', 'subject');
+
+        clone.style.maxWidth = '500px';
+        clone.innerHTML = td.outerHTML;
       },
       onShadowInserted: (el:HTMLElement) => {
-        this.actionService.changeShadowElement(el);
+        if (!this.browserDetector.isEdge) {
+          this.actionService.changeShadowElement(el);
+        }
       },
       onCancel: (el:HTMLElement) => {
-        this.actionService.changeShadowElement(el, true);
+        if (!this.browserDetector.isEdge) {
+          this.actionService.changeShadowElement(el, true);
+        }
       },
     });
   }
 
   /**
-   * Update current order
+   * Update current rendered order
    */
-  private updateOrder(newOrder:string[]) {
-    newOrder = _.uniq(newOrder);
+  private async updateRenderedOrder(order:string[]) {
+    order = _.uniq(order);
 
-    // Ensure dragged work packages are being removed.
-    this.queryUpdates.request(newOrder);
+    const mappedOrder = await Promise.all(order.map(id => this.wpCacheService.require(id)));
+
+    /** Re-render the table */
+    this.table.initialSetup(mappedOrder);
   }
 
   protected get actionService():TableDragActionService {
@@ -161,35 +160,11 @@ export class DragAndDropTransformer {
       .map((row) => row.workPackageId!);
   }
 
-  protected get currentRenderedOrder():RenderedRow[] {
+  protected get currentRenderedOrder():RenderedWorkPackage[] {
     return this
       .querySpace
       .renderedWorkPackages
       .getValueOr([]);
-  }
-
-  private saveOrderInQuery(order:string[]):Observable<unknown> {
-    return this.querySpace.query
-      .values$()
-      .pipe(
-        take(1),
-        mergeMap(query => {
-          const renderMap = _.keyBy(this.currentRenderedOrder, 'workPackageId');
-          const mappedOrder = order.map(id => renderMap[id]!);
-
-          /** Update rendered order for e.g., redrawing timeline */
-          this.querySpace.rendered.putValue(mappedOrder);
-
-          /** Maintain order when reloading unsaved page */
-          this.wpTableOrder.setNewOrder(query, order);
-
-          if (query.persisted) {
-              return this.reorderService.saveOrderInQuery(query, order);
-          }
-
-          return of(null);
-        })
-      );
   }
 
   /**

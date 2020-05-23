@@ -4,18 +4,16 @@ import {
   catchError,
   debounceTime,
   distinctUntilChanged,
-  filter,
-  startWith,
   switchMap,
   takeUntil,
   tap
 } from "rxjs/operators";
 import {RequestSwitchmapHandler} from "core-app/helpers/rxjs/request-switchmap";
-import {WorkPackageNotificationService} from "core-components/wp-edit/wp-notification.service";
+import {HalResourceNotificationService} from "core-app/modules/hal/services/hal-resource-notification.service";
 
 export type RequestErrorHandler = (error:unknown) => void;
 
-export function errorNotificationHandler(service:WorkPackageNotificationService):RequestErrorHandler {
+export function errorNotificationHandler(service:HalResourceNotificationService):RequestErrorHandler {
   return (error:unknown) => service.handleRawError(error);
 }
 

@@ -1,7 +1,7 @@
 #-- encoding: UTF-8
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -27,7 +27,7 @@
 # See docs/COPYRIGHT.rdoc for more details.
 #++
 
-class Comment < ActiveRecord::Base
+class Comment < ApplicationRecord
   belongs_to :commented, polymorphic: true, counter_cache: true
   belongs_to :author, class_name: 'User', foreign_key: 'author_id'
 
@@ -52,7 +52,7 @@ class Comment < ActiveRecord::Base
 
     recipients = commented.recipients + commented.watcher_recipients
     recipients.uniq.each do |user|
-      UserMailer.news_comment_added(user, self, User.current).deliver_now
+      UserMailer.news_comment_added(user, self, User.current).deliver_later
     end
   end
 end

@@ -1,7 +1,7 @@
 #-- encoding: UTF-8
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -100,24 +100,6 @@ describe Queries::UpdateContract do
 
       it 'is invalid' do
         expect_valid(false, base: %i(error_unauthorized))
-      end
-    end
-
-    context 'user has permission to edit' do
-      let(:permissions) { %i(edit_work_packages) }
-
-      it 'is invalid' do
-        expect_valid(false, base: %i(error_unauthorized))
-      end
-
-      context 'when assuming only order changed' do
-        before do
-          query.ordered_work_packages = [1, 2, 3]
-        end
-
-        it 'is valid' do
-          expect_valid(true)
-        end
       end
     end
 

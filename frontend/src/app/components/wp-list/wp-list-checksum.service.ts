@@ -1,6 +1,6 @@
 // -- copyright
-// OpenProject is a project management system.
-// Copyright (C) 2012-2017 the OpenProject Foundation (OPF)
+// OpenProject is an open source project management software.
+// Copyright (C) 2012-2020 the OpenProject GmbH
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License version 3.
@@ -23,14 +23,14 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //
-// See doc/COPYRIGHT.rdoc for more details.
+// See docs/COPYRIGHT.rdoc for more details.
 // ++
 
 import {QueryResource} from 'core-app/modules/hal/resources/query-resource';
-import {WorkPackageTablePagination} from '../wp-fast-table/wp-table-pagination';
-import {StateService} from '@uirouter/core';
+import {StateService, TransitionPromise} from '@uirouter/core';
 import {UrlParamsHelperService} from 'core-components/wp-query/url-params-helper';
 import {Injectable} from '@angular/core';
+import {WorkPackageViewPagination} from "core-app/modules/work_packages/routing/wp-view-base/view-services/wp-table-pagination";
 
 @Injectable()
 export class WorkPackagesListChecksumService {
@@ -43,25 +43,27 @@ export class WorkPackagesListChecksumService {
   public visibleChecksum:string|null;
 
   public updateIfDifferent(query:QueryResource,
-                           pagination:WorkPackageTablePagination) {
+                           pagination:WorkPackageViewPagination):Promise<unknown> {
 
     let newQueryChecksum = this.getNewChecksum(query, pagination);
+    let routePromise:Promise<unknown> = Promise.resolve();
 
     if (this.isUninitialized()) {
       // Do nothing
     } else if (this.isIdDifferent(query.id)) {
-      this.maintainUrlQueryState(query.id, null);
+      routePromise = this.maintainUrlQueryState(query.id, null);
 
       this.clear();
 
     } else if (this.isChecksumDifferent(newQueryChecksum)) {
-      this.maintainUrlQueryState(query.id, newQueryChecksum);
+      routePromise = this.maintainUrlQueryState(query.id, newQueryChecksum);
     }
 
     this.set(query.id, newQueryChecksum);
+    return routePromise;
   }
 
-  public update(query:QueryResource, pagination:WorkPackageTablePagination) {
+  public update(query:QueryResource, pagination:WorkPackageViewPagination) {
     let newQueryChecksum = this.getNewChecksum(query, pagination);
 
     this.set(query.id, newQueryChecksum);
@@ -69,16 +71,16 @@ export class WorkPackagesListChecksumService {
     this.maintainUrlQueryState(query.id, newQueryChecksum);
   }
 
-  public setToQuery(query:QueryResource, pagination:WorkPackageTablePagination) {
+  public setToQuery(query:QueryResource, pagination:WorkPackageViewPagination) {
     let newQueryChecksum = this.getNewChecksum(query, pagination);
 
     this.set(query.id, newQueryChecksum);
 
-    this.maintainUrlQueryState(query.id, null);
+    return this.maintainUrlQueryState(query.id, null);
   }
 
   public isQueryOutdated(query:QueryResource,
-                         pagination:WorkPackageTablePagination) {
+                         pagination:WorkPackageViewPagination) {
     let newQueryChecksum = this.getNewChecksum(query, pagination);
 
     return this.isOutdated(query.id, newQueryChecksum);
@@ -139,13 +141,17 @@ export class WorkPackagesListChecksumService {
     );
   }
 
-  private getNewChecksum(query:QueryResource, pagination:WorkPackageTablePagination) {
+  private getNewChecksum(query:QueryResource, pagination:WorkPackageViewPagination) {
     return this.UrlParamsHelper.encodeQueryJsonParams(query, _.pick(pagination, ['page', 'perPage']));
   }
 
-  private maintainUrlQueryState(id:string|null, checksum:string|null) {
+  private maintainUrlQueryState(id:string|null, checksum:string|null):TransitionPromise {
     this.visibleChecksum = checksum;
 
-    this.$state.go('.', {query_props: checksum, query_id: id}, {custom: {notify: false}});
+    return this.$state.go(
+      '.',
+      { query_props: checksum, query_id: id },
+      { custom: { notify: false } }
+    );
   }
 }

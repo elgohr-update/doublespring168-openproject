@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -30,14 +30,14 @@ require 'spec_helper'
 
 describe OpenProject::Configuration do
   describe '.load_config_from_file' do
-    let(:file_contents) {
+    let(:file_contents) do
       <<-EOS
       default:
 
         test:
         somesetting: foo
       EOS
-    }
+    end
     before do
       allow(File).to receive(:read).and_call_original
       allow(File).to receive(:read).with('configfilename').and_return(file_contents)
@@ -55,12 +55,12 @@ describe OpenProject::Configuration do
 
   describe '.load_env_from_config' do
     describe 'with a default setting' do
-      let(:config) {
+      let(:config) do
         OpenProject::Configuration.send(:load_env_from_config, {
                                           'default' => { 'somesetting' => 'foo' },
                                           'test' => {},
                                           'someother' => { 'somesetting' => 'bar' }
-                                        }, 'test')}
+                                        }, 'test') end
 
       it 'should load a default setting' do
         expect(config['somesetting']).to eq('foo')
@@ -68,11 +68,11 @@ describe OpenProject::Configuration do
     end
 
     describe 'with an environment-specific setting' do
-      let(:config) {
+      let(:config) do
         OpenProject::Configuration.send(:load_env_from_config, {
                                           'default' => {},
                                           'test' => { 'somesetting' => 'foo' }
-                                        }, 'test')}
+                                        }, 'test') end
 
       it 'should load a setting' do
         expect(config['somesetting']).to eq('foo')
@@ -80,11 +80,11 @@ describe OpenProject::Configuration do
     end
 
     describe 'with a default and an overriding environment-specific setting' do
-      let(:config) {
+      let(:config) do
         OpenProject::Configuration.send(:load_env_from_config, {
                                           'default' => { 'somesetting' => 'foo' },
                                           'test' => { 'somesetting' => 'bar' }
-                                        }, 'test')}
+                                        }, 'test') end
 
       it 'should load the overriding value' do
         expect(config['somesetting']).to eq('bar')
@@ -93,12 +93,13 @@ describe OpenProject::Configuration do
   end
 
   describe '.load_overrides_from_environment_variables' do
-    let(:config) {
+    let(:config) do
       {
         'someemptysetting' => nil,
         'nil' => 'foobar',
         'str_empty' => 'foobar',
         'somesetting' => 'foo',
+        'invalid_yaml' => nil,
         'some_list_entry' => nil,
         'nested' => {
           'key' => 'value',
@@ -113,26 +114,30 @@ describe OpenProject::Configuration do
           }
         }
       }
-    }
+    end
 
-    let(:env_vars) {
+    let(:env_vars) do
       {
         'SOMEEMPTYSETTING' => '',
         'SOMESETTING' => 'bar',
         'NIL' => '!!null',
-        'STR_EMPTY' => '!!str',
+        'INVALID_YAML' => "'foo'! #234@@½%%%",
         'OPTEST_SOME__LIST__ENTRY' => '[foo, bar , xyz, whut wat]',
         'OPTEST_NESTED_KEY' => 'baz',
         'OPTEST_NESTED_DEEPLY__NESTED_KEY' => '42',
         'OPTEST_NESTED_HASH' => '{ foo: bar, xyz: bla }',
         'OPTEST_FOO_BAR_HASH__WITH__SYMBOLS' => '{ foo: !ruby/symbol foobar }'
       }
-    }
+    end
 
     before do
       stub_const('OpenProject::Configuration::ENV_PREFIX', 'OPTEST')
 
       OpenProject::Configuration.send :override_config!, config, env_vars
+    end
+
+    it 'returns the original string, not the invalid YAML one' do
+      expect(config['invalid_yaml']).to eq env_vars['INVALID_YAML']
     end
 
     it 'should not parse the empty value' do
@@ -141,10 +146,6 @@ describe OpenProject::Configuration do
 
     it 'should parse the null identifier' do
       expect(config['nil']).to be_nil
-    end
-
-    it 'should parse the empty string' do
-      expect(config['str_empty']).to eq('')
     end
 
     it 'should override the previous setting value' do
@@ -193,7 +194,7 @@ describe OpenProject::Configuration do
   end
 
   describe '.convert_old_email_settings' do
-    let(:settings) {
+    let(:settings) do
       {
         'email_delivery' => {
           'delivery_method' => :smtp,
@@ -203,7 +204,7 @@ describe OpenProject::Configuration do
             'port' => 25,
             'domain' => 'example.net'
           } } }
-    }
+    end
 
     context 'with delivery_method' do
       before do
@@ -287,7 +288,7 @@ describe OpenProject::Configuration do
   end
 
   describe '.reload_mailer_configuration!' do
-    let(:action_mailer) { double('ActionMailer::Base', smtp_settings: {}) }
+    let(:action_mailer) { double('ActionMailer::Base', smtp_settings: {}, deliveries: []) }
 
     before do
       stub_const('ActionMailer::Base', action_mailer)
@@ -394,12 +395,12 @@ describe OpenProject::Configuration do
   end
 
   describe '.configure_legacy_action_mailer' do
-    let(:action_mailer) { double('ActionMailer::Base') }
-    let(:config) {
+    let(:action_mailer) { double('ActionMailer::Base', deliveries: []) }
+    let(:config) do
       { 'email_delivery_method' => 'smtp',
         'smtp_address' => 'smtp.example.net',
         'smtp_port' => '25' }
-    }
+    end
 
     before do
       stub_const('ActionMailer::Base', action_mailer)
@@ -415,7 +416,9 @@ describe OpenProject::Configuration do
   end
 
   describe '.configure_cache' do
-    let(:application_config) { Rails::Application::Configuration.new }
+    let(:application_config) do
+      Rails::Application::Configuration.new Rails.root
+    end
 
     after do
       # reload configuration to isolate specs

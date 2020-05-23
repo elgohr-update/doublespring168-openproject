@@ -1,10 +1,6 @@
 import {IsolatedQuerySpace} from "core-app/modules/work_packages/query-space/isolated-query-space";
 import {WorkPackageResource} from "core-app/modules/hal/resources/work-package-resource";
 import {Injector} from "@angular/core";
-import {
-  hierarchyGroupClass,
-  hierarchyRootClass
-} from "core-components/wp-fast-table/helpers/wp-table-hierarchy-helpers";
 
 export class TableDragActionService {
 
@@ -13,8 +9,8 @@ export class TableDragActionService {
    * @param querySpace The isolated query space for this table
    * @param injector The hierarchical injector for this table
    */
-  constructor(protected querySpace:IsolatedQuerySpace,
-              protected injector:Injector) {
+  constructor(readonly querySpace:IsolatedQuerySpace,
+              readonly injector:Injector) {
   }
 
   /**
@@ -56,6 +52,11 @@ export class TableDragActionService {
    * @param backToDefault: Shall the modifications be made undone
    */
   public changeShadowElement(shadowElement:HTMLElement, backToDefault:boolean = false) {
-    return false;
+    if (backToDefault) {
+      shadowElement.classList.remove('-dragged');
+    } else {
+      shadowElement.classList.add('-dragged');
+    }
+    return true;
   }
 }

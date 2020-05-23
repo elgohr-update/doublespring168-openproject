@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -30,7 +30,7 @@ require 'spec_helper'
 
 require_relative '../support/pages/dashboard'
 
-describe 'Arbitrary WorkPackage query graph widget dashboard', type: :feature, js: true do
+describe 'Arbitrary WorkPackage query graph widget dashboard', type: :feature, js: true, with_mail: false do
   let!(:type) { FactoryBot.create :type }
   let!(:other_type) { FactoryBot.create :type }
   let!(:priority) { FactoryBot.create :default_priority }
@@ -85,12 +85,15 @@ describe 'Arbitrary WorkPackage query graph widget dashboard', type: :feature, j
   let(:dashboard_page) do
     Pages::Dashboard.new(project)
   end
+  let(:enterprise_edition) { true }
 
   let(:modal) { ::Components::WorkPackages::TableConfigurationModal.new }
   let(:filters) { ::Components::WorkPackages::TableConfiguration::Filters.new }
   let(:general) { ::Components::WorkPackages::TableConfiguration::GraphGeneral.new }
 
   before do
+    with_enterprise_token(enterprise_edition ? :grid_widget_wp_graph : nil)
+
     login_as user
 
     dashboard_page.visit!
@@ -98,25 +101,20 @@ describe 'Arbitrary WorkPackage query graph widget dashboard', type: :feature, j
 
   context 'with the permission to save queries' do
     it 'can add the widget and see the work packages of the filtered for types' do
-      dashboard_page.add_column(3, before_or_after: :before)
+      dashboard_page.add_widget(1, 1, :column, "Work packages graph")
 
-      dashboard_page.add_widget(2, 3, "Work packages graph")
-
-      sleep(1)
+      sleep(0.1)
 
       filter_area = Components::Grids::GridArea.new('.grid--area.-widgeted:nth-of-type(2)')
 
-      filter_area.expect_to_span(2, 3, 5, 5)
-      filter_area.resize_to(6, 5)
+      filter_area.expect_to_span(1, 1, 2, 2)
 
-      filter_area.expect_to_span(2, 3, 7, 6)
-
-      sleep(1)
+      sleep(0.5)
 
       # User has the ability to modify the query
 
       filter_area.configure_wp_table
-      modal.switch_to('Dataset 1')
+      modal.switch_to('Filters')
       filters.expect_filter_count(2)
       filters.add_filter_by('Type', 'is', type.name)
       modal.save
@@ -137,13 +135,23 @@ describe 'Arbitrary WorkPackage query graph widget dashboard', type: :feature, j
       dashboard_page.visit!
 
       filter_area.configure_wp_table
-      modal.switch_to('Dataset 1')
+      modal.switch_to('Filters')
 
       filters.expect_filter_count(3)
 
       modal.switch_to('General')
       general.expect_axis 'Type'
       general.expect_type 'Bar'
+
+      # A notification is displayed if no work package is returned for the graph
+      modal.switch_to('Filters')
+      filters.add_filter_by('Subject', 'contains', '!!!!!!!!!!!!!!!!!')
+      modal.save
+
+      within filter_area.area do
+        expect(page)
+          .to have_content(I18n.t('js.work_packages.no_results.title'))
+      end
     end
   end
 
@@ -151,9 +159,19 @@ describe 'Arbitrary WorkPackage query graph widget dashboard', type: :feature, j
     let(:permissions) { %i[view_work_packages add_work_packages view_dashboards manage_dashboards] }
 
     it 'cannot add the widget' do
-      dashboard_page.add_column(3, before_or_after: :before)
+      dashboard_page.expect_unable_to_add_widget(1, 1, :within, "Work packages graph")
+    end
+  end
 
-      dashboard_page.expect_unable_to_add_widget(2, 3, "Work packages graph")
+  context 'without an enterprise edition' do
+    let(:enterprise_edition) { false }
+
+    it 'cannot add the widget and receives an enterprise edition notice' do
+      dashboard_page.expect_add_widget_enterprise_edition_notice(1, 2, :within)
+
+      # At this point the add widget modal is open
+      expect(page)
+        .not_to have_content("Work packages graph")
     end
   end
 end

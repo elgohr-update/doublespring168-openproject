@@ -10,7 +10,7 @@
   <% end %>
 <% end %>
 
-<div class="attributes-group wiki--content--attribute form--field -visible-overflow">
+<div class="attributes-group wiki--content--attribute ckeditor--content-scrollable form--field -visible-overflow">
   <%= f.text_area :text,
                   cols: 100,
                   rows: 25,
@@ -46,5 +46,5 @@
 <%= link_to t(:button_cancel),
             { controller: '/wiki', action: 'show', project_id: @project, id: (@page.new_record? ? nil : @page) },
             data: { confirm: t(:text_are_you_sure) },
-            class: 'button' %>
+            class: 'button -with-icon icon-cancel' %>
 

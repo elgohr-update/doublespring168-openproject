@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -62,6 +62,8 @@ describe 'Query name inline edit', js: true do
   end
 
   let(:wp_table) { Pages::WorkPackagesTable.new(project) }
+  let(:modal) { ::Components::WorkPackages::TableConfigurationModal.new }
+  let(:columns) { ::Components::WorkPackages::Columns.new }
   let(:filters) { ::Components::WorkPackages::Filters.new }
   let(:query_title) { ::Components::WorkPackages::QueryTitle.new }
 
@@ -87,6 +89,7 @@ describe 'Query name inline edit', js: true do
 
     # Expect unchanged
     query_title.expect_not_changed
+
     assignee_query.reload
     expect(assignee_query.filters.count).to eq(1)
     expect(assignee_query.filters.first.name).to eq :status_id
@@ -113,5 +116,19 @@ describe 'Query name inline edit', js: true do
 
     assignee_query.reload
     expect(assignee_query.name).to eq 'Some other name'
+  end
+
+  it 'shows the save icon when changing the columns (Regression #32835)' do
+    wp_table.expect_work_package_listed work_package
+    query_title.expect_not_changed
+
+    modal.open!
+    modal.switch_to 'Columns'
+
+    columns.assume_opened
+    columns.uncheck_all save_changes: false
+    columns.add 'Subject', save_changes: true
+
+    query_title.expect_changed
   end
 end

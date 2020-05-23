@@ -1,6 +1,6 @@
 // -- copyright
-// OpenProject is a project management system.
-// Copyright (C) 2012-2015 the OpenProject Foundation (OPF)
+// OpenProject is an open source project management software.
+// Copyright (C) 2012-2020 the OpenProject GmbH
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License version 3.
@@ -23,51 +23,49 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //
-// See doc/COPYRIGHT.rdoc for more details.
+// See docs/COPYRIGHT.rdoc for more details.
 // ++
 
-import {AfterViewInit, Component, ElementRef, Injector, OnDestroy} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, Injector} from '@angular/core';
 import {I18nService} from 'core-app/modules/common/i18n/i18n.service';
 import {INotification, NotificationsService} from 'core-app/modules/common/notifications/notifications.service';
 import {WorkPackageResource} from 'core-app/modules/hal/resources/work-package-resource';
 import {IsolatedQuerySpace} from "core-app/modules/work_packages/query-space/isolated-query-space";
 import * as moment from 'moment';
 import {Moment} from 'moment';
-import {componentDestroyed, untilComponentDestroyed} from 'ng2-rx-componentdestroyed';
-import {debounceTime, filter, map, takeUntil, withLatestFrom} from 'rxjs/operators';
+import {filter, takeUntil} from 'rxjs/operators';
 import {
   calculateDaySpan,
   getPixelPerDayForZoomLevel,
   requiredPixelMarginLeft,
   timelineElementCssClass,
+  timelineHeaderSelector,
   timelineMarkerSelectionStartClass,
   TimelineViewParameters,
   zoomLevelOrder
 } from '../wp-timeline';
 import {input, InputState} from "reactivestates";
 import {WorkPackageTable} from "core-components/wp-fast-table/wp-fast-table";
-import {RenderedRow} from "core-components/wp-fast-table/builders/primary-render-pass";
 import {WorkPackageTimelineCellsRenderer} from "core-components/wp-table/timeline/cells/wp-timeline-cells-renderer";
 import {States} from "core-components/states.service";
 import {WorkPackagesTableController} from "core-components/wp-table/wp-table.directive";
-import {WorkPackageTableTimelineService} from "core-components/wp-fast-table/state/wp-table-timeline.service";
-import {WorkPackageNotificationService} from "core-components/wp-edit/wp-notification.service";
+import {WorkPackageViewTimelineService} from "core-app/modules/work_packages/routing/wp-view-base/view-services/wp-view-timeline.service";
 import {WorkPackageRelationsService} from "core-components/wp-relations/wp-relations.service";
-import {WorkPackageTableHierarchiesService} from "core-components/wp-fast-table/state/wp-table-hierarchy.service";
-import {WorkPackageTableTimelineState} from "core-components/wp-fast-table/wp-table-timeline";
+import {WorkPackageViewHierarchiesService} from "core-app/modules/work_packages/routing/wp-view-base/view-services/wp-view-hierarchy.service";
 import {WorkPackageTimelineCell} from "core-components/wp-table/timeline/cells/wp-timeline-cell";
 import {selectorTimelineSide} from "core-components/wp-table/wp-table-scroll-sync";
 import {debugLog, timeOutput} from "core-app/helpers/debug_output";
-import {WorkPackageTableRefreshService} from "core-components/wp-table/wp-table-refresh-request.service";
+import {RenderedWorkPackage} from "core-app/modules/work_packages/render-info/rendered-work-package.type";
+import {HalEventsService} from "core-app/modules/hal/services/hal-events.service";
+import {WorkPackageNotificationService} from "core-app/modules/work_packages/notifications/work-package-notification.service";
+import {combineLatest} from "rxjs";
+import {UntilDestroyedMixin} from "core-app/helpers/angular/until-destroyed.mixin";
 
 @Component({
   selector: 'wp-timeline-container',
   templateUrl: './wp-timeline-container.html'
 })
-export class WorkPackageTimelineTableController implements AfterViewInit, OnDestroy {
-
-  private readonly querySpace:IsolatedQuerySpace = this.injector.get(IsolatedQuerySpace);
-
+export class WorkPackageTimelineTableController extends UntilDestroyedMixin implements AfterViewInit {
   private $element:JQuery;
 
   public workPackageTable:WorkPackageTable;
@@ -76,7 +74,7 @@ export class WorkPackageTimelineTableController implements AfterViewInit, OnDest
 
   public disableViewParamsCalculation = false;
 
-  public workPackageIdOrder:RenderedRow[] = [];
+  public workPackageIdOrder:RenderedWorkPackage[] = [];
 
   private renderers:{ [name:string]:(vp:TimelineViewParameters) => void } = {};
 
@@ -86,7 +84,7 @@ export class WorkPackageTimelineTableController implements AfterViewInit, OnDest
 
   public timelineBody:JQuery;
 
-  private selectionParams:{ notification:INotification | null } = {
+  private selectionParams:{ notification:INotification|null } = {
     notification: null
   };
 
@@ -99,12 +97,14 @@ export class WorkPackageTimelineTableController implements AfterViewInit, OnDest
               private states:States,
               public wpTableDirective:WorkPackagesTableController,
               private NotificationsService:NotificationsService,
-              private wpTableTimeline:WorkPackageTableTimelineService,
-              private wpNotificationsService:WorkPackageNotificationService,
+              private wpTableTimeline:WorkPackageViewTimelineService,
+              private notificationService:WorkPackageNotificationService,
               private wpRelations:WorkPackageRelationsService,
-              private wpTableRefresh:WorkPackageTableRefreshService,
-              private wpTableHierarchies:WorkPackageTableHierarchiesService,
+              private wpTableHierarchies:WorkPackageViewHierarchiesService,
+              private halEvents:HalEventsService,
+              private querySpace:IsolatedQuerySpace,
               readonly I18n:I18nService) {
+    super();
   }
 
   ngAfterViewInit() {
@@ -121,55 +121,23 @@ export class WorkPackageTimelineTableController implements AfterViewInit, OnDest
     // Register this instance to the table
     this.wpTableDirective.registerTimeline(this, this.timelineBody[0]);
 
-    // Refresh on changes to work packages
-    this.updateOnWorkPackageChanges();
-
-    // Refresh timeline rendering callback
-    this.setupRefreshListener();
-
     // Refresh on window resize events
     window.addEventListener('wp-resize.timeline', () => this.refreshRequest.putValue(undefined));
 
-    // Refresh timeline view after table rendered
-    this.querySpace.rendered.values$()
-      .pipe(
-        takeUntil(this.querySpace.stopAllSubscriptions),
-        filter(() => this.initialized)
-      )
-      .subscribe((orderedRows) => {
+    combineLatest([
+      this.querySpace.tableRendered.values$(),
+      this.refreshRequest.changes$(),
+      this.wpTableTimeline.live$()
+    ]).pipe(
+      this.untilDestroyed(),
+      takeUntil(this.querySpace.stopAllSubscriptions),
+      filter(() => this.initialized && this.wpTableTimeline.isVisible)
+    )
+      .subscribe(([orderedRows, changes, timelineState]) => {
         // Remember all visible rows in their order of appearance.
         this.workPackageIdOrder = orderedRows.filter(row => !row.hidden);
         this.refreshView();
       });
-
-    // Refresh timeline view when becoming visible
-    this.wpTableTimeline
-      .live$()
-      .pipe(
-        untilComponentDestroyed(this),
-        filter((timelineState:WorkPackageTableTimelineState) => timelineState.visible),
-      )
-      .subscribe((timelineState:WorkPackageTableTimelineState) => {
-        this.refreshRequest.putValue(undefined);
-      });
-  }
-
-  private setupRefreshListener() {
-    this.refreshRequest
-      .changes$()
-      .pipe(
-        untilComponentDestroyed(this),
-        debounceTime(250)
-      )
-      .subscribe(() => this.refreshView());
-  }
-
-  ngOnDestroy():void {
-    // empty
-  }
-
-  workPackageInView(wpId:string):boolean {
-    return this.cellsRenderer.hasCell(wpId);
   }
 
   workPackageCells(wpId:string):WorkPackageTimelineCell[] {
@@ -204,7 +172,7 @@ export class WorkPackageTimelineTableController implements AfterViewInit, OnDest
   }
 
   get initialized():boolean {
-    return this.workPackageTable && this.querySpace.rendered.hasValue();
+    return this.workPackageTable && this.querySpace.tableRendered.hasValue();
   }
 
   refreshView() {
@@ -236,36 +204,30 @@ export class WorkPackageTimelineTableController implements AfterViewInit, OnDest
       });
 
       // Calculate overflowing width to set to outer container
-      // required to match width in all child divs
-      const currentWidth = this.getParentScrollContainer().scrollWidth;
+      // required to match width in all child divs.
+      // The header is the only one reliable, as it already has the final width.
+      const currentWidth = this.$element.find(timelineHeaderSelector)[0].scrollWidth;
       this.outerContainer.width(currentWidth);
-    });
-  }
 
-  updateOnWorkPackageChanges() {
-    this.states.workPackages.observeChange()
-      .pipe(
-        takeUntil(componentDestroyed(this)),
-        filter(() => this.initialized && this.wpTableTimeline.isVisible),
-        filter(([wpId, ]) => this.cellsRenderer.hasCell(wpId))
-      )
-      .subscribe(([wpId, ]) => {
-        const viewParamsChanged = this.calculateViewParams(this._viewParameters);
-        if (viewParamsChanged) {
-          this.refreshRequest.putValue(undefined);
-        } else {
-          // Refresh the single cell
-          this.cellsRenderer.refreshCellsFor(wpId);
-        }
+      // Mark rendering event in a timeout to give DOM some time
+      setTimeout(() => {
+        this.querySpace.timelineRendered.next(null);
       });
+    });
   }
 
   startAddRelationPredecessor(start:WorkPackageResource) {
     this.activateSelectionMode(start.id!, end => {
       this.wpRelations
         .addCommonRelation(start.id!, 'follows', end.id!)
-        .then(() => this.wpTableRefresh.request('Timeline relation'))
-        .catch((error:any) => this.wpNotificationsService.handleRawError(error, end));
+        .then(() => {
+          this.halEvents.push(start, {
+            eventType: 'association',
+            relatedWorkPackage: end.id!,
+            relationType: 'follows'
+          });
+        })
+        .catch((error:any) => this.notificationService.handleRawError(error, end));
     });
   }
 
@@ -273,8 +235,14 @@ export class WorkPackageTimelineTableController implements AfterViewInit, OnDest
     this.activateSelectionMode(start.id!, end => {
       this.wpRelations
         .addCommonRelation(start.id!, 'precedes', end.id!)
-        .then(() => this.wpTableRefresh.request('Timeline relation'))
-        .catch((error:any) => this.wpNotificationsService.handleRawError(error, end));
+        .then(() => {
+          this.halEvents.push(start, {
+            eventType: 'association',
+            relatedWorkPackage: end.id!,
+            relationType: 'precedes'
+          });
+        })
+        .catch((error:any) => this.notificationService.handleRawError(error, end));
     });
   }
 
@@ -385,7 +353,7 @@ export class WorkPackageTimelineTableController implements AfterViewInit, OnDest
     });
 
     // left spacing
-    newParams.dateDisplayStart.subtract(currentParams.dayCountForMarginLeft, 'days');
+    newParams.dateDisplayStart = newParams.dateDisplayStart.subtract(currentParams.dayCountForMarginLeft, 'days');
 
     // right spacing
     // RR: kept both variants for documentation purpose.
@@ -396,7 +364,7 @@ export class WorkPackageTimelineTableController implements AfterViewInit, OnDest
 
     const pixelPerDay = currentParams.pixelPerDay;
     const visibleDays = Math.ceil((width / pixelPerDay) * 1.5);
-    newParams.dateDisplayEnd.add(visibleDays, 'days');
+    newParams.dateDisplayEnd = newParams.dateDisplayEnd.add(visibleDays, 'days');
 
     // Check if view params changed:
 

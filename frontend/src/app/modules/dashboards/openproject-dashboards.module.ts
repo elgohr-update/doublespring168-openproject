@@ -1,6 +1,6 @@
 // -- copyright
-// OpenProject is a project management system.
-// Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+// OpenProject is an open source project management software.
+// Copyright (C) 2012-2020 the OpenProject GmbH
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License version 3.
@@ -23,12 +23,11 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //
-// See doc/COPYRIGHT.rdoc for more details.
+// See docs/COPYRIGHT.rdoc for more details.
 // ++
 
 import {NgModule} from '@angular/core';
 import {OpenprojectCommonModule} from "core-app/modules/common/openproject-common.module";
-import {OpenprojectWorkPackagesModule} from "core-app/modules/work_packages/openproject-work-packages.module";
 import {Ng2StateDeclaration, UIRouter, UIRouterModule} from "@uirouter/angular";
 import {DashboardComponent} from "core-app/modules/dashboards/dashboard/dashboard.component";
 import {OpenprojectGridsModule} from "core-app/modules/grids/openproject-grids.module";
@@ -43,7 +42,7 @@ export const DASHBOARDS_ROUTES:Ng2StateDeclaration[] = [
     // cf., https://community.openproject.com/wp/29754
     url: '/dashboards/',
     data: {
-      bodyClasses: 'router--dashboards-view-base',
+      bodyClasses: ['router--dashboards-view-base', 'widget-grid-layout'],
       menuItem: menuItemClass
     },
     component: DashboardComponent
@@ -63,14 +62,10 @@ export function uiRouterDashboardsConfiguration(uiRouter:UIRouter) {
 @NgModule({
   imports: [
     OpenprojectCommonModule,
-    OpenprojectWorkPackagesModule,
 
     OpenprojectGridsModule,
 
-    // Dynamic Module for actions
-    //DynamicModule.withComponents([VersionBoardHeaderComponent]),
-
-    // Routes for /boards
+    // Routes for /dashboards
     UIRouterModule.forChild({
       states: DASHBOARDS_ROUTES,
       config: uiRouterDashboardsConfiguration
@@ -80,8 +75,6 @@ export function uiRouterDashboardsConfiguration(uiRouter:UIRouter) {
   ],
   declarations: [
     DashboardComponent
-  ],
-  entryComponents: [
   ]
 })
 export class OpenprojectDashboardsModule {

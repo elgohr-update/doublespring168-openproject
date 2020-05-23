@@ -3,8 +3,8 @@ require 'spec_helper'
 require 'features/work_packages/shared_contexts'
 require 'features/work_packages/details/inplace_editor/shared_examples'
 
-describe 'activity comments', js: true do
-  let(:project) { FactoryBot.create :project, is_public: true }
+describe 'activity comments', js: true, with_mail: false do
+  let(:project) { FactoryBot.create :project, public: true }
   let!(:work_package) do
     FactoryBot.create(:work_package,
                       project: project,
@@ -13,9 +13,9 @@ describe 'activity comments', js: true do
   let(:wp_page) { Pages::SplitWorkPackage.new(work_package, project) }
   let(:selector) { '.work-packages--activity--add-comment' }
   let(:comment_field) do
-    WorkPackageEditorField.new wp_page,
-                               'comment',
-                               selector: selector
+    TextEditorField.new wp_page,
+                        'comment',
+                        selector: selector
   end
   let(:initial_comment) { 'the first comment in this WP' }
 
@@ -42,14 +42,14 @@ describe 'activity comments', js: true do
           comment_field.click_and_type_slowly 'this is a comment'
           comment_field.submit_by_enter
 
-          expect(page).to_not have_selector('.user-comment .message', text: 'this is a comment')
+          expect(page).to have_no_selector('.user-comment .message', text: 'this is a comment')
         end
 
         it 'submits with click' do
           comment_field.click_and_type_slowly 'this is a comment!1'
           comment_field.submit_by_click
 
-          expect(page).to have_selector('.user-comment .message', text: 'this is a comment!1')
+          wp_page.expect_comment text: 'this is a comment!1'
         end
 
         it 'submits comments repeatedly' do
@@ -57,8 +57,7 @@ describe 'activity comments', js: true do
           comment_field.submit_by_click
 
           expect(page).to have_selector('.user-comment > .message', count: 2)
-          expect(page).to have_selector('.user-comment > .message',
-                                        text: 'this is my first comment!1')
+          wp_page.expect_comment text: 'this is my first comment!1'
 
           expect(comment_field.editing?).to be false
           comment_field.activate!
@@ -68,8 +67,7 @@ describe 'activity comments', js: true do
           comment_field.submit_by_click
 
           expect(page).to have_selector('.user-comment > .message', count: 3)
-          expect(page).to have_selector('.user-comment > .message',
-                                        text: 'this is my second comment!1')
+          wp_page.expect_comment text: 'this is my second comment!1'
         end
       end
 
@@ -82,22 +80,30 @@ describe 'activity comments', js: true do
           comment_field.cancel_by_escape
           expect(comment_field.editing?).to be true
 
-          expect(page).to_not have_selector('.user-comment .message', text: 'this is a comment')
+          expect(page).to have_no_selector('.user-comment .message', text: 'this is a comment')
 
           # Click should cancel the editing
           comment_field.cancel_by_click
           expect(comment_field.editing?).to be false
 
-          expect(page).to_not have_selector('.user-comment .message', text: 'this is a comment')
+          expect(page).to have_no_selector('.user-comment .message', text: 'this is a comment')
         end
       end
 
       describe 'autocomplete' do
         describe 'work packages' do
           let!(:wp2) { FactoryBot.create(:work_package, project: project, subject: 'AutoFoo') }
-          it 'autocompletes the other work package' do
+
+          it 'can move to the work package by click (Regression #30928)' do
             comment_field.input_element.send_keys("##{wp2.id}")
             expect(page).to have_selector('.mention-list-item', text: wp2.to_s.strip)
+
+            comment_field.submit_by_click
+            page.find('#activity-2 a.issue', text: wp2.id).click
+
+            other_wp_page = ::Pages::FullWorkPackage.new wp2
+            other_wp_page.ensure_page_loaded
+            other_wp_page.edit_field(:subject).expect_text 'AutoFoo'
           end
         end
 
@@ -110,14 +116,14 @@ describe 'activity comments', js: true do
 
       describe 'with an existing comment' do
         it 'allows to edit an existing comment' do
-          # Insert new text, need to do this separately.
-          ['Comment with', ' ',  '*', '*', 'bold text', '*', '*'].each do |key|
+          # Insert new text, need to do this separately.''
+          ['Comment with', ' ', '*', '*', 'bold text', '*', '*', ' ', 'in it'].each do |key|
             comment_field.input_element.send_keys key
           end
           comment_field.submit_by_click
 
-          expect(page).to have_selector('.user-comment .message strong', text: 'bold text')
-          expect(page).to have_selector('.user-comment .message', text: 'Comment with bold text')
+          wp_page.expect_comment text: 'Comment with bold text in it'
+          wp_page.expect_comment text: 'bold text', subselector: 'strong'
 
           # Hover the new activity
           activity = page.find('#activity-2')
@@ -127,20 +133,20 @@ describe 'activity comments', js: true do
           edit_button = activity.find('.icon-edit')
           scroll_to_element(edit_button)
           edit_button.click
-          edit = WorkPackageEditorField.new wp_page,
-                                            'comment',
-                                            selector: '.user-comment--form'
+          edit = TextEditorField.new wp_page,
+                                     'comment',
+                                     selector: '.user-comment--form'
 
           # Insert new text, need to do this separately.
           edit.input_element.click
 
-          [:enter, 'Comment with', ' ',  '_', 'italic text', '_', ' '].each do |key|
+          [:enter, 'Comment with', ' ',  '_', 'italic text', '_', ' ', 'in it'].each do |key|
             edit.input_element.send_keys key
           end
 
           edit.submit_by_click
-          expect(page).to have_selector('.user-comment .message strong', text: 'bold text')
-          expect(page).to have_selector('.user-comment .message em', text: 'italic text')
+          wp_page.expect_comment text: 'Comment with italic text in it'
+          wp_page.expect_comment text: 'italic text', subselector: 'em'
         end
       end
     end
@@ -167,19 +173,20 @@ describe 'activity comments', js: true do
         # Extend the comment
         comment_field.input_element.click
 
+        comment_field.ckeditor.click_and_type_slowly :enter
+
         # Insert new text, need to do this separately.
-        [:enter, :return, 'this is ', '*', '*', 'a bold', '*', '*', ' remark'].each do |key|
-          comment_field.input_element.send_keys key
-        end
+        comment_field.ckeditor.click_and_type_slowly :return, 'this is ', '*', '*', 'a bold', '*', '*', ' remark'
 
         comment_field.submit_by_click
 
         # Scroll to the activity
         scroll_to_element(page.find('#activity-2'))
 
-        expect(page).to have_selector('.user-comment > .message', count: 2)
-        expect(page).to have_selector('.user-comment > .message blockquote')
-        expect(page).to have_selector('.user-comment > .message strong')
+        wp_page.expect_comment text: 'this is a bold remark'
+        wp_page.expect_comment count: 2
+        wp_page.expect_comment subselector: 'blockquote'
+        wp_page.expect_comment subselector: 'strong', text: 'a bold'
       end
     end
   end

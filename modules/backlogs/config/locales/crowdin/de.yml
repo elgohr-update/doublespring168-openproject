@@ -1,3 +1,24 @@
+#-- copyright
+#OpenProject is an open source project management software.
+#Copyright (C) 2012-2020 the OpenProject GmbH
+#This program is free software; you can redistribute it and/or
+#modify it under the terms of the GNU General Public License version 3.
+#OpenProject is a fork of ChiliProject, which is a fork of Redmine. The copyright follows:
+#Copyright (C) 2006-2017 Jean-Philippe Lang
+#Copyright (C) 2010-2013 the ChiliProject Team
+#This program is free software; you can redistribute it and/or
+#modify it under the terms of the GNU General Public License
+#as published by the Free Software Foundation; either version 2
+#of the License, or (at your option) any later version.
+#This program is distributed in the hope that it will be useful,
+#but WITHOUT ANY WARRANTY; without even the implied warranty of
+#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#GNU General Public License for more details.
+#You should have received a copy of the GNU General Public License
+#along with this program; if not, write to the Free Software
+#Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+#See docs/COPYRIGHT.rdoc for more details.
+#++
 de:
   activerecord:
     attributes:
@@ -5,7 +26,7 @@ de:
         position: "Position"
         remaining_hours: "Verbleibende Stunden"
         remaining_time: "Verbleibende Stunden"
-        story_points: "Story Punkte js"
+        story_points: "Story Punkte"
         backlogs_work_package_type: "Backlog Typ"
     errors:
       models:
@@ -23,7 +44,7 @@ de:
       models:
         work_package:
           attributes:
-            fixed_version_id:
+            version_id:
               task_version_must_be_the_same_as_story_version: "muss der Version der übergeordneten Story entsprechen."
             parent_id:
               parent_child_relationship_across_projects: "ist ungültig da '%{work_package_name}' ein backlog Task ist und daher kein Eltern-Arbeitspaket außerhalb  des jetzigen Projekts haben kann."
@@ -55,8 +76,8 @@ de:
     remaining_hours_ideal: "Verbleibende Stunden (ideal)"
     show_burndown_chart: "Burndown-Chart"
     story: "Story"
-    story_points: "Story Punkte js"
-    story_points_ideal: "Story Points (ideal)"
+    story_points: "Story Punkte"
+    story_points_ideal: "Story Punkte (ideal)"
     task: "Aufgabe"
     task_color: "Farbe für Aufgaben"
     unassigned: "Nicht zugewiesen"
@@ -104,7 +125,7 @@ de:
   label_not_prioritized: "nicht priorisiert"
   label_points: "Punkte"
   label_points_burn_down: "Runter"
-  label_points_burn_up: "Hoch"
+  label_points_burn_up: "Nach oben"
   label_product_backlog: "Produkt Backlog"
   label_select_all: "Alle auswählen"
   label_sprint_backlog: "Sprint Backlog"
@@ -130,7 +151,7 @@ de:
   project_module_backlogs: "Backlogs"
   rb_label_copy_tasks: "Arbeitspakete kopieren"
   rb_label_copy_tasks_all: "Alle"
-  rb_label_copy_tasks_none: "Keine"
+  rb_label_copy_tasks_none: "Kein Planungsvergleich"
   rb_label_copy_tasks_open: "Offene"
   rb_label_link_to_original: "Link zur Original-Story einfügen"
   remaining_hours: "Verbleibende Stunden"

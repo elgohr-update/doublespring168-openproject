@@ -1,6 +1,6 @@
 // -- copyright
-// OpenProject is a project management system.
-// Copyright (C) 2012-2015 the OpenProject Foundation (OPF)
+// OpenProject is an open source project management software.
+// Copyright (C) 2012-2020 the OpenProject GmbH
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License version 3.
@@ -23,25 +23,28 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //
-// See doc/COPYRIGHT.rdoc for more details.
+// See docs/COPYRIGHT.rdoc for more details.
 // ++
 
 import {Injector} from '@angular/core';
 import * as moment from 'moment';
-import {States} from '../../../states.service';
 import {WorkPackageCacheService} from '../../../work-packages/work-package-cache.service';
-import {WorkPackageChangeset} from '../../../wp-edit-form/work-package-changeset';
-import {WorkPackageNotificationService} from '../../../wp-edit/wp-notification.service';
-import {WorkPackageTableRefreshService} from '../../wp-table-refresh-request.service';
 import {WorkPackageTimelineTableController} from '../container/wp-timeline-container.directive';
 import {RenderInfo} from '../wp-timeline';
 import {TimelineCellRenderer} from './timeline-cell-renderer';
 import {WorkPackageCellLabels} from './wp-timeline-cell';
 import {IsolatedQuerySpace} from "core-app/modules/work_packages/query-space/isolated-query-space";
 import {QueryDmService} from 'core-app/modules/hal/dm-services/query-dm.service';
-import Moment = moment.Moment;
 import {keyCodes} from 'core-app/modules/common/keyCodes.enum';
 import {LoadingIndicatorService} from "core-app/modules/common/loading-indicator/loading-indicator.service";
+
+import {HalResourceEditingService} from "core-app/modules/fields/edit/services/hal-resource-editing.service";
+import {WorkPackageChangeset} from "core-components/wp-edit/work-package-changeset";
+import {HalEventsService} from "core-app/modules/hal/services/hal-events.service";
+import Moment = moment.Moment;
+import {WorkPackageNotificationService} from "core-app/modules/work_packages/notifications/work-package-notification.service";
+import {WorkPackageResource} from "core-app/modules/hal/resources/work-package-resource";
+import {take} from "rxjs/operators";
 
 export const classNameBar = 'bar';
 export const classNameLeftHandle = 'leftHandle';
@@ -54,8 +57,9 @@ export function registerWorkPackageMouseHandler(this:void,
                                                 getRenderInfo:() => RenderInfo,
                                                 workPackageTimeline:WorkPackageTimelineTableController,
                                                 wpCacheService:WorkPackageCacheService,
-                                                wpTableRefresh:WorkPackageTableRefreshService,
-                                                wpNotificationsService:WorkPackageNotificationService,
+                                                halEditing:HalResourceEditingService,
+                                                halEvents:HalEventsService,
+                                                notificationService:WorkPackageNotificationService,
                                                 loadingIndicator:LoadingIndicatorService,
                                                 cell:HTMLElement,
                                                 bar:HTMLDivElement,
@@ -66,7 +70,7 @@ export function registerWorkPackageMouseHandler(this:void,
   const querySpace:IsolatedQuerySpace = injector.get(IsolatedQuerySpace);
 
   let mouseDownStartDay:number | null = null; // also flag to signal active drag'n'drop
-  renderInfo.changeset = new WorkPackageChangeset(injector, renderInfo.workPackage);
+  renderInfo.change = halEditing.changeFor(renderInfo.workPackage) as WorkPackageChangeset;
 
   let dateStates:any;
   let placeholderForEmptyCell:HTMLElement;
@@ -85,7 +89,7 @@ export function registerWorkPackageMouseHandler(this:void,
 
   function applyDateValues(renderInfo:RenderInfo, dates:{ [name:string]:Moment }) {
     // Let the renderer decide which fields we change
-    renderer.assignDateValues(renderInfo.changeset, labels, dates);
+    renderer.assignDateValues(renderInfo.change, labels, dates);
   }
 
   function getCursorOffsetInDaysFromLeft(renderInfo:RenderInfo, ev:MouseEvent) {
@@ -120,21 +124,20 @@ export function registerWorkPackageMouseHandler(this:void,
     jBody.on('mouseup.timelinecell', () => deactivate(false));
   }
 
-  function createMouseMoveFn(direction:'left' | 'right' | 'both' | 'create' | 'dragright') {
-    return (ev:JQueryEventObject) => {
-      const mev:MouseEvent = ev as any;
+  function createMouseMoveFn(direction:'left'|'right'|'both'|'create'|'dragright') {
+    return (ev:JQuery.MouseMoveEvent) => {
 
-      const days = getCursorOffsetInDaysFromLeft(renderInfo, mev) - mouseDownStartDay!;
+      const days = getCursorOffsetInDaysFromLeft(renderInfo, ev.originalEvent!) - mouseDownStartDay!;
       const offsetDayCurrent = Math.floor(ev.offsetX / renderInfo.viewParams.pixelPerDay);
       const dayUnderCursor = renderInfo.viewParams.dateDisplayStart.clone().add(offsetDayCurrent, 'days');
 
-      dateStates = renderer.onDaysMoved(renderInfo.changeset, dayUnderCursor, days, direction);
+      dateStates = renderer.onDaysMoved(renderInfo.change, dayUnderCursor, days, direction);
       applyDateValues(renderInfo, dateStates);
       renderer.update(bar, labels, renderInfo);
     };
   }
 
-  function keyPressFn(ev:JQueryEventObject) {
+  function keyPressFn(ev:JQuery.TriggeredEvent) {
     const kev:KeyboardEvent = ev as any;
     if (kev.keyCode === keyCodes.ESCAPE) {
       deactivate(true);
@@ -186,8 +189,8 @@ export function registerWorkPackageMouseHandler(this:void,
         const offsetDayCurrent = Math.floor(ev.offsetX / renderInfo.viewParams.pixelPerDay);
         const dayUnderCursor = renderInfo.viewParams.dateDisplayStart.clone().add(offsetDayCurrent, 'days');
         const widthInDays = offsetDayCurrent - offsetDayStart;
-        const moved = renderer.onDaysMoved(renderInfo.changeset, dayUnderCursor, widthInDays, mouseDownType);
-        renderer.assignDateValues(renderInfo.changeset, labels, moved);
+        const moved = renderer.onDaysMoved(renderInfo.change, dayUnderCursor, widthInDays, mouseDownType);
+        renderer.assignDateValues(renderInfo.change, labels, moved);
         renderer.update(bar, labels, renderInfo);
       };
 
@@ -219,46 +222,46 @@ export function registerWorkPackageMouseHandler(this:void,
     dateStates = {};
 
     // const renderInfo = getRenderInfo();
-    if (cancelled || renderInfo.changeset.empty) {
-      renderInfo.changeset.clear();
+    if (cancelled || renderInfo.change.isEmpty()) {
+      renderInfo.change.clear();
       renderer.update(bar, labels, renderInfo);
-      renderer.onMouseDownEnd(labels, renderInfo.changeset);
+      renderer.onMouseDownEnd(labels, renderInfo.change);
       workPackageTimeline.refreshView();
     } else {
       const stopAndRefresh = () => {
-        renderInfo.changeset.clear();
-        renderer.onMouseDownEnd(labels, renderInfo.changeset);
-        workPackageTimeline.refreshView();
+        renderInfo.change.clear();
+        renderer.onMouseDownEnd(labels, renderInfo.change);
       };
 
       // Persist the changes
-      saveWorkPackage(renderInfo.changeset)
+      saveWorkPackage(renderInfo.change)
         .then(stopAndRefresh)
         .catch(stopAndRefresh);
     }
 
   }
 
-  function saveWorkPackage(changeset:WorkPackageChangeset) {
+  function saveWorkPackage(change:WorkPackageChangeset) {
     const queryDm:QueryDmService = injector.get(QueryDmService);
-    const states:States = injector.get(States);
+    const querySpace:IsolatedQuerySpace = injector.get(IsolatedQuerySpace);
 
-    // Remmeber the time before saving the work package to know which work packages to update
+    // Remember the time before saving the work package to know which work packages to update
     const updatedAt = moment().toISOString();
 
-    return loadingIndicator.table.promise = changeset.save()
-      .then((wp) => {
-        wpNotificationsService.showSave(wp);
-        const ids = _.map(querySpace.rendered.value!, row => row.workPackageId);
-        loadingIndicator.table.promise =
-          queryDm.loadIdsUpdatedSince(ids, updatedAt).then(workPackageCollection => {
-            wpCacheService.updateWorkPackageList(workPackageCollection.elements);
+    return loadingIndicator.table.promise = halEditing
+      .save<WorkPackageResource, WorkPackageChangeset>(change)
+      .then((result) => {
+        notificationService.showSave(result.resource);
+        const ids = _.map(querySpace.tableRendered.value!, row => row.workPackageId);
+        return queryDm.loadIdsUpdatedSince(ids, updatedAt).then(workPackageCollection => {
+          wpCacheService.updateWorkPackageList(workPackageCollection.elements);
 
-            wpTableRefresh.request(`Moved work package ${wp.id} through timeline`);
-          });
+          halEvents.push(result.resource, { eventType: 'updated' });
+          return querySpace.timelineRendered.pipe(take(1)).toPromise();
+        });
       })
       .catch((error) => {
-        wpNotificationsService.handleRawError(error, renderInfo.workPackage);
+        notificationService.handleRawError(error, renderInfo.workPackage);
       });
   }
 }

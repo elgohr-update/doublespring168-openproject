@@ -1,8 +1,8 @@
 #-- encoding: UTF-8
 
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -34,7 +34,8 @@ OpenProject::CustomFieldFormat.map do |fields|
                                                      order: 1)
   fields.register OpenProject::CustomFieldFormat.new('text',
                                                      label: :label_text,
-                                                     order: 2)
+                                                     order: 2,
+                                                     formatter: 'CustomValue::FormattableStrategy')
   fields.register OpenProject::CustomFieldFormat.new('int',
                                                      label: :label_integer,
                                                      order: 3,

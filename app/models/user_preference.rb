@@ -1,7 +1,7 @@
 #-- encoding: UTF-8
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -27,7 +27,7 @@
 # See docs/COPYRIGHT.rdoc for more details.
 #++
 
-class UserPreference < ActiveRecord::Base
+class UserPreference < ApplicationRecord
   belongs_to :user
   serialize :others
 
@@ -98,9 +98,7 @@ class UserPreference < ActiveRecord::Base
     return if time_zone.nil?
 
     zone = ActiveSupport::TimeZone.new(time_zone)
-    unless zone.nil?
-      zone.tzinfo.canonical_identifier
-    end
+    zone&.tzinfo&.canonical_identifier
   end
 
   private

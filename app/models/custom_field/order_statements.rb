@@ -1,7 +1,7 @@
 #-- encoding: UTF-8
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -59,6 +59,15 @@ module CustomField::OrderStatements
     when 'version'
       [order_by_version_sql('name')]
     end
+  end
+
+  ##
+  # Returns the null handling for the given direction
+  def null_handling(asc)
+    return unless %w[int float].include?(field_format)
+
+    null_direction = asc ? 'FIRST' : 'LAST'
+    Arel.sql("NULLS #{null_direction}")
   end
 
   # Returns the grouping result
@@ -121,11 +130,10 @@ module CustomField::OrderStatements
     <<-SQL
       COALESCE((SELECT string_agg(co_sort.value, '.' ORDER BY co_sort.position ASC) FROM #{CustomOption.table_name} co_sort
         LEFT JOIN #{CustomValue.table_name} cv_sort
-        ON co_sort.id = CAST(cv_sort.value AS decimal(60,3))
+        ON cv_sort.value IS NOT NULL AND co_sort.id = cv_sort.value::numeric
         WHERE cv_sort.customized_type='#{self.class.customized_class.name}'
           AND cv_sort.customized_id=#{self.class.customized_class.table_name}.id
-          AND cv_sort.custom_field_id=#{id}
-          AND cv_sort.value IS NOT NULL), '')
+          AND cv_sort.custom_field_id=#{id}), '')
     SQL
   end
 

@@ -113,6 +113,7 @@ export class GroupedRenderPass extends PlainRenderPass {
       additionalClasses.push(collapsedRowClass);
     }
 
+
     row.element = tr;
     tr.classList.add(...additionalClasses);
     this.appendRow(row.object, tr, additionalClasses, hidden);

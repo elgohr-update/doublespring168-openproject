@@ -1,63 +1,82 @@
 import {
+  AfterViewInit,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   ElementRef,
-  Inject,
+  EventEmitter,
   Injector,
   Input,
   OnInit,
-  ViewChild,
-  EventEmitter,
-  Output
+  Output,
+  ViewChild
 } from "@angular/core";
 import {QueryResource} from 'core-app/modules/hal/resources/query-resource';
 import {IsolatedQuerySpace} from "core-app/modules/work_packages/query-space/isolated-query-space";
-import {componentDestroyed, untilComponentDestroyed} from "ng2-rx-componentdestroyed";
 import {QueryColumn} from "app/components/wp-query/query-column";
 import {WorkPackageResource} from "core-app/modules/hal/resources/work-package-resource";
 import {I18nService} from "core-app/modules/common/i18n/i18n.service";
-import {CurrentProjectService} from "core-components/projects/current-project.service";
 import {WorkPackageInlineCreateService} from "core-components/wp-inline-create/wp-inline-create.service";
-import {IWorkPackageCreateServiceToken} from "core-components/wp-new/wp-create.service.interface";
 import {WorkPackageCreateService} from "core-components/wp-new/wp-create.service";
 import {AngularTrackingHelpers} from "core-components/angular/tracking-functions";
-import {WorkPackageNotificationService} from "core-components/wp-edit/wp-notification.service";
-import {Highlighting} from "core-components/wp-fast-table/builders/highlighting/highlighting.functions";
-import {WorkPackageChangeset} from "core-components/wp-edit-form/work-package-changeset";
 import {CardHighlightingMode} from "core-components/wp-fast-table/builders/highlighting/highlighting-mode.const";
 import {AuthorisationService} from "core-app/modules/common/model-auth/model-auth.service";
 import {StateService} from "@uirouter/core";
 import {States} from "core-components/states.service";
-import {RequestSwitchmap} from "core-app/helpers/rxjs/request-switchmap";
-import {DragAndDropService} from "core-app/modules/common/drag-and-drop/drag-and-drop.service";
-import {ReorderQueryService} from "core-app/modules/common/drag-and-drop/reorder-query.service";
-import {DragAndDropHelpers} from "core-app/modules/common/drag-and-drop/drag-and-drop.helpers";
+import {WorkPackageViewOrderService} from "core-app/modules/work_packages/routing/wp-view-base/view-services/wp-view-order.service";
 import {PathHelperService} from "core-app/modules/common/path-helper/path-helper.service";
-import {filter} from 'rxjs/operators';
+import {filter, map, withLatestFrom} from 'rxjs/operators';
 import {CausedUpdatesService} from "core-app/modules/boards/board/caused-updates/caused-updates.service";
+import {WorkPackageViewSelectionService} from "core-app/modules/work_packages/routing/wp-view-base/view-services/wp-view-selection.service";
+import {CardViewHandlerRegistry} from "core-components/wp-card-view/event-handler/card-view-handler-registry";
+import {WorkPackageCardViewService} from "core-components/wp-card-view/services/wp-card-view.service";
+import {WorkPackageCardDragAndDropService} from "core-components/wp-card-view/services/wp-card-drag-and-drop.service";
+import {WorkPackageNotificationService} from "core-app/modules/work_packages/notifications/work-package-notification.service";
+import {DeviceService} from "core-app/modules/common/browser/device.service";
+import {WorkPackageViewHandlerToken} from "core-app/modules/work_packages/routing/wp-view-base/event-handling/event-handler-registry";
+import {UntilDestroyedMixin} from "core-app/helpers/angular/until-destroyed.mixin";
+import {componentDestroyed} from "@w11k/ngx-componentdestroyed";
+import {HalEventsService} from "core-app/modules/hal/services/hal-events.service";
 
+export type CardViewOrientation = 'horizontal'|'vertical';
 
 @Component({
   selector: 'wp-card-view',
-  styleUrls: ['./wp-card-view.component.sass'],
+  styleUrls: ['./styles/wp-card-view.component.sass', './styles/wp-card-view-horizontal.sass', './styles/wp-card-view-vertical.sass'],
   templateUrl: './wp-card-view.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class WorkPackageCardViewComponent  implements OnInit {
+export class WorkPackageCardViewComponent extends UntilDestroyedMixin implements OnInit, AfterViewInit {
   @Input('dragOutOfHandler') public canDragOutOf:(wp:WorkPackageResource) => boolean;
   @Input() public dragInto:boolean;
   @Input() public highlightingMode:CardHighlightingMode;
   @Input() public workPackageAddedHandler:(wp:WorkPackageResource) => Promise<unknown>;
   @Input() public showStatusButton:boolean = true;
+  @Input() public showInfoButton:boolean = false;
+  @Input() public orientation:CardViewOrientation = 'vertical';
+  /** Whether cards are removable */
+  @Input() public cardsRemovable:boolean = false;
+  /** Whether a notification box shall be shown when there are no WP to display */
+  @Input() public showEmptyResultsBox:boolean = false;
+  /** Whether on special mobile version of the cards shall be shown */
+  @Input() public shrinkOnMobile:boolean = false;
 
-  public trackByHref = AngularTrackingHelpers.trackByHref;
+  /** Container reference */
+  @ViewChild('container', { static: true }) public container:ElementRef;
+
+  @Output() public onMoved = new EventEmitter<void>();
+
+  public trackByHref = AngularTrackingHelpers.trackByHrefAndProperty('lockVersion');
   public query:QueryResource;
-  private _workPackages:WorkPackageResource[];
+  public isResultEmpty:boolean = false;
   public columns:QueryColumn[];
   public text = {
     removeCard: this.I18n.t('js.card.remove_from_list'),
-    addNewCard:  this.I18n.t('js.card.add_new'),
+    addNewCard: this.I18n.t('js.card.add_new'),
+    noResults: {
+      title: this.I18n.t('js.work_packages.no_results.title'),
+      description: this.I18n.t('js.work_packages.no_results.description')
+    },
   };
 
   /** Inline create / reference properties */
@@ -69,57 +88,32 @@ export class WorkPackageCardViewComponent  implements OnInit {
   // but map the following output
   public referenceOutputs = {
     onCancel: () => this.setReferenceMode(false),
-    onReferenced: (wp:WorkPackageResource) => this.addWorkPackageToQuery(wp, 0)
+    onReferenced: (wp:WorkPackageResource) => this.cardDragDrop.addWorkPackageToQuery(wp, 0)
   };
-
-  /** Whether cards are removable */
-  @Input() public cardsRemovable:boolean = false;
-
-  /** Container reference */
-  @ViewChild('container', { static: true }) public container:ElementRef;
-
-  /** Whether the card view has an active inline created wp */
-  public activeInlineCreateWp?:WorkPackageResource;
-
-  // We remember when we want to update the query with a given order
-  private queryUpdates = new RequestSwitchmap(
-    (order:string[]) => {
-      return this.reorderService.saveOrderInQuery(this.query, order);
-    }
-  );
 
   constructor(readonly querySpace:IsolatedQuerySpace,
               readonly states:States,
               readonly injector:Injector,
               readonly $state:StateService,
               readonly I18n:I18nService,
-              readonly currentProject:CurrentProjectService,
-              @Inject(IWorkPackageCreateServiceToken) readonly wpCreate:WorkPackageCreateService,
+              readonly wpCreate:WorkPackageCreateService,
               readonly wpInlineCreate:WorkPackageInlineCreateService,
-              readonly wpNotifications:WorkPackageNotificationService,
-              readonly dragService:DragAndDropService,
-              readonly reorderService:ReorderQueryService,
+              readonly notificationService:WorkPackageNotificationService,
+              readonly halEvents:HalEventsService,
               readonly authorisationService:AuthorisationService,
               readonly causedUpdates:CausedUpdatesService,
               readonly cdRef:ChangeDetectorRef,
-              readonly pathHelper:PathHelperService) {
+              readonly pathHelper:PathHelperService,
+              readonly wpTableSelection:WorkPackageViewSelectionService,
+              readonly wpViewOrder:WorkPackageViewOrderService,
+              readonly cardView:WorkPackageCardViewService,
+              readonly cardDragDrop:WorkPackageCardDragAndDropService,
+              readonly deviceService:DeviceService) {
+    super();
   }
 
   ngOnInit() {
-    this.registerDragAndDrop();
-
     this.registerCreationCallback();
-
-    // Keep query loading requests
-    this.queryUpdates
-      .observe(componentDestroyed(this))
-      .subscribe(
-        (query:QueryResource) => {
-          this.causedUpdates.add(query);
-          this.querySpace.query.putValue((query));
-        },
-        (error:any) => this.wpNotifications.handleRawError(error)
-      );
 
     // Update permission on model updates
     this.authorisationService
@@ -130,176 +124,66 @@ export class WorkPackageCardViewComponent  implements OnInit {
         this.cdRef.detectChanges();
       });
 
-    this.querySpace.query
-    .values$()
-    .pipe(
-      untilComponentDestroyed(this),
-      filter((query) => !this.causedUpdates.includes(query))
-    ).subscribe((query:QueryResource) => {
+    // Observe changes to the work packages in this view
+    this.halEvents
+      .aggregated$('WorkPackage')
+      .pipe(
+        map(events => events.filter(event => event.eventType === 'updated')),
+        filter(events => {
+          const wpIds:string[] = this.workPackages.map(el => el.id!.toString());
+          return !!events.find(event => wpIds.indexOf(event.id) !== -1);
+        })
+      ).subscribe(() => {
+      this.workPackages = this.wpViewOrder.orderedWorkPackages();
+      this.cdRef.detectChanges();
+    });
+
+    this.querySpace.results
+      .values$()
+      .pipe(
+        withLatestFrom(this.querySpace.query.values$()),
+        this.untilDestroyed(),
+      ).subscribe(([results, query]) => {
       this.query = query;
-      this.workPackages = query.results.elements;
+      this.workPackages = this.wpViewOrder.orderedWorkPackages();
+      this.cardView.updateRenderedCardsValues(this.workPackages);
+      this.isResultEmpty = this.workPackages.length === 0;
       this.cdRef.detectChanges();
     });
   }
 
-  ngOnDestroy():void {
-    this.dragService.remove(this.container.nativeElement);
-  }
+  ngAfterViewInit() {
+    this.cardDragDrop.init(this);
 
-  public handleDblClick(wp:WorkPackageResource) {
-    this.goToWpFullView(wp.id!);
-  }
+    // Register Drag & Drop only on desktop
+    if (!this.deviceService.isMobile) {
+      this.cardDragDrop.registerDragAndDrop();
+    }
 
-  private goToWpFullView(wpId:string) {
-    this.$state.go(
-      'work-packages.show',
-      {workPackageId: wpId}
-    );
-  }
-
-  public wpTypeAttribute(wp:WorkPackageResource) {
-    return wp.type.name;
-  }
-
-  public wpSubject(wp:WorkPackageResource) {
-    return wp.subject;
-  }
-
-  public bcfSnapshotPath(wp:WorkPackageResource) {
-    let vp = _.get(wp, 'bcf.viewpoints[0]');
-    if (vp) {
-      return this.pathHelper.attachmentDownloadPath(vp.id, vp.file_name);
+    // Register event handlers for the cards
+    let registry = this.injector.get<any>(WorkPackageViewHandlerToken, CardViewHandlerRegistry);
+    if (registry instanceof CardViewHandlerRegistry) {
+      registry.attachTo(this);
     } else {
-      return null;
+      new registry(this.injector).attachTo(this);
     }
-  }
-
-  public cardHighlightingClass(wp:WorkPackageResource) {
-    return this.cardHighlighting(wp);
-  }
-
-  public typeHighlightingClass(wp:WorkPackageResource) {
-    return this.attributeHighlighting('type', wp);
-  }
-
-  private cardHighlighting(wp:WorkPackageResource) {
-    if (['status', 'priority', 'type'].includes(this.highlightingMode)) {
-      return Highlighting.backgroundClass(this.highlightingMode, wp[this.highlightingMode].id);
-    }
-    return '';
-  }
-
-  private attributeHighlighting(type:string, wp:WorkPackageResource) {
-    return Highlighting.inlineClass(type, wp.type.id!);
-  }
-
-  registerDragAndDrop() {
-    this.dragService.register({
-      dragContainer: this.container.nativeElement,
-      scrollContainers: [this.container.nativeElement],
-      moves: (card:HTMLElement) => {
-        const wpId:string = card.dataset.workPackageId!;
-        const workPackage = this.states.workPackages.get(wpId).value!;
-
-        return this.canDragOutOf(workPackage) && !card.dataset.isNew;
-      },
-      accepts: () => this.dragInto,
-      onMoved: (card:HTMLElement) => {
-        const wpId:string = card.dataset.workPackageId!;
-        const toIndex = DragAndDropHelpers.findIndex(card);
-
-        const newOrder = this.reorderService.move(this.currentOrder, wpId, toIndex);
-        this.updateOrder(newOrder);
-      },
-      onRemoved: (card:HTMLElement) => {
-        const wpId:string = card.dataset.workPackageId!;
-
-        const newOrder = this.reorderService.remove(this.currentOrder, wpId);
-        this.updateOrder(newOrder);
-      },
-      onAdded: async (card:HTMLElement) => {
-        const wpId:string = card.dataset.workPackageId!;
-        const toIndex = DragAndDropHelpers.findIndex(card);
-
-        const workPackage = this.states.workPackages.get(wpId).value!;
-        const result = await this.addWorkPackageToQuery(workPackage, toIndex);
-
-        card.parentElement!.removeChild(card);
-
-        return result;
-      }
+    this.wpTableSelection.registerSelectAllListener(() => {
+      return this.cardView.renderedCards;
     });
+    this.wpTableSelection.registerDeselectAllListener();
   }
 
-  /**
-   * Get current order
-   */
-  private get currentOrder():string[] {
-    return this.workPackages
-      .filter(wp => wp && !wp.isNew)
-      .map(el => el.id!);
+  ngOnDestroy():void {
+    super.ngOnDestroy();
+    this.cardDragDrop.destroy();
   }
 
-  /**
-   * Update current order
-   */
-  private updateOrder(newOrder:string[]) {
-    newOrder = _.uniq(newOrder);
-
-    this.workPackages = newOrder.map(id => this.states.workPackages.get(id).value!);
-    // Ensure dragged work packages are being removed.
-    this.queryUpdates.request(newOrder);
-    this.cdRef.detectChanges();
-  }
-
-  /**
-   * Get the current work packages
-   */
   public get workPackages():WorkPackageResource[] {
-    return this._workPackages;
+    return this.cardDragDrop.workPackages;
   }
 
-  /**
-   * Set work packages array,
-   * remembering to keep the active inline-create
-   */
   public set workPackages(workPackages:WorkPackageResource[]) {
-    if (this.activeInlineCreateWp) {
-      this._workPackages = [this.activeInlineCreateWp, ...workPackages];
-    } else {
-      this._workPackages = [...workPackages];
-    }
-  }
-
-
-  /**
-   * Add the given work package to the query
-   */
-  async addWorkPackageToQuery(workPackage:WorkPackageResource, toIndex:number = -1):Promise<boolean> {
-    try {
-      await this.workPackageAddedHandler(workPackage);
-      const newOrder = await this.reorderService.add(this.currentOrder, workPackage.id!, toIndex);
-      this.updateOrder(newOrder);
-      return true;
-    } catch (e) {
-      this.wpNotifications.handleRawError(e, workPackage);
-    }
-
-    return false;
-  }
-
-
-  /**
-   * Inline create a new card
-   */
-  public addNewCard() {
-    this.wpCreate
-      .createOrContinueWorkPackage(this.currentProject.identifier)
-      .then((changeset:WorkPackageChangeset) => {
-        this.activeInlineCreateWp = changeset.workPackage;
-        this.workPackages = this.workPackages;
-        this.cdRef.detectChanges();
-      });
+    this.cardDragDrop.workPackages = workPackages;
   }
 
   public setReferenceMode(mode:boolean) {
@@ -307,37 +191,25 @@ export class WorkPackageCardViewComponent  implements OnInit {
     this.cdRef.detectChanges();
   }
 
-  /**
-   * Remove the new card
-   */
-  removeCard(wp:WorkPackageResource) {
-    const index = this.workPackages.indexOf(wp);
-    this.workPackages.splice(index, 1);
-    this.activeInlineCreateWp = undefined;
-
-    if (!wp.isNew) {
-      const newOrder = this.reorderService.remove(this.currentOrder, wp.id!);
-      this.updateOrder(newOrder);
-    }
+  public addNewCard() {
+    this.cardDragDrop.addNewCard();
   }
 
-  /**
-   * On new card saved
-   */
+  public removeCard(wp:WorkPackageResource) {
+    this.cardDragDrop.removeCard(wp);
+  }
+
   async onCardSaved(wp:WorkPackageResource) {
-    if (this.activeInlineCreateWp && this.activeInlineCreateWp.__initialized_at === wp.__initialized_at) {
-      const index = this.workPackages.indexOf(this.activeInlineCreateWp);
-      this.activeInlineCreateWp = undefined;
-
-      // Add this item to the results
-      const newOrder = await this.reorderService.add(this.currentOrder, wp.id!, index);
-      this.updateOrder(newOrder);
-
-      // Notify inline create service
-      this.wpInlineCreate.newInlineWorkPackageCreated.next(wp.id!);
-    }
+    await this.cardDragDrop.onCardSaved(wp);
   }
 
+  public classes() {
+    let classes = 'wp-cards-container ';
+    classes += '-' + this.orientation;
+    classes += this.shrinkOnMobile ? ' -shrink' : '';
+
+    return classes;
+  }
 
   /**
    * Listen to newly created work packages to detect whether the WP is the one we created,
@@ -346,7 +218,9 @@ export class WorkPackageCardViewComponent  implements OnInit {
   private registerCreationCallback() {
     this.wpCreate
       .onNewWorkPackage()
-      .pipe(untilComponentDestroyed(this))
+      .pipe(
+        this.untilDestroyed()
+      )
       .subscribe(async (wp:WorkPackageResource) => {
         this.onCardSaved(wp);
       });

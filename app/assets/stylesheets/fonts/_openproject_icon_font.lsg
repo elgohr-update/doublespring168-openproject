@@ -30,6 +30,7 @@
 <li><span class="icon icon-attention"></span>attention</li>
 <li><span class="icon icon-back-up"></span>back-up</li>
 <li><span class="icon icon-backlogs"></span>backlogs</li>
+<li><span class="icon icon-bcf"></span>bcf</li>
 <li><span class="icon icon-billing-information"></span>billing-information</li>
 <li><span class="icon icon-boards"></span>boards</li>
 <li><span class="icon icon-bold"></span>bold</li>
@@ -61,6 +62,7 @@
 <li><span class="icon icon-copy"></span>copy</li>
 <li><span class="icon icon-cost-reports"></span>cost-reports</li>
 <li><span class="icon icon-cost-types"></span>cost-types</li>
+<li><span class="icon icon-cursor"></span>cursor</li>
 <li><span class="icon icon-custom-development"></span>custom-development</li>
 <li><span class="icon icon-custom-fields"></span>custom-fields</li>
 <li><span class="icon icon-cut"></span>cut</li>
@@ -88,6 +90,7 @@
 <li><span class="icon icon-export-xls-with-relations"></span>export-xls-with-relations</li>
 <li><span class="icon icon-export-xls"></span>export-xls</li>
 <li><span class="icon icon-export"></span>export</li>
+<li><span class="icon icon-external-link"></span>external-link</li>
 <li><span class="icon icon-faq"></span>faq</li>
 <li><span class="icon icon-filter"></span>filter</li>
 <li><span class="icon icon-flag"></span>flag</li>
@@ -114,11 +117,13 @@
 <li><span class="icon icon-hierarchy"></span>hierarchy</li>
 <li><span class="icon icon-home"></span>home</li>
 <li><span class="icon icon-hosting"></span>hosting</li>
+<li><span class="icon icon-ifc"></span>ifc</li>
 <li><span class="icon icon-image1"></span>image1</li>
 <li><span class="icon icon-image2"></span>image2</li>
 <li><span class="icon icon-import"></span>import</li>
 <li><span class="icon icon-info1"></span>info1</li>
 <li><span class="icon icon-info2"></span>info2</li>
+<li><span class="icon icon-input-disabled"></span>input-disabled</li>
 <li><span class="icon icon-installation-services"></span>installation-services</li>
 <li><span class="icon icon-italic"></span>italic</li>
 <li><span class="icon icon-key"></span>key</li>
@@ -184,6 +189,7 @@
 <li><span class="icon icon-remove"></span>remove</li>
 <li><span class="icon icon-rename"></span>rename</li>
 <li><span class="icon icon-reported-by-me"></span>reported-by-me</li>
+<li><span class="icon icon-resizer-bottom-right"></span>resizer-bottom-right</li>
 <li><span class="icon icon-resizer-vertical-lines"></span>resizer-vertical-lines</li>
 <li><span class="icon icon-roadmap"></span>roadmap</li>
 <li><span class="icon icon-rss"></span>rss</li>
@@ -200,6 +206,7 @@
 <li><span class="icon icon-show-all-projects"></span>show-all-projects</li>
 <li><span class="icon icon-show-more-horizontal"></span>show-more-horizontal</li>
 <li><span class="icon icon-show-more"></span>show-more</li>
+<li><span class="icon icon-slack"></span>slack</li>
 <li><span class="icon icon-sort-ascending"></span>sort-ascending</li>
 <li><span class="icon icon-sort-by"></span>sort-by</li>
 <li><span class="icon icon-sort-descending"></span>sort-descending</li>
@@ -219,7 +226,6 @@
 <li><span class="icon icon-ticket"></span>ticket</li>
 <li><span class="icon icon-time"></span>time</li>
 <li><span class="icon icon-to-fullscreen"></span>to-fullscreen</li>
-<li><span class="icon icon-toggle"></span>toggle</li>
 <li><span class="icon icon-training-consulting"></span>training-consulting</li>
 <li><span class="icon icon-two-factor-authentication"></span>two-factor-authentication</li>
 <li><span class="icon icon-types"></span>types</li>
@@ -233,9 +239,12 @@
 <li><span class="icon icon-user-minus"></span>user-minus</li>
 <li><span class="icon icon-user-plus"></span>user-plus</li>
 <li><span class="icon icon-user"></span>user</li>
+<li><span class="icon icon-view-card"></span>view-card</li>
 <li><span class="icon icon-view-fullscreen"></span>view-fullscreen</li>
 <li><span class="icon icon-view-list"></span>view-list</li>
+<li><span class="icon icon-view-model"></span>view-model</li>
 <li><span class="icon icon-view-split"></span>view-split</li>
+<li><span class="icon icon-view-split2"></span>view-split2</li>
 <li><span class="icon icon-view-timeline"></span>view-timeline</li>
 <li><span class="icon icon-warning"></span>warning</li>
 <li><span class="icon icon-watched"></span>watched</li>

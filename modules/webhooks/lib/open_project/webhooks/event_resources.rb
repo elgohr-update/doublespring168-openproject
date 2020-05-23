@@ -25,8 +25,9 @@ module OpenProject::Webhooks
         @resource_modules ||= begin
           resources.map do |name|
             begin
+              require_relative "./event_resources/#{name}"
               "OpenProject::Webhooks::EventResources::#{name.to_s.camelize}".constantize
-            rescue NameError => e
+            rescue LoadError, NameError => e
               raise ArgumentError, "Failed to initialize resources module for #{name}: #{e}"
             end
           end
@@ -34,7 +35,7 @@ module OpenProject::Webhooks
       end
 
       def resources
-        %i(work_package)
+        %i(project work_package time_entry)
       end
     end
   end

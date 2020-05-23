@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -84,12 +84,12 @@ describe "POST /api/v3/grids/form for Dashboard Grids", type: :request, content_
 
       it 'contains default data in the payload' do
         expected = {
-          "rowCount": 7,
-          "columnCount": 4,
+          "rowCount": 1,
+          "columnCount": 2,
           "widgets": [{
             "_type": "GridWidget",
-            "endColumn": 3,
-            "endRow": 7,
+            "endColumn": 2,
+            "endRow": 2,
             "identifier": "work_packages_table",
             "options": {
               "name": "Work packages table",
@@ -104,6 +104,7 @@ describe "POST /api/v3/grids/form for Dashboard Grids", type: :request, content_
           "name": 'foo',
           "options": {},
           "_links": {
+            "attachments": [],
             "scope": {
               'href': project_dashboards_path(project),
               "type": "text/html"
@@ -171,6 +172,7 @@ describe "POST /api/v3/grids/form for Dashboard Grids", type: :request, content_
         {
           name: 'foo',
           "_links": {
+            "attachments": [],
             "scope": {
               'href': project_dashboards_path(project)
             }
@@ -210,12 +212,13 @@ describe "POST /api/v3/grids/form for Dashboard Grids", type: :request, content_
 
       it 'contains default data in the payload that lacks the work_packages_table widget' do
         expected = {
-          "rowCount": 7,
-          "columnCount": 4,
+          "rowCount": 1,
+          "columnCount": 2,
           "widgets": [],
           "name": 'foo',
           "options": {},
           "_links": {
+            "attachments": [],
             "scope": {
               'href': project_dashboards_path(project),
               "type": "text/html"

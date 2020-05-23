@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -29,20 +29,14 @@
 require 'spec_helper'
 
 describe WikiController, type: :controller do
-  before do
-    Role.delete_all # removing me makes us faster
-    User.delete_all # removing me makes us faster
-    I18n.locale = :en
-  end
+  using_shared_fixtures :admin
 
   describe 'actions' do
     before do
       allow(@controller).to receive(:set_localization)
 
       @role = FactoryBot.create(:non_member)
-      @user = FactoryBot.create(:admin)
-
-      allow(User).to receive(:current).and_return @user
+      login_as admin
 
       @project = FactoryBot.create(:project)
       @project.reload # to get the wiki into the proxy
@@ -53,7 +47,7 @@ describe WikiController, type: :controller do
 
       # creating page contents
       FactoryBot.create(:wiki_content, page_id:   @existing_page.id,
-                                        author_id: @user.id)
+                                        author_id: admin.id)
     end
 
     shared_examples_for "a 'new' action" do
@@ -107,6 +101,15 @@ describe WikiController, type: :controller do
         get 'new_child', params: { project_id: @project, id: 'foobar' }
 
         expect(response.status).to eq(404) # not found
+      end
+    end
+
+    describe 'edit' do
+      it 'will link to a parent page if it was set' do
+        get 'edit', params: { project_id: @project, id: 'foobar' }, flash: { _related_wiki_page_id: 1234 }
+
+        page = assigns[:page]
+        expect(page.parent_id).to eq 1234
       end
     end
 
@@ -228,14 +231,13 @@ describe WikiController, type: :controller do
       allow(Setting).to receive(:login_required?).and_return(false)
 
       @role = FactoryBot.create(:non_member)
-      @user = FactoryBot.create(:admin)
 
       @anon = User.anonymous.nil? ? FactoryBot.create(:anonymous) : User.anonymous
 
-      Role.anonymous.update_attributes name: I18n.t(:default_role_anonymous),
+      Role.anonymous.update name: I18n.t(:default_role_anonymous),
                                        permissions: [:view_wiki_pages]
 
-      allow(User).to receive(:current).and_return @user
+      allow(User).to receive(:current).and_return admin
 
       @project = FactoryBot.create(:public_project)
       @project.reload # to get the wiki into the proxy
@@ -252,11 +254,11 @@ describe WikiController, type: :controller do
 
       # creating page contents
       FactoryBot.create(:wiki_content, page_id:   @page_default.id,
-                                       author_id: @user.id)
+                                       author_id: admin.id)
       FactoryBot.create(:wiki_content, page_id:   @page_with_content.id,
-                                       author_id: @user.id)
+                                       author_id: admin.id)
       FactoryBot.create(:wiki_content, page_id:   @unrelated_page.id,
-                                       author_id: @user.id)
+                                       author_id: admin.id)
 
       # creating some child pages
       @children = {}
@@ -265,7 +267,7 @@ describe WikiController, type: :controller do
                                                    parent_id: page.id,
                                                    title:     page.title + ' child')
         FactoryBot.create(:wiki_content, page_id: child_page.id,
-                                         author_id: @user.id)
+                                         author_id: admin.id)
 
         @children[page] = child_page
       end
@@ -442,6 +444,9 @@ describe WikiController, type: :controller do
                     params: { id: @page_with_content.title, project_id: @project.identifier }
 
                 expect(response).to be_successful
+
+                # Expect to set back ref id
+                expect(flash[:_related_wiki_page_id]).to eq @page_with_content.id
 
                 assert_select "#content a[href='#{new_child_project_wiki_path(project_id: @project, id: @page_with_content.slug)}']", 'Wiki page'
               end

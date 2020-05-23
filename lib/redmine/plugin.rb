@@ -1,7 +1,7 @@
 #-- encoding: UTF-8
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -26,6 +26,8 @@
 #
 # See docs/COPYRIGHT.rdoc for more details.
 #++
+
+require Rails.root.join('config/constants/open_project/activity')
 
 module Redmine #:nodoc:
   class PluginError < StandardError
@@ -280,6 +282,16 @@ module Redmine #:nodoc:
       end
     end
 
+    def rename_menu_item(menu_name, item, options)
+      Redmine::MenuManager.map(menu_name) do |menu|
+        menu_item = menu.find(item)
+        menu_item.caption = options[:caption]
+        menu_item.icon = options[:icon]
+        menu_item.badge = options[:badge]
+        menu_item.url = options[:url]
+      end
+    end
+
     # Defines a permission called +name+ for the given +actions+.
     #
     # The +actions+ argument is a hash with controllers as keys and actions as values (a single value or an array):
@@ -304,8 +316,8 @@ module Redmine #:nodoc:
     #   permission :say_hello, { example: :say_hello }, require: :member
     def permission(name, actions, options = {})
       if @project_scope
-        mod, options = @project_scope
-        OpenProject::AccessControl.map { |map| map.project_module(mod, options) { |map| map.permission(name, actions, options) } }
+        mod, mod_options = @project_scope
+        OpenProject::AccessControl.map { |map| map.project_module(mod, mod_options) { |map| map.permission(name, actions, options) } }
       else
         OpenProject::AccessControl.map { |map| map.permission(name, actions, options) }
       end
@@ -340,7 +352,6 @@ module Redmine #:nodoc:
     #
     # Retrieving events:
     # Associated model(s) must implement the find_events class method.
-    # ActiveRecord models can use acts_as_activity_provider as a way to implement this class method.
     #
     # The following call should return all the scrum events visible by current user that occurred in the 5 last days:
     #   Meeting.find_events('scrums', User.current, 5.days.ago, Date.today)
@@ -348,7 +359,8 @@ module Redmine #:nodoc:
     #
     # Note that :view_scrums permission is required to view these events in the activity view.
     def activity_provider(*args)
-      Redmine::Activity.register(*args)
+      ActiveSupport::Deprecation.warn('Use ActsAsOpEngine#activity_provider instead.')
+      OpenProject::Activity.register(*args)
     end
 
     # Registers a wiki formatter.

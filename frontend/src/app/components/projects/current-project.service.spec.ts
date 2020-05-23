@@ -1,6 +1,6 @@
 //-- copyright
-// OpenProject is a project management system.
-// Copyright (C) 2012-2015 the OpenProject Foundation (OPF)
+// OpenProject is an open source project management software.
+// Copyright (C) 2012-2020 the OpenProject GmbH
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License version 3.
@@ -23,7 +23,7 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //
-// See doc/COPYRIGHT.rdoc for more details.
+// See docs/COPYRIGHT.rdoc for more details.
 //++
 
 /*jshint expr: true*/
@@ -32,40 +32,44 @@ import {CurrentProjectService} from './current-project.service';
 import {PathHelperService} from "core-app/modules/common/path-helper/path-helper.service";
 
 describe('currentProject service', function() {
-    var element:JQuery;
-    var currentProject:CurrentProjectService = new CurrentProjectService(new PathHelperService());
+  let element:JQuery;
+  let currentProject:CurrentProjectService;
 
-    describe('with no meta present', () => {
-      it('returns null values', () => {
-        expect(currentProject.id).toBeNull();
-        expect(currentProject.identifier).toBeNull();
-        expect(currentProject.name).toBeNull();
-        expect(currentProject.apiv3Path).toBeNull();
-        expect(currentProject.inProjectContext).toBeFalsy();
-      });
+  beforeEach(() => {
+    currentProject = new CurrentProjectService(new PathHelperService());
+  });
+
+  describe('with no meta present', () => {
+    it('returns null values', () => {
+      expect(currentProject.id).toBeNull();
+      expect(currentProject.identifier).toBeNull();
+      expect(currentProject.name).toBeNull();
+      expect(currentProject.apiv3Path).toBeNull();
+      expect(currentProject.inProjectContext).toBeFalsy();
     });
+  });
 
-    describe('with a meta value present', () => {
-      beforeEach(() => {
-        var html = `
+  describe('with a meta value present', () => {
+    beforeEach(() => {
+      let html = `
           <meta name="current_project" data-project-name="Foo 1234" data-project-id="1" data-project-identifier="foobar"/>
         `;
 
-        element = jQuery(html);
-        jQuery(document.body).append(element);
-        currentProject.detect();
-      });
-
-      afterEach((() => {
-        element.remove();
-      }));
-
-      it('returns correct values', () => {
-        expect(currentProject.inProjectContext).toBeTruthy();
-        expect(currentProject.id).toEqual('1');
-        expect(currentProject.name).toEqual('Foo 1234');
-        expect(currentProject.identifier).toEqual('foobar');
-        expect(currentProject.apiv3Path).toEqual('/api/v3/projects/1');
-      });
+      element = jQuery(html);
+      jQuery(document.body).append(element);
+      currentProject.detect();
     });
+
+    afterEach((() => {
+      element.remove();
+    }));
+
+    it('returns correct values', () => {
+      expect(currentProject.inProjectContext).toBeTruthy();
+      expect(currentProject.id).toEqual('1');
+      expect(currentProject.name).toEqual('Foo 1234');
+      expect(currentProject.identifier).toEqual('foobar');
+      expect(currentProject.apiv3Path).toEqual('/api/v3/projects/1');
+    });
+  });
 });

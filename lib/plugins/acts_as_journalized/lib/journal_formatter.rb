@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -49,6 +49,16 @@
 # This module holds the formatting methods that each journal has.
 # It provides the hooks to apply different formatting to the details
 # of a specific journal.
+
+require_relative './journal_formatter/base'
+require_relative './journal_formatter/attribute'
+require_relative './journal_formatter/datetime'
+require_relative './journal_formatter/decimal'
+require_relative './journal_formatter/fraction'
+require_relative './journal_formatter/id'
+require_relative './journal_formatter/named_association'
+require_relative './journal_formatter/plaintext'
+require_relative './journal_formatter/proc'
 
 module JournalFormatter
   mattr_accessor :formatters, :registered_fields

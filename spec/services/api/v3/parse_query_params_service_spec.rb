@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -30,7 +30,6 @@ require 'spec_helper'
 
 describe ::API::V3::ParseQueryParamsService,
          type: :model do
-
   let(:instance) { described_class.new }
   let(:params) { {} }
 
@@ -133,11 +132,31 @@ describe ::API::V3::ParseQueryParamsService,
         # Please note, that dueDate is expected to get translated to due_date.
         let(:expected) { { highlighted_attributes: %w(status type priority due_date) } }
       end
+
+      it_behaves_like 'transforms' do
+        let(:params) { { highlightedAttributes: %w(/api/v3/columns/status /api/v3/columns/type) } }
+        # Please note, that dueDate is expected to get translated to due_date.
+        let(:expected) { { highlighted_attributes: %w(status type) } }
+      end
     end
 
     context 'without highlighted_attributes' do
       it_behaves_like 'transforms' do
         let(:params) { { highlightedAttributes: nil } }
+        let(:expected) { {} }
+      end
+    end
+
+    context 'with display_representation' do
+      it_behaves_like 'transforms' do
+        let(:params) { { displayRepresentation: 'cards' } }
+        let(:expected) { { display_representation:'cards' } }
+      end
+    end
+
+    context 'without display_representation' do
+      it_behaves_like 'transforms' do
+        let(:params) { { displayRepresentation: nil } }
         let(:expected) { {} }
       end
     end

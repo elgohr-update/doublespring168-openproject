@@ -1,10 +1,18 @@
 #-- copyright
-# OpenProject Meeting Plugin
-#
-# Copyright (C) 2011-2014 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
+#
+# OpenProject is a fork of ChiliProject, which is a fork of Redmine. The copyright follows:
+# Copyright (C) 2006-2017 Jean-Philippe Lang
+# Copyright (C) 2010-2013 the ChiliProject Team
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -15,7 +23,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
-# See doc/COPYRIGHT.md for more details.
+# See docs/COPYRIGHT.rdoc for more details.
 #++
 
 class MeetingsController < ApplicationController
@@ -27,6 +35,7 @@ class MeetingsController < ApplicationController
 
   helper :watchers
   helper :meeting_contents
+  helper_method :gon
   include WatchersHelper
   include PaginationHelper
 
@@ -39,9 +48,7 @@ class MeetingsController < ApplicationController
     tomorrows_meetings_count = scope.from_tomorrow.count
     @page_of_today = 1 + tomorrows_meetings_count / per_page_param
 
-    page = params['page'] ?
-             page_param :
-             @page_of_today
+    page = params['page'] ? page_param : @page_of_today
 
     @meetings = scope.with_users_by_date
                 .page(page)
@@ -78,8 +85,7 @@ class MeetingsController < ApplicationController
     end
   end
 
-  def new
-  end
+  def new; end
 
   current_menu_item :new do
     :meetings
@@ -98,8 +104,7 @@ class MeetingsController < ApplicationController
     redirect_to action: 'index', project_id: @project
   end
 
-  def edit
-  end
+  def edit; end
 
   def update
     @meeting.participants_attributes = @converted_params.delete(:participants_attributes)
@@ -155,7 +160,8 @@ class MeetingsController < ApplicationController
     @converted_params[:participants_attributes].each { |p| p.reverse_merge! attended: false, invited: false }
   end
 
-private
+  private
+
   def meeting_params
     params.require(:meeting).permit(:title, :location, :start_time, :duration, :start_date, :start_time_hour,
       participants_attributes: [:email, :name, :invited, :attended, :user, :user_id, :meeting, :id])

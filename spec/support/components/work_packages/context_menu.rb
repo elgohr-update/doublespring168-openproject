@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -33,7 +33,16 @@ module Components
       include RSpec::Matchers
 
       def open_for(work_package)
-        find(".wp-row-#{work_package.id}-table").right_click
+        # Close
+        find('body').send_keys :escape
+        sleep 0.5
+
+        if page.has_selector?('#wp-view-toggle-button', text: 'Cards')
+          page.find(".wp-card-#{work_package.id}").right_click
+        else
+          page.find(".wp-row-#{work_package.id}-table").right_click
+        end
+
         expect_open
       end
 

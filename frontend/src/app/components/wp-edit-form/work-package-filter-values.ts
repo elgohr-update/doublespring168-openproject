@@ -1,17 +1,20 @@
 import {HalResource} from 'core-app/modules/hal/resources/hal-resource';
-import {WorkPackageChangeset} from './work-package-changeset';
 import {QueryFilterInstanceResource} from 'core-app/modules/hal/resources/query-filter-instance-resource';
 import {CurrentUserService} from "core-components/user/current-user.service";
 import {HalResourceService} from 'core-app/modules/hal/services/hal-resource.service';
 import {Injector} from '@angular/core';
+import {AngularTrackingHelpers} from "core-components/angular/tracking-functions";
+import {WorkPackageChangeset} from "core-components/wp-edit/work-package-changeset";
+import compareByHrefOrString = AngularTrackingHelpers.compareByHrefOrString;
+import {InjectField} from "core-app/helpers/angular/inject-field.decorator";
 
 export class WorkPackageFilterValues {
 
-  private currentUser:CurrentUserService = this.injector.get(CurrentUserService);
-  private halResourceService:HalResourceService = this.injector.get(HalResourceService);
+  @InjectField() currentUser:CurrentUserService;
+  @InjectField() halResourceService:HalResourceService;
 
-  constructor(private injector:Injector,
-              private changeset:WorkPackageChangeset,
+  constructor(public injector:Injector,
+              private change:WorkPackageChangeset,
               private filters:QueryFilterInstanceResource[],
               private excluded:string[] = []) {
 
@@ -29,6 +32,12 @@ export class WorkPackageFilterValues {
         return;
       }
 
+      // Avoid setting a value if current value is in filter list
+      // and more than one value selected
+      if (this.filterAlreadyApplied(filter)) {
+        return;
+      }
+
       // Select the first value
       let value = filter.values[0];
 
@@ -43,8 +52,7 @@ export class WorkPackageFilterValues {
     let newValue = this.findSpecialValue(value, field) || value;
 
     if (newValue) {
-      this.changeset.setValue(field, newValue);
-      this.changeset.workPackage[field] = newValue;
+      this.change.projectedResource[field] = newValue;
     }
   }
 
@@ -63,5 +71,28 @@ export class WorkPackageFilterValues {
     }
 
     return undefined;
+  }
+
+  /**
+   * Avoid applying filter values when
+   *  - more than one filter value selected
+   *  - changeset already matches one of the selected values
+   * @param filter
+   */
+  private filterAlreadyApplied(filter:any):boolean {
+    // Only applicable if more than one selected
+    if (filter.values.length <= 1) {
+      return false;
+    }
+
+    const current = this.change.projectedResource[filter.id];
+
+    for (let i = 0; i < filter.values.length; i++) {
+      if (compareByHrefOrString(current, filter.values[i])) {
+        return true;
+      }
+    }
+
+    return false;
   }
 }

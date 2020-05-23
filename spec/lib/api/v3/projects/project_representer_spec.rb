@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -33,7 +33,9 @@ describe ::API::V3::Projects::ProjectRepresenter do
 
   let(:project) do
     FactoryBot.build_stubbed(:project,
-                             description: 'some description').tap do |p|
+                             parent: parent_project,
+                             description: 'some description',
+                             status: status).tap do |p|
       allow(p)
         .to receive(:available_custom_fields)
         .and_return([int_custom_field, version_custom_field])
@@ -48,6 +50,10 @@ describe ::API::V3::Projects::ProjectRepresenter do
         .and_return(version_custom_value)
     end
   end
+  let(:status) do
+    FactoryBot.build_stubbed(:project_status)
+  end
+  let(:parent_project) { FactoryBot.build_stubbed(:project) }
   let(:representer) { described_class.create(project, current_user: user) }
 
   let(:user) do
@@ -59,8 +65,8 @@ describe ::API::V3::Projects::ProjectRepresenter do
     end
   end
 
-  let(:int_custom_field) { FactoryBot.build_stubbed(:int_project_custom_field) }
-  let(:version_custom_field) { FactoryBot.build_stubbed(:version_project_custom_field) }
+  let(:int_custom_field) { FactoryBot.build_stubbed(:int_project_custom_field, visible: false) }
+  let(:version_custom_field) { FactoryBot.build_stubbed(:version_project_custom_field, visible: true) }
   let(:int_custom_value) do
     CustomValue.new(custom_field: int_custom_field,
                     value: '1234',
@@ -101,33 +107,85 @@ describe ::API::V3::Projects::ProjectRepresenter do
         let(:value) { project.name }
       end
 
+      it_behaves_like 'property', :active do
+        let(:value) { project.active }
+      end
+
+      it_behaves_like 'property', :public do
+        let(:value) { project.public }
+      end
+
       it_behaves_like 'formattable property', :description do
         let(:value) { project.description }
       end
 
+      context 'status' do
+        it_behaves_like 'formattable property', 'statusExplanation' do
+          let(:value) { status.explanation }
+        end
+
+        it 'includes the project status code' do
+          expect(subject)
+            .to be_json_eql(status.code.tr('_', ' ').to_json)
+            .at_path('status')
+        end
+
+        context 'if the status is nil' do
+          let(:status) { nil }
+
+          it_behaves_like 'formattable property', 'statusExplanation' do
+            let(:value) { nil }
+          end
+
+          it 'includes the project status code' do
+            expect(subject)
+              .to be_json_eql(nil.to_json)
+              .at_path('status')
+          end
+        end
+      end
+
       it_behaves_like 'has UTC ISO 8601 date and time' do
-        let(:date) { project.created_on }
+        let(:date) { project.created_at }
         let(:json_path) { 'createdAt' }
       end
 
       it_behaves_like 'has UTC ISO 8601 date and time' do
-        let(:date) { project.updated_on }
+        let(:date) { project.updated_at }
         let(:json_path) { 'updatedAt' }
       end
 
-      it "has a property for the int custom field" do
-        is_expected
-          .to be_json_eql(int_custom_value.value.to_json)
-          .at_path("customField#{int_custom_field.id}")
+      context 'int custom field' do
+        context 'if the user is admin' do
+          before do
+            allow(user)
+              .to receive(:admin?)
+              .and_return(true)
+          end
+
+          it "has a property for the int custom field" do
+            is_expected
+              .to be_json_eql(int_custom_value.value.to_json)
+              .at_path("customField#{int_custom_field.id}")
+          end
+        end
+
+        context 'if the user is no admin' do
+          it "has no property for the int custom field" do
+            is_expected
+              .not_to have_json_path("customField#{int_custom_field.id}")
+          end
+        end
       end
     end
 
     describe '_links' do
       it { is_expected.to have_json_type(Object).at_path('_links') }
-      it 'should link to self' do
+
+      it 'links to self' do
         expect(subject).to have_json_path('_links/self/href')
       end
-      it 'should have a title for link to self' do
+      it 'has a title for link to self' do
         expect(subject).to have_json_path('_links/self/title')
       end
 
@@ -141,7 +199,7 @@ describe ::API::V3::Projects::ProjectRepresenter do
 
           it 'has the correct path to create a work package' do
             is_expected.to be_json_eql(api_v3_paths.work_packages_by_project(project.id).to_json)
-              .at_path('_links/createWorkPackageImmediate/href')
+              .at_path('_links/createWorkPackageImmediately/href')
           end
         end
 
@@ -153,7 +211,32 @@ describe ::API::V3::Projects::ProjectRepresenter do
           end
 
           it_behaves_like 'has no link' do
-            let(:link) { 'createWorkPackageImmediate' }
+            let(:link) { 'createWorkPackageImmediately' }
+          end
+        end
+      end
+
+      describe 'parent' do
+        before do
+          allow(parent_project)
+            .to receive(:visible?)
+            .and_return(visible)
+        end
+        let(:visible) { true }
+
+        it_behaves_like 'has a titled link' do
+          let(:link) { 'parent' }
+          let(:href) { api_v3_paths.project(parent_project.id) }
+          let(:title) { parent_project.name }
+        end
+
+        context 'if lacking the permissions to see the parent' do
+          let(:visible) { false }
+
+          it_behaves_like 'has a titled link' do
+            let(:link) { 'parent' }
+            let(:href) { nil }
+            let(:title) { nil }
           end
         end
       end
@@ -245,10 +328,102 @@ describe ::API::V3::Projects::ProjectRepresenter do
         end
       end
 
-      it 'links custom fields' do
-        is_expected
-          .to be_json_eql(api_v3_paths.version(version.id).to_json)
-          .at_path("_links/customField#{version_custom_field.id}/href")
+      context 'link custom field' do
+        context 'if the user is admin and the field is invisible' do
+          before do
+            allow(user)
+              .to receive(:admin?)
+              .and_return(true)
+
+            version_custom_field.visible = false
+          end
+
+          it 'links custom fields' do
+            is_expected
+              .to be_json_eql(api_v3_paths.version(version.id).to_json)
+              .at_path("_links/customField#{version_custom_field.id}/href")
+          end
+        end
+
+        context 'if the user is no admin and the field is invisible' do
+          before do
+            version_custom_field.visible = false
+          end
+
+          it "has no property for the int custom field" do
+            is_expected
+              .not_to have_json_path("links/customField#{version_custom_field.id}")
+          end
+        end
+
+        context 'if the user is no admin and the field is visible' do
+          it 'links custom fields' do
+            is_expected
+              .to be_json_eql(api_v3_paths.version(version.id).to_json)
+                    .at_path("_links/customField#{version_custom_field.id}/href")
+          end
+        end
+      end
+
+      describe 'update' do
+        context 'for a user having the edit_project permission' do
+          let(:permissions) { [:edit_project] }
+
+          it_behaves_like 'has an untitled link' do
+            let(:link) { 'update' }
+            let(:href) { api_v3_paths.project_form project.id }
+          end
+        end
+
+        context 'for a user lacking the edit_project permission' do
+          let(:permissions) { [] }
+
+          it_behaves_like 'has no link' do
+            let(:link) { 'update' }
+          end
+        end
+      end
+
+      describe 'updateImmediately' do
+        context 'for a user having the edit_project permission' do
+          let(:permissions) { [:edit_project] }
+
+          it_behaves_like 'has an untitled link' do
+            let(:link) { 'updateImmediately' }
+            let(:href) { api_v3_paths.project project.id }
+          end
+        end
+
+        context 'for a user lacking the edit_project permission' do
+          let(:permissions) { [] }
+
+          it_behaves_like 'has no link' do
+            let(:link) { 'updateImmediately' }
+          end
+        end
+      end
+
+      describe 'delete' do
+        context 'for a user being admin' do
+          before do
+            allow(user)
+              .to receive(:admin?)
+              .and_return(true)
+          end
+
+          it_behaves_like 'has an untitled link' do
+            let(:link) { 'delete' }
+            let(:href) { api_v3_paths.project project.id }
+          end
+        end
+
+        context 'for a non admin user' do
+          let(:permissions) { [] }
+
+          it_behaves_like 'has no link' do
+            let(:link) { 'delete' }
+          end
+        end
       end
     end
 
@@ -278,7 +453,14 @@ describe ::API::V3::Projects::ProjectRepresenter do
         end
 
         it 'changes when the project is updated' do
-          project.updated_on = Time.now + 20.seconds
+          project.updated_at = Time.now + 20.seconds
+
+          expect(representer.json_cache_key)
+            .not_to eql former_cache_key
+        end
+
+        it 'changes when the project status is updated' do
+          project.status.updated_at = Time.now + 20.seconds
 
           expect(representer.json_cache_key)
             .not_to eql former_cache_key

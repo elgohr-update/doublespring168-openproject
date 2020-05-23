@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -39,7 +39,7 @@ module API
 
         def parse_attributes(request_body)
           ::API::V3::WorkPackages::WorkPackagePayloadRepresenter
-            .create_class(struct)
+            .create_class(struct, current_user)
             .new(struct, current_user: current_user)
             .from_hash(Hash(request_body))
             .to_h

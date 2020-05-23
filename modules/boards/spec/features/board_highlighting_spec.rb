@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -87,12 +87,12 @@ describe 'Work Package boards spec', type: :feature, js: true do
     expect(page).to have_selector('.__hl_inline_type_' + type2.id.to_s)
 
     # Highlight whole card by priority
-    board_page.change_board_highlighting 'entire-card', 'Priority'
+    board_page.change_board_highlighting 'inline', 'Priority'
     expect(page).to have_selector('.__hl_background_priority_' + priority.id.to_s)
     expect(page).to have_selector('.__hl_background_priority_' + priority2.id.to_s)
 
     # Highlight whole card by type
-    board_page.change_board_highlighting 'entire-card', 'Type'
+    board_page.change_board_highlighting 'inline', 'Type'
     expect(page).to have_selector('.__hl_background_type_' + type.id.to_s)
     expect(page).to have_selector('.__hl_background_type_' + type2.id.to_s)
 

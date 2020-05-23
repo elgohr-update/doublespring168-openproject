@@ -1,6 +1,6 @@
 //-- copyright
-// OpenProject is a project management system.
-// Copyright (C) 2012-2015 the OpenProject Foundation (OPF)
+// OpenProject is an open source project management software.
+// Copyright (C) 2012-2020 the OpenProject GmbH
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License version 3.
@@ -23,23 +23,22 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //
-// See doc/COPYRIGHT.rdoc for more details.
+// See docs/COPYRIGHT.rdoc for more details.
 //++
 
 import {WorkPackagesListService} from '../../wp-list/wp-list.service';
 import {States} from '../../states.service';
-import {WorkPackageNotificationService} from '../../wp-edit/wp-notification.service';
-import {NotificationsService} from "core-app/modules/common/notifications/notifications.service";
 import {OpModalComponent} from "core-components/op-modals/op-modal.component";
 import {ChangeDetectorRef, Component, ElementRef, Inject, OnInit} from "@angular/core";
 import {OpModalLocalsToken} from "core-components/op-modals/op-modal.service";
 import {OpModalLocalsMap} from "core-components/op-modals/op-modal.types";
 import {WorkPackageResource} from 'core-app/modules/hal/resources/work-package-resource';
-import {WorkPackageTableFocusService} from 'core-components/wp-fast-table/state/wp-table-focus.service';
+import {WorkPackageViewFocusService} from 'core-app/modules/work_packages/routing/wp-view-base/view-services/wp-view-focus.service';
 import {StateService} from '@uirouter/core';
 import {I18nService} from "core-app/modules/common/i18n/i18n.service";
 import {WorkPackageService} from "core-components/work-packages/work-package.service";
 import {BackRoutingService} from "core-app/modules/common/back-routing/back-routing.service";
+import {WorkPackageNotificationService} from "core-app/modules/work_packages/notifications/work-package-notification.service";
 
 @Component({
   templateUrl: './wp-destroy.modal.html'
@@ -74,10 +73,9 @@ export class WpDestroyModal extends OpModalComponent implements OnInit {
               readonly cdRef:ChangeDetectorRef,
               readonly $state:StateService,
               readonly states:States,
-              readonly wpTableFocus:WorkPackageTableFocusService,
+              readonly wpTableFocus:WorkPackageViewFocusService,
               readonly wpListService:WorkPackagesListService,
-              readonly wpNotificationsService:WorkPackageNotificationService,
-              readonly notificationsService:NotificationsService,
+              readonly notificationService:WorkPackageNotificationService,
               readonly backRoutingService:BackRoutingService) {
     super(locals, cdRef, elementRef);
   }
@@ -86,7 +84,7 @@ export class WpDestroyModal extends OpModalComponent implements OnInit {
     super.ngOnInit();
 
     this.workPackages = this.locals.workPackages;
-    this.workPackageLabel = this.I18n.t('js.units.workPackage', {count: this.workPackages.length});
+    this.workPackageLabel = this.I18n.t('js.units.workPackage', { count: this.workPackages.length });
 
     // Ugly way to provide the same view bindings as the ng-init in the previous template.
     if (this.workPackages.length === 1) {
@@ -94,19 +92,19 @@ export class WpDestroyModal extends OpModalComponent implements OnInit {
       this.singleWorkPackageChildren = this.singleWorkPackage.children;
     }
 
-    this.text.title = this.I18n.t('js.modals.destroy_work_package.title', {label: this.workPackageLabel}),
+    this.text.title = this.I18n.t('js.modals.destroy_work_package.title', { label: this.workPackageLabel }),
       this.text.text = this.I18n.t('js.modals.destroy_work_package.text', {
         label: this.workPackageLabel,
         count: this.workPackages.length
-      }),
+      });
 
-      this.text.childCount = (wp:WorkPackageResource) => {
-        const count = this.children(wp).length;
-        return this.I18n.t('js.units.child_work_packages', {count: count});
-      };
+    this.text.childCount = (wp:WorkPackageResource) => {
+      const count = this.children(wp).length;
+      return this.I18n.t('js.units.child_work_packages', { count: count });
+    };
 
     this.text.hasChildren = (wp:WorkPackageResource) =>
-      this.I18n.t('js.modals.destroy_work_package.has_children', {childUnits: this.text.childCount(wp)}),
+      this.I18n.t('js.modals.destroy_work_package.has_children', { childUnits: this.text.childCount(wp) }),
 
       this.text.deletesChildren = this.I18n.t('js.modals.destroy_work_package.deletes_children');
   }
@@ -126,7 +124,7 @@ export class WpDestroyModal extends OpModalComponent implements OnInit {
       wp.children && wp.children.length > 0);
   }
 
-  public confirmDeletion($event:JQueryEventObject) {
+  public confirmDeletion($event:JQuery.TriggeredEvent) {
     if (this.busy || this.blockedDueToUnconfirmedChildren) {
       return false;
     }
@@ -136,14 +134,10 @@ export class WpDestroyModal extends OpModalComponent implements OnInit {
       .then(() => {
         this.busy = false;
         this.closeMe($event);
-        this.wpTableFocus.clear();
+        this.wpTableFocus.clear('Clearing after destroying work packages');
 
-        /**
-         * When we are in the list, we expect a refreshed list view.
-         * Otherwise we expect a redirect to where we came from,
-         * since the WP in view (split/full) does not exist any more.
-         */
-        if (this.$state.current.name !== 'work-packages.list') {
+        // Go back to a previous list state if we're in a split or full view
+        if (this.$state.current.data.baseRoute) {
           this.backRoutingService.goBack(true);
         }
       })

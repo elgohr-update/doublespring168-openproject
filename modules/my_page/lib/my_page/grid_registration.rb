@@ -3,57 +3,50 @@ module MyPage
     grid_class 'Grids::MyPage'
     to_scope :my_page_path
 
-    widgets 'work_packages_assigned',
+    widgets 'custom_text',
+            'documents',
+            'work_packages_assigned',
             'work_packages_accountable',
             'work_packages_watched',
             'work_packages_created',
             'work_packages_calendar',
             'work_packages_table',
             'time_entries_current_user',
-            'documents',
             'news'
 
-    widget_strategy 'work_packages_table' do
+    wp_table_strategy_proc = Proc.new do
       after_destroy -> { ::Query.find_by(id: options[:queryId])&.destroy }
 
       allowed ->(user, _project) { user.allowed_to_globally?(:save_queries) }
+
+      options_representer '::API::V3::Grids::Widgets::QueryOptionsRepresenter'
     end
 
-    widget_strategy 'work_packages_assigned' do
-      after_destroy -> { ::Query.find_by(id: options[:queryId])&.destroy }
+    widget_strategy 'work_packages_table', &wp_table_strategy_proc
+    widget_strategy 'work_packages_assigned', &wp_table_strategy_proc
+    widget_strategy 'work_packages_accountable', &wp_table_strategy_proc
+    widget_strategy 'work_packages_watched', &wp_table_strategy_proc
+    widget_strategy 'work_packages_created', &wp_table_strategy_proc
 
-      allowed ->(user, _project) { user.allowed_to_globally?(:save_queries) }
-    end
+    widget_strategy 'custom_text' do
+      # Requiring a permission here as one is required to assign attachments.
+      # Should be replaced by a global permission to have a my page
+      allowed ->(user, _project) { user.allowed_to_globally?(:view_project) }
 
-    widget_strategy 'work_packages_accountable' do
-      after_destroy -> { ::Query.find_by(id: options[:queryId])&.destroy }
-
-      allowed ->(user, _project) { user.allowed_to_globally?(:save_queries) }
-    end
-
-    widget_strategy 'work_packages_watched' do
-      after_destroy -> { ::Query.find_by(id: options[:queryId])&.destroy }
-
-      allowed ->(user, _project) { user.allowed_to_globally?(:save_queries) }
-    end
-
-    widget_strategy 'work_packages_created' do
-      after_destroy -> { ::Query.find_by(id: options[:queryId])&.destroy }
-
-      allowed ->(user, _project) { user.allowed_to_globally?(:save_queries) }
+      options_representer '::API::V3::Grids::Widgets::CustomTextOptionsRepresenter'
     end
 
     defaults -> {
       {
-        row_count: 7,
-        column_count: 4,
+        row_count: 1,
+        column_count: 2,
         widgets: [
           {
             identifier: 'work_packages_table',
             start_row: 1,
-            end_row: 7,
+            end_row: 2,
             start_column: 1,
-            end_column: 3,
+            end_column: 2,
             options: {
               name: I18n.t('js.grid.widgets.work_packages_assigned.title'),
               queryProps: {
@@ -66,9 +59,9 @@ module MyPage
           {
             identifier: 'work_packages_table',
             start_row: 1,
-            end_row: 7,
-            start_column: 3,
-            end_column: 5,
+            end_row: 2,
+            start_column: 2,
+            end_column: 3,
             options: {
               name: I18n.t('js.grid.widgets.work_packages_created.title'),
               queryProps: {

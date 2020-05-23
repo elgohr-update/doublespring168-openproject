@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -33,7 +33,7 @@ describe 'API v3 Render resource', type: :request do
   include Rack::Test::Methods
   include API::V3::Utilities::PathHelper
 
-  let(:project) { FactoryBot.create(:project, is_public: false) }
+  let(:project) { FactoryBot.create(:project, public: false) }
   let(:work_package) { FactoryBot.create(:work_package, project: project) }
   let(:user) { FactoryBot.create(:user, member_in_project: project) }
   let(:content_type) { 'text/plain, charset=UTF-8' }
@@ -70,7 +70,7 @@ describe 'API v3 Render resource', type: :request do
             it_behaves_like 'valid response' do
               let(:text) do
                 '<p>Hello World! This <em>is</em> markdown with a ' +
-                  '<a href="http://community.openproject.org">link</a> ' +
+                  '<a href="http://community.openproject.org" rel="noopener noreferrer">link</a> ' +
                   'and ümläutß.</p>'
               end
             end
@@ -80,12 +80,10 @@ describe 'API v3 Render resource', type: :request do
             let(:params) { "Hello World! Have a look at ##{work_package.id}" }
             let(:id) { work_package.id }
             let(:href) { "/work_packages/#{id}" }
-            let(:title) { "#{work_package.subject} (#{work_package.status})" }
             let(:text) {
               '<p>Hello World! Have a look at <a '\
-                  "class=\"issue work_package preview-trigger status-1 priority-1\" "\
-                  "href=\"#{href}\" "\
-                  "title=\"#{title}\">##{id}</a></p>"
+                  "class=\"issue work_package preview-trigger\" "\
+                  "href=\"#{href}\">##{id}</a></p>"
             }
 
             context 'with work package context' do
@@ -170,7 +168,9 @@ describe 'API v3 Render resource', type: :request do
           let(:params) { "Hello *World*! Have a look at #1\n\nwith two lines." }
 
           it_behaves_like 'valid response' do
-            let(:text) { "<p>Hello *World*! Have a look at #1</p>\n\n<p>with two lines.</p>" }
+            let(:text) do
+              "<p>Hello *World*! Have a look at <a class=\"issue work_package preview-trigger\" href=\"/work_packages/1\">#1</a></p>\n\n<p>with two lines.</p>"
+            end
           end
         end
       end

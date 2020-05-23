@@ -1,3 +1,24 @@
+#-- copyright
+#OpenProject is an open source project management software.
+#Copyright (C) 2012-2020 the OpenProject GmbH
+#This program is free software; you can redistribute it and/or
+#modify it under the terms of the GNU General Public License version 3.
+#OpenProject is a fork of ChiliProject, which is a fork of Redmine. The copyright follows:
+#Copyright (C) 2006-2017 Jean-Philippe Lang
+#Copyright (C) 2010-2013 the ChiliProject Team
+#This program is free software; you can redistribute it and/or
+#modify it under the terms of the GNU General Public License
+#as published by the Free Software Foundation; either version 2
+#of the License, or (at your option) any later version.
+#This program is distributed in the hope that it will be useful,
+#but WITHOUT ANY WARRANTY; without even the implied warranty of
+#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#GNU General Public License for more details.
+#You should have received a copy of the GNU General Public License
+#along with this program; if not, write to the Free Software
+#Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+#See docs/COPYRIGHT.rdoc for more details.
+#++
 zh-TW:
   no_results_title_text: 目前無資料可以顯示
   activities:
@@ -7,29 +28,51 @@ zh-TW:
     plugins:
       no_results_title_text: 目前沒有外掛可以使用
     custom_styles:
+      color_theme: "Color theme"
+      color_theme_custom: "(Custom)"
+      colors:
+        alternative-color: "Alternative"
+        content-link-color: "Link font"
+        primary-color: "Primary"
+        primary-color-dark: "Primary (dark)"
+        header-bg-color: "Header background"
+        header-item-bg-hover-color: "Header background on hover"
+        header-item-font-color: "Header font"
+        header-item-font-hover-color: "Header font on hover"
+        header-border-bottom-color: "Header border"
+        main-menu-bg-color: "Main menu background"
+        main-menu-bg-selected-background: "Main menu when selected"
+        main-menu-bg-hover-background: "Main menu on hover"
+        main-menu-font-color: "Main menu font"
+        main-menu-selected-font-color: "Main menu font when selected"
+        main-menu-hover-font-color: "Main menu font on hover"
+        main-menu-border-color: "Main menu border"
       custom_colors: "自訂顏色"
       customize: "使用自己的logo自訂 OpenProject 安裝。注意: 此logo將可公開存取。"
       enterprise_notice: "作為對為開發 OpenProject 提供財力支持的訂閱者的特別“感謝”，這項小功能僅限企業版支持訂閱者使用。"
       manage_colors: "編輯顏色選擇選項"
       instructions:
-        alternative_color: "濃重的主題色，通常用於螢幕上最重要的按鈕。"
-        content_link_color: "大部分連結的文字顏色"
-        primary_color: "主要顏色"
-        primary_color_dark: "通常深色的主顏色用於 hover 特效。"
-        header_bg_color: "標頭的背景顏色"
-        header_item_bg_hover_color: "當滑鼠移動到可點選的標題項目的背景顏色"
-        header_item_font_color: "可點擊的標題項目的文字顏色"
-        header_item_font_hover_color: "當滑鼠移動到可點選的標題項目的文字顏色"
-        header_border_bottom_color: "標題下方的細線。如果你不想要任何線段，請保持此欄位空白。"
-        main_menu_bg_color: "左側選單的背景顏色"
+        alternative-color: "Strong accent color, typically used for the most important button on a screen."
+        content-link-color: "大部分連結的文字顏色"
+        primary-color: "主要顏色"
+        primary-color-dark: "通常深色的主顏色用於 hover 特效。"
+        header-item-bg-hover-color: "當滑鼠移動到可點選的標題項目的背景顏色"
+        header-item-font-color: "可點擊的標題項目的文字顏色"
+        header-item-font-hover-color: "當滑鼠移動到可點選的標題項目的文字顏色"
+        header-border-bottom-color: "標題下方的細線。如果你不想要任何線段，請保持此欄位空白。"
+        main-menu-bg-color: "左側選單的背景顏色"
+      theme_warning: Changing the theme will overwrite you custom style. The design will then be lost. Are you sure you want to continue?
     enterprise:
-      upgrade_to_ee: "升級到企業版"
+      upgrade_to_ee: "Upgrade to the Enterprise Edition"
       add_token: "上傳企業版support token"
       replace_token: "替換當前 support token"
       order: "訂購企業版"
       paste: "貼上您的企業版support token"
       required_for_feature: "此功能僅限企業版使用。"
       enterprise_link: "如需了解詳細信息，請點擊此處。"
+      start_trial: 'Start free trial'
+      book_now: 'Book now'
+      get_quote: 'Get a quote'
   announcements:
     show_until: 顯示直到
     is_active: 當前已顯示
@@ -45,7 +88,48 @@ zh-TW:
       no_results_content_title: 目前沒有身份驗證模式
       no_results_content_text: 建立新身分驗證模式
   ldap_auth_sources:
+    technical_warning_html: |
+      This LDAP form requires technical knowledge of your LDAP / Active Directory setup.
+      <br/>
+      <a href="https://www.openproject.org/help/administration/manage-ldap-authentication/">Please visit our documentation for detailed instructions</a>.
+    attribute_texts:
+      name: Arbitrary name of the LDAP connection
+      host: LDAP host name or IP address
+      login_map: The attribute key in LDAP that is used to identify the unique user login. Usually, this will be `uid` or `samAccountName`.
+      generic_map: The attribute key in LDAP that is mapped to the OpenProject `%{attribute}` attribute
+      admin_map_html: "Optional: The attribute key in LDAP that <strong>if present</strong> marks the OpenProject user an admin. Leave empty when in doubt."
+      system_user_dn_html: |
+        Enter the DN of the system user used for read-only access.
+        <br/>
+        Example: uid=openproject,ou=system,dc=example,dc=com
+      system_user_password: Enter the bind password of the system user
+      base_dn: |
+        Enter the Base DN of the subtree in LDAP you want OpenProject to look for users and groups.
+        OpenProject will filter for provided usernames in this subtree only.
+        Example: ou=users,dc=example,dc=com
+      filter_string: |
+        Add an optional RFC4515 filter to apply to the results returned for users filtered in the LDAP.
+        This can be used to restrict the set of users that are found by OpenProject for authentication and group synchronization.
+      filter_string_concat: |
+        OpenProject will always filter for the login attribute provided by the user to identify the record. If you provide a filter here,
+        it will be concatenated with an AND. By default, a catch-all (objectClass=*) will be used as a filter.
+      onthefly_register: |
+        If you check this box, OpenProject will automatically create new users from their LDAP entries
+        when they first authenticate with OpenProject.
+        Leave this unchecked to only allow existing accounts in OpenProject to authenticate through LDAP!
+      onthefly_group_sync: |
+        If you enable group synchronization for this LDAP connection, users will also be automatically created
+        in OpenProject for synchronized groups. Without it, only existing accounts in OpenProject will be added to groups.
     connection_encryption: 'Connection encryption'
+    system_account: 'System account'
+    system_account_legend: |
+      OpenProject requires read-only access through a system account to lookup users and groups in your LDAP tree.
+      Please specify the bind credentials for that system user in the following section.
+    ldap_details: 'LDAP details'
+    user_settings: 'Attribute mapping'
+    user_settings_legend: |
+      The following fields are related to how users are created in OpenProject from LDAP entries and
+      what LDAP attributes are used to define the attributes of an OpenProject user (attribute mapping).
     tls_mode:
       plain: '無'
       simple_tls: 'simple_tls'
@@ -105,7 +189,7 @@ zh-TW:
       no_results_title_text: 目前沒有專案在這個群組
   incoming_mails:
     ignore_filenames: >
-      Specify a list of names to ignore when processing attachments for incoming mails (e.g., signatures or icons). Enter one filename per line.
+      請列出從郵箱下載文檔時需要忽視的的名稱（比如：簽名或頭像）。請把檔案名稱分別列入每個各一行。
   projects:
     delete:
       scheduled: "刪除已經排程並且會在背景執行。你將會收到結果通知。"
@@ -147,9 +231,10 @@ zh-TW:
     index:
       no_results_title_text: 目前沒有新消息報告
       no_results_content_text: 新增一個消息
-    my_page:
-      no_results_title_text: 沒有新的消息可以報告
   users:
+    groups:
+      member_in_these_groups: 'This user is currently a member of the following groups:'
+      no_results_title_text: This user is currently not a member in any group.
     memberships:
       no_results_title_text: 這個使用者目前不是任何專案的成員
   prioritiies:
@@ -203,19 +288,10 @@ zh-TW:
     x_descendants:
       other: '%{count} 個子工作項目'
     bulk:
-      could_not_be_saved: "The following work packages could not be saved:"
+      could_not_be_saved: "以下文檔無法被保存"
     move:
       no_common_statuses_exists: "被選取的工作項目沒有可用的狀態。他們的狀態不可以變更。"
       unsupported_for_multiple_projects: '工作項目不支援從多個專案的大區塊的移動/複製'
-    list_simple:
-      assigned:
-        no_results_title_text: 目前沒有工作項目指派給我
-      reported:
-        no_results_title_text: 目前沒有我已經報告的工作項目
-      responsible:
-        no_results_title_text: 目前沒有我負責的工作項目
-      watched:
-        no_results_title_text: 目前沒有我在關注的工作項目
     summary:
       reports:
         category:
@@ -280,16 +356,16 @@ zh-TW:
         account: "帳號"
         attr_firstname: "名"
         attr_lastname: "姓"
-        attr_login: "帳號"
+        attr_login: "Username attribute"
         attr_mail: "Email"
         base_dn: "Base DN"
         host: "主機"
-        onthefly: "快速建立使用者"
+        onthefly: "Automatic user creation"
         port: "埠"
       changeset:
         repository: "Repository"
       comment:
-        commented: "已評論"
+        commented: "已評論" #an object that this comment belongs to
       custom_action:
         actions: "操作"
       custom_field:
@@ -314,13 +390,13 @@ zh-TW:
         encoded_token: "Enterprise support token"
         active_user_count_restriction: "最大活動使用者數"
       grids/grid:
-        page: "Page"
-        row_count: "Number of rows"
-        column_count: "Number of columns"
-        widgets: "Widgets"
+        page: "頁面"
+        row_count: "列數"
+        column_count: "欄數："
+        widgets: "小工具"
       relation:
         delay: "延時"
-        from: "Work package"
+        from: "工作項目"
         to: "相關的工作項目"
       status:
         is_closed: "工作項目關閉"
@@ -337,6 +413,13 @@ zh-TW:
         types: "類型"
         versions: "版本"
         work_packages: "工作項目"
+      projects/status:
+        code: '狀態'
+        explanation: 'Status description'
+        codes:
+          on_track: 'On track'
+          at_risk: 'At risk'
+          off_track: 'Off track'
       query:
         column_names: "欄"
         relations_to_type_column: "與 %{type} 的關連"
@@ -395,12 +478,13 @@ zh-TW:
         done_ratio: "進度 (%)"
         end_insertion: "結束插入"
         end_deletion: "結束刪除"
-        fixed_version: "版本"
+        version: "版本"
         parent: "上層目錄："
         parent_issue: "上層目錄："
         parent_work_package: "上層目錄："
         priority: "優先等級"
         progress: "進度 (%)"
+        schedule_manually: "Schedule manually"
         spent_hours: "耗時"
         spent_time: "耗時"
         subproject: "子專案"
@@ -428,6 +512,8 @@ zh-TW:
         confirmation: "不吻合 %{attribute}。"
         could_not_be_copied: "無法 (完全) 複製"
         does_not_exist: "不存在"
+        error_unauthorized: "may not be accessed."
+        error_readonly: "was attempted to be written but is not writable."
         empty: "不可為空"
         even: "必須是偶數"
         exclusion: "已保留"
@@ -481,7 +567,7 @@ zh-TW:
         enterprise_token:
           unreadable: "無法讀取，確定是一個 support token?"
         grids/grid:
-          overlaps: 'overlap.'
+          overlaps: '重疊'
           outside: 'is outside of the grid.'
           end_before_start: 'end value needs to be larger than the start value.'
         parse_schema_filter_params_service:
@@ -491,6 +577,8 @@ zh-TW:
               invalid_values: "值無效。"
               id_filter_required: "An 'id' filter is required."
         project:
+          archived_ancestor: 'The project has an archived ancestor.'
+          foreign_wps_reference_version: 'Work packages in non descendant projects reference versions of the project or its descendants.'
           attributes:
             types:
               in_use_by_work_packages: "%{types} 仍在被工作項目使用中"
@@ -524,6 +612,10 @@ zh-TW:
         role:
           permissions:
             dependency_missing: "need to also include '%{dependency}' as '%{permission}' is selected."
+        time_entry:
+          attributes:
+            hours:
+              day_limit: "is too high as a maximum of 24 hours can be logged per date."
         work_package:
           is_not_a_valid_target_for_time_entries: "工作項目 #%{id} 不是重新分配時間項目有效的目標"
           attributes:
@@ -608,7 +700,7 @@ zh-TW:
       wiki: "維基"
       wiki_page: "維基頁面"
       workflow: "工作流程"
-      work_package: "Work package"
+      work_package: "工作項目"
       'doorkeeper/application': "Oauth 應用程式"
   errors:
     header_invalid_fields: "以下的欄位有問題:"
@@ -616,6 +708,7 @@ zh-TW:
   activity:
     created: "建立：%{title}"
     updated: "更新：%{title}"
+  #common attributes of all models
   attributes:
     active: "啟用"
     assigned_to: "負責執行者"
@@ -648,14 +741,16 @@ zh-TW:
     is_default: "預設值"
     is_for_all: "對所有的專案"
     is_public: "公開"
-    issue: "Work package"
+    #kept for backwards compatibility
+    issue: "工作項目"
     lastname: "姓："
-    login: "登入"
+    login: "Username"
     mail: "電子郵件"
     name: "名稱"
     password: "密碼"
     priority: "優先等級"
     project: "專案"
+    public: "公開"
     responsible: "可信賴的"
     role: "角色"
     roles: "角色"
@@ -667,10 +762,12 @@ zh-TW:
     type: "類型"
     updated_at: "更新於"
     updated_on: "更新於"
+    uploader: "Uploader"
     user: "使用者"
     version: "版本"
-    work_package: "Work package"
+    work_package: "工作項目"
   button_add: "增加"
+  button_add_comment: "新增評論"
   button_add_member: 新增成員
   button_add_watcher: "新增監看者"
   button_annotate: "注釋"
@@ -791,9 +888,13 @@ zh-TW:
       - "星期五"
       - "星期六"
     formats:
+      #Use the strftime parameters for formats.
+      #When no format has been given, it uses default.
+      #You can provide other formats here if you like!
       default: "%Y年%m月%d日"
       long: "%Y年%B%d日"
       short: "%b%d日"
+    #Don't forget the nil at the beginning; there's no such thing as a 0th month
     month_names:
       - null
       - "一月"
@@ -808,6 +909,7 @@ zh-TW:
       - "十月"
       - "十一月"
       - "十二月"
+    #Used in date_select and datime_select.
     order:
       - 年
       - 月
@@ -925,6 +1027,7 @@ zh-TW:
   description_sub_work_package: "顯示目前的子工作項目"
   description_toc_toggle: "顯示/隱藏目錄"
   description_wiki_subpages_reassign: "選擇一個新的上層頁面"
+  #Text direction: Left-to-Right (ltr) or Right-to-Left (rtl)
   direction: 由左至右
   ee:
     upsale:
@@ -933,13 +1036,12 @@ zh-TW:
         add_groups: "增加新的屬性群組"
         rename_groups: "重新命名屬性群组"
       project_filters:
-        description_html: "升級到 %{link} 以篩選和排序自訂欄位"
-  enumeration_activities: "活動 (時間追蹤)"
+        description_html: "Filtering and sorting on custom fields is an enterprise edition feature."
+  enumeration_activities: "Time tracking activities"
   enumeration_work_package_priorities: "工作項目優先等級"
-  enumeration_system_activity: "系統活動"
   enumeration_reported_project_statuses: "報告的專案狀態"
   error_auth_source_sso_failed: "單一登入 (SSO) 使用者 '%{value}' 失敗"
-  error_can_not_archive_project: "這個專案不能被封存。至少有一個工作項目被指派至這個專案的某一個版本中。"
+  error_can_not_archive_project: "This project cannot be archived: %{errors}"
   error_can_not_delete_entry: "無法刪除項目"
   error_can_not_delete_custom_field: "無法刪除自訂欄位"
   error_can_not_delete_type: "這個類型還有工作項目在使用，無法刪除。"
@@ -948,6 +1050,7 @@ zh-TW:
   error_can_not_remove_role: "這個角色正在使用中，無法刪除。"
   error_can_not_reopen_work_package_on_closed_version: "被指定到已關閉版本的工作項目將無法重新開啟"
   error_can_not_find_all_resources: "Could not find all related resources to this request."
+  error_can_not_unarchive_project: "This project cannot be unarchived: %{errors}"
   error_check_user_and_role: "請選擇一個使用者與一個角色。"
   error_code: "Error %{code}"
   error_cookie_missing: 'OpenProject的Cookie遺失了。請確保瀏覽器的Cookie已經啟用，否則本應用程式將無法正常做用。'
@@ -994,7 +1097,7 @@ zh-TW:
     reply: 已回覆
     time_entry: '已編輯時間日誌'
     wiki_page: '維基頁面已編輯'
-    work_package_closed: 'Work Package closed'
+    work_package_closed: '工作項目關閉'
     work_package_edit: '工作項目已編輯'
     work_package_note: '工作項目註記已新增'
   export:
@@ -1002,9 +1105,11 @@ zh-TW:
       atom: "Atom"
       csv: "CSV"
       pdf: "PDF"
-      pdf_with_descriptions: "PDF with descriptions"
+      pdf_with_descriptions: "有說明的 PDF 檔"
       pdf_with_descriptions_and_attachments: "帶有說明和附件的 pdf"
       pdf_with_attachments: "帶有附件的 pdf"
+    image:
+      omitted: "Image not exported."
   extraction:
     available:
       pdftotext: "Pdftotext 可用 (非必要)"
@@ -1035,13 +1140,8 @@ zh-TW:
     blocks:
       community: "OpenProject 社群"
       upsale:
-        become_hero: "成為英雄!"
         title: "升級到企業版"
-        description: "有什麼好處？"
         more_info: "更多資訊"
-        additional_features: "其他強大的高級功能"
-        professional_support: "由 OpenProject 專家提供專業支援"
-        you_contribute: "開發人員也需要生活費。使用企業版，您可以為此 Open-Source 社區工作提供大力的財力支持。"
     links:
       upgrade_enterprise_edition: "升級到企業版"
       postgres_migration: "Migrating your installation to PostgreSQL"
@@ -1052,8 +1152,11 @@ zh-TW:
       blog: "Openproject 部落格"
       forums: "社群論壇"
       newsletter: "安全警報 / 消息"
+  journals:
+    changes_retracted: "The changes were retracted."
   links:
     configuration_guide: '設定指南'
+    get_in_touch: "You have questions? Get in touch with us."
   instructions_after_registration: "帳號啟用後即可點擊 %{signin} 登入"
   instructions_after_logout: "您可點擊 %{signin} 再次登入。"
   instructions_after_error: "你可以試著再按一次 %{signin} 來嘗試登入。如果持續發生錯誤，請向您的管理員尋求幫助。"
@@ -1193,6 +1296,7 @@ zh-TW:
   label_delete_project: "刪除專案"
   label_deleted: "刪除線"
   label_deleted_custom_field: "(已刪除的自訂欄位)"
+  label_deleted_custom_option: "(deleted option)"
   label_descending: "降冪"
   label_details: "詳細資料"
   label_development_roadmap: "發展路徑圖"
@@ -1210,6 +1314,7 @@ zh-TW:
   label_duplicate: "重複"
   label_duplicates: "重複"
   label_edit: "編輯"
+  label_edit_x: "Edit: %{x}"
   label_enable_multi_select: "取用複選"
   label_enabled_project_custom_fields: '開啟自訂欄位'
   label_enabled_project_modules: '啟用的模組'
@@ -1316,7 +1421,6 @@ zh-TW:
   label_member_new: "新成員"
   label_member_all_admin: "(All roles due to admin status)"
   label_member_plural: "成員"
-  label_view_all_members: "查看所有的成員"
   label_menu_item_name: "選單項目名稱"
   label_message: "訊息"
   label_message_last: "最後訊息"
@@ -1338,13 +1442,13 @@ zh-TW:
   label_move_work_package: "移動工作項目"
   label_my_account: "我的帳號"
   label_my_account_data: "我的帳號資料"
-  label_my_page: "我的首頁"
   label_my_projects: "我的專案"
   label_my_queries: "我的自訂查詢"
   label_never: "永不"
   label_new: "新增"
   label_new_features: "New features"
   label_new_statuses_allowed: "允許的新狀態"
+  label_news_singular: "新知"
   label_news_added: "消息已新增"
   label_news_comment_added: "評論已新增"
   label_news_latest: "最新消息"
@@ -1546,11 +1650,12 @@ zh-TW:
   label_view_diff: "檢視差異"
   label_view_revisions: "檢視修訂"
   label_watched_work_packages: "監看的工作項目"
-  label_what_is_this: "What is this?"
+  label_what_is_this: "這是什麼？"
   label_week: "週"
   label_wiki_content_added: "維基頁面已新增"
   label_wiki_content_updated: "維基頁面已更新"
   label_wiki_toc: "目錄"
+  label_wiki_toc_empty: "Table of Contents is empty as no headings are present."
   label_wiki_dont_show_menu_item: "不要在專案導覽呈現這個 wiki 頁面"
   label_wiki_edit: "Wiki 編輯"
   label_wiki_edit_plural: "Wiki 編輯"
@@ -1564,7 +1669,7 @@ zh-TW:
   label_wiki_show_new_page_link: "顯示子功能表 '新增子頁面'"
   label_wiki_show_submenu_item: "呈現於子功能表的 "
   label_wiki_start: "開始頁面"
-  label_work_package: "Work package"
+  label_work_package: "工作項目"
   label_work_package_added: "工作項目已新增"
   label_work_package_attachments: "工作項目附件"
   label_work_package_category_new: "新增類別"
@@ -1582,51 +1687,23 @@ zh-TW:
   label_work_package_updated: "工作項目已更新"
   label_work_package_tracking: "工作項目追蹤"
   label_work_package_view_all: "檢視所有工作項目"
-  label_work_package_view_all_assigned_to_me: "檢視所有分配給我的工作項目"
-  label_work_package_view_all_reported_by_me: "檢視所有由我提出的工作項目"
-  label_work_package_view_all_responsible_for: "查看所有我負責的工作項目"
-  label_work_package_view_all_watched: "檢視所有監看的工作項目"
-  label_work_package_watchers: "監看者"
   label_workflow: "工作流程"
   label_workflow_plural: "工作流程"
   label_workflow_summary: "大綱"
   label_x_closed_work_packages_abbr:
+    zero: "0 closed"
     other: "%{count} 個已結案"
   label_x_comments:
+    zero: "no comments"
     other: "%{count} 個評論"
   label_x_open_work_packages_abbr:
+    zero: "0 open"
     other: "%{count} 個未完成"
-  label_x_open_work_packages_abbr_on_total:
-    other: "%{count} 個未完成 / 總共 %{total} 個"
   label_x_projects:
+    zero: "no projects"
     other: "%{count} 個專案"
   label_year: "年份"
   label_yesterday: "昨天"
-  label_keyboard_function: "功能"
-  label_keyboard_shortcut: "快捷鍵"
-  label_keyboard_accesskey: "執行鍵"
-  label_keyboard_shortcut_help_heading: "可用的鍵盤快捷鍵"
-  label_keyboard_shortcut_within_project: "與專案相關的快捷鍵:"
-  label_keyboard_shortcut_global_shortcuts: "全域快捷鍵"
-  label_keyboard_shortcut_some_pages_only: "特殊快捷鍵"
-  label_keyboard_shortcut_search_global: "全域搜尋"
-  label_keyboard_shortcut_search_project: "尋找一個專案"
-  label_keyboard_shortcut_go_my_page: "前往我的頁面"
-  label_keyboard_shortcut_show_help: "顯示說明訊息"
-  label_keyboard_shortcut_go_overview: "前往專案概要"
-  label_keyboard_shortcut_go_work_package: "前往專案迎工作項目"
-  label_keyboard_shortcut_go_wiki: "前往專案維基"
-  label_keyboard_shortcut_go_activity: "前往專案活動"
-  label_keyboard_shortcut_go_calendar: "前往專案行事曆"
-  label_keyboard_shortcut_go_news: "前往專案新聞"
-  label_keyboard_shortcut_go_timelines: "到時間軸"
-  label_keyboard_shortcut_new_work_package: "建立新的工作項目"
-  label_keyboard_shortcut_details_package: "顯示工作項目詳細版面"
-  label_keyboard_shortcut_go_edit: "前往編輯目前項目 (只在詳細資訊頁面)"
-  label_keyboard_shortcut_open_more_menu: "打開更多功能表 (只在詳細資訊頁面)"
-  label_keyboard_shortcut_go_preview: "前往預覽目前編輯的項目 (只在詳細資訊頁面)"
-  label_keyboard_shortcut_focus_previous_item: "停駐在前一個清單元素 (只在某些清單)"
-  label_keyboard_shortcut_focus_next_item: "停駐在下一個清單元素 (只在某些清單)"
   auth_source:
     using_abstract_auth_source: "不能使用抽象的認證來源"
     ldap_error: "LDAP 錯誤: %{error_message}"
@@ -1640,9 +1717,10 @@ zh-TW:
     legacy_warning:
       timeline: '該舊版本時間軸宏已經被消除並不再可用。您可以用嵌入式表格宏替代此功能。'
     include_wiki_page:
+      removed: 'The macro does no longer exist.'
+    wiki_child_pages:
       errors:
         page_not_found: "無法找到Wiki頁“%{name}”。"
-        circular_inclusion: "檢測到頁面的循環包含。"
     create_work_package_link:
       errors:
         no_project_context: '從外部專案上下文呼叫 create_work_package_link 巨集。'
@@ -1657,12 +1735,14 @@ zh-TW:
   mail_body_lost_password: "若要變更您的密碼，請按一下以下的連結:"
   mail_body_register: "點擊底下的連結來啟用您的帳號:"
   mail_body_reminder: "%{count} 個指派給您的工作項目將在 %{days} 天後到期"
+  mail_body_group_reminder: "%{count} work package(s) that are assigned to group \"%{group}\" are due in the next %{days} days:"
   mail_body_wiki_content_added: "Wiki 頁面 '%{id}' 已經被 %{author} 增加"
   mail_body_wiki_content_updated: "Wiki 頁面 '%{id}' 已經被 %{author} 更新"
   mail_subject_account_activation_request: "帳號 %{value} 啟用請求"
   mail_subject_lost_password: "你的 %{value} 密碼"
   mail_subject_register: "你的帳號 %{value} 啟用"
   mail_subject_reminder: "%{count} 個工作項目將在 %{days} 天後到期"
+  mail_subject_group_reminder: "For group \"%{group}\" %{count} work package(s) due in the next %{days} days"
   mail_subject_wiki_content_added: "Wiki 頁面 '%{id}' 已經被增加"
   mail_subject_wiki_content_updated: "Wiki 頁面 '%{id}' 已經被更新"
   mail_user_activation_limit_reached:
@@ -1671,8 +1751,8 @@ zh-TW:
       新用戶(%{email}) 試圖在您管理的 OpenProject 環境 (%{host}) 上創建賬戶。用戶無法激活其賬戶, 因爲已達到用戶限制。
     steps:
       label: "要允許用戶登錄，您可以： "
-      a: "([在這裏](upgrade_url)) 升級付款計劃"
-      b: "([在這裏](users_url)) 鎖定或刪除現有用戶"
+      a: "([在這裏](upgrade_url)) 升級付款計劃" #here turned into a link
+      b: "([在這裏](users_url)) 鎖定或刪除現有用戶" #here turned into a link
   more_actions: "更多功能"
   noscript_description: "您必須啟用 Javascript 才能使用 OpenProject!"
   noscript_heading: "JavaScript 已停用"
@@ -1739,6 +1819,7 @@ zh-TW:
   notice_project_cannot_update_custom_fields: "無法更新專案的可用自訂欄位。專案無效：%{errors}"
   notice_attachment_migration_wiki_page: >
     此頁面是因為更新 OpenProject 而自動產生的。他包含了所有之前與 %{container_type} "%{container_name}" 有關聯的附加檔案。
+  #Default format for numbers
   number:
     format:
       delimiter: ""
@@ -1843,6 +1924,7 @@ zh-TW:
       title: 修改專案的識別
     archive:
       are_you_sure: "是否確定要 archive 專案 '%{name}'？"
+      archived: "Archived"
   project_module_activity: "活動"
   project_module_forums: "論壇"
   project_module_calendar: "行事曆"
@@ -1854,6 +1936,8 @@ zh-TW:
   project_module_wiki: "維基"
   query:
     attribute_and_direction: "%{attribute} (%{direction})"
+  #possible query parameters (e.g. issue queries),
+  #which are not attributes of an AR-Model.
   query_fields:
     active_or_archived: "啟用或封存"
     assigned_to_role: "負責執行者的角色"
@@ -2069,7 +2153,6 @@ zh-TW:
   setting_welcome_text: "歡迎區塊文字"
   setting_welcome_title: "歡迎區塊標題"
   setting_welcome_on_homescreen: "在主頁面上顯示歡迎區塊"
-  setting_wiki_compression: "維基歷史壓縮"
   setting_work_package_group_assignment: "允許分配給群組"
   setting_work_package_list_default_highlighting_mode: "預設突出顯示模式"
   setting_work_package_list_default_highlighted_attributes: "預設內聯突出顯示的屬性"
@@ -2097,6 +2180,7 @@ zh-TW:
   status_invited: 已邀請
   status_locked: locked
   status_registered: 已註冊
+  #Used in array.to_sentence.
   support:
     array:
       sentence_connector: "和"
@@ -2132,7 +2216,7 @@ zh-TW:
   text_destroy_with_associated: "還有其他物件與要刪除的工作項目有關聯。這些物件具有以下類型:"
   text_destroy_what_to_do: "您想要做什麼？"
   text_diff_truncated: "... 此差異被截斷, 因為它超出了可以顯示的最大大小。"
-  text_email_delivery_not_configured: "未配置電子郵件傳遞, 而且通知未啟用。在配置或configuration.yml中配置 SMTP 伺服器，並且重新啟動應用程式以啟用它們。"
+  text_email_delivery_not_configured: "Email delivery is not configured, and notifications are disabled.\nConfigure your SMTP server to enable them."
   text_enumeration_category_reassign_to: "重新指定為這個值:"
   text_enumeration_destroy_question: "%{count} 個物件被賦予此值。"
   text_file_repository_writable: "附件目錄可寫"
@@ -2145,7 +2229,8 @@ zh-TW:
   text_work_package_category_destroy_question: "一些工作項目(%{count})被分配給此類別。你想要做什麼？"
   text_work_package_category_reassign_to: "重新分配工作項目到這個類別"
   text_work_package_updated: "%{author} 更新了工作項目 %{id}。"
-  text_work_package_watcher_added: "你已經被 %{watcher_setter} 以觀察者的身份加入到工作項目 %{id}"
+  text_work_package_watcher_added: "You have been added as a watcher to Work package %{id} by %{watcher_changer}."
+  text_work_package_watcher_removed: "You have been removed from watchers of Work package %{id} by %{watcher_changer}."
   text_work_packages_destroy_confirmation: "你確定要刪除選定的工作項目嗎？"
   text_work_packages_ref_in_commit_messages: "在提交訊息中引用和修復工作項目"
   text_journal_added: "%{label} %{value} 已增加"
@@ -2354,9 +2439,9 @@ zh-TW:
     zoom:
       in: "放大"
       out: "縮小"
-      days: "Days"
-      weeks: "Weeks"
-      months: "Months"
+      days: "日"
+      weeks: "週"
+      months: "月"
       quarters: "季"
       years: "年"
   title_remove_and_delete_user: 從專案移除已被邀請的使用者別且刪除他/她
@@ -2405,6 +2490,7 @@ zh-TW:
       mail_self_notified: "我想要在我自己有變更的時候被通知"
     status_user_and_brute_force: "%{user} 和 %{brute_force}"
     status_change: "狀態變更"
+    text_change_disabled_for_provider_login: "The name is set by your login provider and can thus not be changed."
     unlock: "解除鎖定"
     unlock_and_reset_failed_logins: "解除鎖定並重置失敗的登錄"
   version_status_closed: "已關閉"
@@ -2423,6 +2509,17 @@ zh-TW:
     達到用戶限制。 您無法再激活任何用戶。 請<a href="%{upgrade_url}">升級您的計劃</a>或阻止會員以允許其他用戶。
   warning_user_limit_reached_instructions: >
     您達到了用戶限制（%{current}/%{max}活躍用戶）。 請聯係sales@openproject.com以升級Enterprise Edition計劃並添加其他用戶。
+  0: >
+
+  warning_bar:
+    protocol_mismatch:
+      title: 'Protocol setting mismatch'
+      text_html: >
+        Your application is running with its protocol setting set to <code>%{set_protocol}</code>, but the request is an <code>%{actual_protocol}</code> request. This will result in errors! Go to <a href="%{setting_path}">System settings</a> and change the "Protocol" setting to correct this.
+    hostname_mismatch:
+      title: 'Hostname setting mismatch'
+      text_html: >
+        Your application is running with its host name setting set to <code>%{set_hostname}</code>, but the request is a <code>%{actual_hostname}</code> hostname. This will result in errors! Go to <a href="%{setting_path}">System settings</a> and change the "Host name" setting to correct this.
   menu_item: "選單項目"
   menu_item_setting: "可見度"
   wiki_menu_item_for: "Wikipage \"%{title}\" 的功能表項目"
@@ -2431,6 +2528,7 @@ zh-TW:
     您正在刪除 wiki 唯一的主功能表項目。現在, 您必須選擇一個 wiki 頁面, 該網頁將生成一個新的主專案。要刪除 wiki, 可以由專案管理員停用 wiki 模組。
   wiki_menu_item_delete_not_permitted: 無法刪除 wiki 頁面的唯一 wiki 功能表項目。
   query_menu_item_for: "查詢 \"%{title}\" 的功能表項目"
+  #TODO: merge with work_packages top level key
   work_package:
     updated_automatically_by_child_changes: |
       通過更改子工作包中的值自動 _更新 %{child}_
@@ -2475,7 +2573,9 @@ zh-TW:
         estimated_hours: "無法在所屬工作包上設置估計小時數。"
         invalid_user_assigned_to_work_package: "所指定的使用者不允許成為工作項目的 '%{property}' 。"
         start_date: "無法在所屬工作包上設置開始日期。"
-      writing_read_only_attributes: "You must not write a read-only attribute.\n您不可寫入唯讀的屬性。"
+      eprops:
+        invalid_gzip: "is invalid gzip: %{message}"
+        invalid_json: "is invalid json: %{message}"
     resources:
       schema: '架構'
   doorkeeper:
@@ -2483,18 +2583,22 @@ zh-TW:
       status: '提前授權'
     errors:
       messages:
+        #Common error messages
         invalid_request: '請求缺少必需的參數, 包含不受支援的參數值, 或者格式不正確。'
-        invalid_redirect_uri: "請求的轉址 uri 格式不正確或與用戶端轉址 uri 不吻合。"
+        invalid_redirect_uri: "The requested redirect URI is malformed or doesn't match client redirect URI."
         unauthorized_client: '用戶端沒有被授權使用此方法執行此請求。'
         access_denied: '資源擁有者或授權伺服器拒絕了該請求。'
         invalid_scope: '請求的範圍無效、未知或格式錯誤。'
         invalid_code_challenge_method: '密碼挑戰方法必須是純文字或 S256。'
         server_error: '授權伺服器遇到意外情況, 使其無法滿足請求。'
         temporarily_unavailable: '由於臨時超載或維護, 授權伺服器當前無法處理請求。'
+        #Configuration error messages
         credential_flow_not_configured: '資源擁有者密碼憑據流程失敗, 原因是未配置 Doorkeeper.configure.resource_owner_from_credentials。'
         resource_owner_authenticator_not_configured: '資源擁有者發現失敗，因為 Doorkeeper.configure.resource_owner_authenticator 未配置。'
         admin_authenticator_not_configured: '訪問管理面板被禁止，因為 Doorkeeper.configure.admin_authenticator 未配置。'
+        #Access grant errors
         unsupported_response_type: '授權伺服器不支援此回應類型。'
+        #Access token errors
         invalid_client: '由於用戶端未知、沒有包含用戶端身份驗證或不支援的身份驗證方法, 用戶端身份驗證失敗。'
         invalid_grant: '提供的授權授予無效、過期、已撤銷、與授權請求中使用的轉址 uri 不符合, 或已發給其他用戶端。'
         unsupported_grant_type: '授權伺服器不支援授權授予類型。'
@@ -2519,6 +2623,7 @@ zh-TW:
         redirect_uri_html: >
           允許的 URLs 可被授權使用者轉址。一行一個URL。<br/> 如果你視註冊一個桌面應用程式，請使用下面的URL。
         confidential: "檢查是否這個應用程式能夠保存客戶端密鑰的隱密性。原生行動應用程式和一頁式應用程式被認定是非保密的。"
+        scopes: "Check the scopes you want the application to grant access to. If no scope is checked, api_v3 is assumed."
         client_credential_user_id: "可選擇的 user id 使用戶端在使用此應用程式時保持唯一。保留空白表示只允許公眾訪問"
         register_intro: "如果你在開發一個 OAuth API 客戶端應用程式給 OpenProject，你可以用這個格式註冊它以便給所有使用者使用。"
         default_scopes: ""
@@ -2526,15 +2631,15 @@ zh-TW:
     client_secret_notice: >
       This is the only time we can print the client secret, please note it down and keep it secure. It should be treated as a password and cannot be retrieved by OpenProject at a later time.
     authorization_dialog:
-      authorize: "Authorize"
+      authorize: "授權"
       cancel: "Cancel and deny authorization."
       prompt_html: "Authorize <strong>%{application_name}</strong> to use your account <em>%{login}</em>?"
       title: "Authorize %{application_name}"
       wants_to_access_html: >
         This application requests access to your OpenProject account. <br/> <strong>It has requested the following permissions:</strong>
     scopes:
-      api_v3: "Full API access"
-      api_v3_text: "Application will receive full read & write access to the OpenProject API to perform actions on your behalf."
+      api_v3: "Full API v3 access"
+      api_v3_text: "Application will receive full read & write access to the OpenProject API v3 to perform actions on your behalf."
     grants:
       created_date: "Approved on"
       scopes: "權限"

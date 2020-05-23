@@ -1,7 +1,7 @@
 #-- encoding: UTF-8
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -41,6 +41,15 @@ module OpenProject
         (self['attachments_storage'] || 'file').to_sym
       end
 
+      # Augur connect host
+      def enterprise_trial_creation_host
+        if Rails.env.production?
+          self['enterprise_trial_creation_host']
+        else
+          'https://augur.openproject-edge.com'
+        end
+      end
+
       def file_storage?
         attachments_storage == :file
       end
@@ -77,6 +86,11 @@ module OpenProject
         array self['blacklisted_routes']
       end
 
+      ##
+      # Whether we're running a bim edition
+      def bim?
+        self['edition'] == 'bim'
+      end
 
       def available_file_uploaders
         uploaders = {
@@ -90,6 +104,11 @@ module OpenProject
         end
 
         uploaders
+      end
+
+      def ldap_tls_options
+        val = self['ldap_tls_options']
+        val.presence || {}
       end
 
       private

@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -48,125 +48,6 @@ describe WorkPackagesFilterHelper, type: :helper do
 
       expect(JSON.parse(query_props))
         .to eql(expected_json.with_indifferent_access)
-    end
-  end
-
-  describe '#project_property_path' do
-    it_behaves_like 'work package path with query_props' do
-      let(:expected_json) do
-        {
-          f: [
-            {
-              n: 'status',
-              o: '=',
-              v: '2'
-            }
-          ],
-          t: 'updated_at:desc'
-        }
-      end
-
-      let(:path) { helper.project_property_path(project, 'status_id', 2) }
-    end
-  end
-
-  describe '#work_packages_assigned_to_me_path' do
-    let(:global) { true }
-
-    it_behaves_like 'work package path with query_props' do
-      let(:expected_json) do
-        {
-          f: [
-            {
-              n: 'assignee',
-              o: '=',
-              v: 'me'
-            },
-            {
-              n: 'status',
-              o: 'o'
-            }
-          ],
-          t: 'priority:desc,updated_at:desc'
-        }
-      end
-
-      let(:path) { helper.work_packages_assigned_to_me_path }
-    end
-  end
-
-  describe '#work_packages_reported_by_me_path' do
-    let(:global) { true }
-
-    it_behaves_like 'work package path with query_props' do
-      let(:expected_json) do
-        {
-          f: [
-            {
-              n: 'author',
-              o: '=',
-              v: 'me'
-            },
-            {
-              n: 'status',
-              o: '*'
-            }
-          ],
-          t: 'updated_at:desc'
-        }
-      end
-
-      let(:path) { helper.work_packages_reported_by_me_path }
-    end
-  end
-
-  describe '#work_packages_responsible_for_path' do
-    let(:global) { true }
-
-    it_behaves_like 'work package path with query_props' do
-      let(:expected_json) do
-        {
-          f: [
-            {
-              n: 'responsible',
-              o: '=',
-              v: 'me'
-            },
-            {
-              n: 'status',
-              o: 'o'
-            }
-          ],
-          t: 'priority:desc,updated_at:desc'
-        }
-      end
-
-      let(:path) { helper.work_packages_responsible_for_path }
-    end
-  end
-
-  describe '#work_packages_watched_path' do
-    let(:global) { true }
-
-    it_behaves_like 'work package path with query_props' do
-      let(:expected_json) do
-        {
-          f: [
-            {
-              n: 'watcher',
-              o: '=',
-              v: 'me'
-            },
-            {
-              n: 'status',
-              o: 'o'
-            }
-          ],
-          t: 'updated_at:desc'
-        }
-      end
-
-      let(:path) { helper.work_packages_watched_path }
     end
   end
 

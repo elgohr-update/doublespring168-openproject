@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -285,6 +285,17 @@ describe ::API::V3::WorkPackages::Schema::WorkPackageSchemaRepresenter do
         let(:type) { 'Formattable' }
         let(:name) { I18n.t('attributes.description') }
         let(:required) { false }
+        let(:writable) { true }
+      end
+    end
+
+    describe 'scheduleManually' do
+      it_behaves_like 'has basic schema properties' do
+        let(:path) { 'scheduleManually' }
+        let(:type) { 'Boolean' }
+        let(:name) { I18n.t('activerecord.attributes.work_package.schedule_manually') }
+        let(:required) { false }
+        let(:has_default) { true }
         let(:writable) { true }
       end
     end
@@ -700,7 +711,7 @@ describe ::API::V3::WorkPackages::Schema::WorkPackageSchemaRepresenter do
         it_behaves_like 'has basic schema properties' do
           let(:path) { 'version' }
           let(:type) { 'Version' }
-          let(:name) { I18n.t('activerecord.attributes.work_package.fixed_version') }
+          let(:name) { I18n.t('activerecord.attributes.work_package.version') }
           let(:required) { false }
           let(:writable) { true }
         end
@@ -718,7 +729,7 @@ describe ::API::V3::WorkPackages::Schema::WorkPackageSchemaRepresenter do
         it_behaves_like 'has basic schema properties' do
           let(:path) { 'version' }
           let(:type) { 'Version' }
-          let(:name) { I18n.t('activerecord.attributes.work_package.fixed_version') }
+          let(:name) { I18n.t('activerecord.attributes.work_package.version') }
           let(:required) { false }
           let(:writable) { false }
         end
@@ -934,7 +945,7 @@ describe ::API::V3::WorkPackages::Schema::WorkPackageSchemaRepresenter do
 
       context 'if the project is updated' do
         it_behaves_like 'changes' do
-          let(:change) { work_package.project.updated_on += 1.hour }
+          let(:change) { work_package.project.updated_at += 1.hour }
         end
       end
 
@@ -988,12 +999,17 @@ describe ::API::V3::WorkPackages::Schema::WorkPackageSchemaRepresenter do
           let(:permissions1) { %i[blubs some more] }
           let(:role2) { FactoryBot.build_stubbed(:role, permissions: permissions2) }
           let(:permissions2) { %i[and other random permissions] }
+          let(:roles) { [role1, role2] }
 
           let(:setup) do
             allow(Authorization)
               .to receive(:roles)
               .with(current_user, project)
-              .and_return([role1, role2])
+              .and_return(roles)
+
+            allow(roles)
+              .to receive(:eager_load)
+              .and_return(roles)
           end
 
           let(:change) do

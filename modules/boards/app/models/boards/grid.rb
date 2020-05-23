@@ -1,8 +1,8 @@
 #-- encoding: UTF-8
 
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -37,6 +37,10 @@ module Boards
 
     before_destroy :delete_queries
 
+    set_acts_as_attachable_options view_permission: :show_board_views,
+                                   delete_permission: :manage_board_views,
+                                   add_permission: :manage_board_views
+
     def user_deletable?
       true
     end
@@ -53,7 +57,7 @@ module Boards
 
     def contained_query_ids
       widgets
-        .map { |w| w.options['query_id'] }
+        .map { |w| w.options['queryId'] || w.options['query_id'] }
         .compact
     end
   end

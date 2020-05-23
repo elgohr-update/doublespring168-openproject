@@ -1,6 +1,6 @@
 // -- copyright
-// OpenProject is a project management system.
-// Copyright (C) 2012-2015 the OpenProject Foundation (OPF)
+// OpenProject is an open source project management software.
+// Copyright (C) 2012-2020 the OpenProject GmbH
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License version 3.
@@ -23,16 +23,17 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //
-// See doc/COPYRIGHT.rdoc for more details.
+// See docs/COPYRIGHT.rdoc for more details.
 // ++
 
 import {Component, ElementRef, OnInit} from '@angular/core';
 import {keyCodes} from 'core-app/modules/common/keyCodes.enum';
 import {HttpClient} from '@angular/common/http';
-import {DynamicBootstrapper} from 'core-app/globals/dynamic-bootstrapper';
+
+export const remoteFieldUpdaterSelector = 'remote-field-updater';
 
 @Component({
-  selector: 'remote-field-updater',
+  selector: remoteFieldUpdaterSelector,
   template: ''
 })
 export class RemoteFieldUpdaterComponent implements OnInit {
@@ -56,7 +57,7 @@ export class RemoteFieldUpdaterComponent implements OnInit {
     this.url = $element.data('url');
     this.htmlMode = $element.data('mode') === 'html';
 
-    this.inputs.on('keyup change', _.debounce((event:JQuery.Event) => {
+    this.inputs.on('keyup change', _.debounce((event:JQuery.TriggeredEvent) => {
       // This prevents an update of the result list when
       // tabbing to the result list (9),
       // pressing enter (13)
@@ -86,7 +87,8 @@ export class RemoteFieldUpdaterComponent implements OnInit {
         {
           params: params,
           headers: headers,
-          responseType: (this.htmlMode ? 'text' : 'json') as any
+          responseType: (this.htmlMode ? 'text' : 'json') as any,
+          withCredentials: true
         }
       );
   }
@@ -114,4 +116,3 @@ export class RemoteFieldUpdaterComponent implements OnInit {
   }
 }
 
-DynamicBootstrapper.register({ cls: RemoteFieldUpdaterComponent, selector: 'remote-field-updater'});

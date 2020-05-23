@@ -1,3 +1,24 @@
+#-- copyright
+#OpenProject is an open source project management software.
+#Copyright (C) 2012-2020 the OpenProject GmbH
+#This program is free software; you can redistribute it and/or
+#modify it under the terms of the GNU General Public License version 3.
+#OpenProject is a fork of ChiliProject, which is a fork of Redmine. The copyright follows:
+#Copyright (C) 2006-2017 Jean-Philippe Lang
+#Copyright (C) 2010-2013 the ChiliProject Team
+#This program is free software; you can redistribute it and/or
+#modify it under the terms of the GNU General Public License
+#as published by the Free Software Foundation; either version 2
+#of the License, or (at your option) any later version.
+#This program is distributed in the hope that it will be useful,
+#but WITHOUT ANY WARRANTY; without even the implied warranty of
+#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#GNU General Public License for more details.
+#You should have received a copy of the GNU General Public License
+#along with this program; if not, write to the Free Software
+#Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+#See docs/COPYRIGHT.rdoc for more details.
+#++
 vi:
   no_results_title_text: Hiện không có nội dung.
   activities:
@@ -7,29 +28,51 @@ vi:
     plugins:
       no_results_title_text: Không có plugins nào khả dụng.
     custom_styles:
-      custom_colors: "Custom colors"
-      customize: "Customize your OpenProject installation with your own logo. Note: This logo will be publicly accessible."
+      color_theme: "Màu sắc giao diện"
+      color_theme_custom: "(Tùy chỉnh)"
+      colors:
+        alternative-color: "Thay thế"
+        content-link-color: "Liên kết phông chữ"
+        primary-color: "Cấp 1"
+        primary-color-dark: "Cấp 1(tối)"
+        header-bg-color: "Nền của tiêu đề"
+        header-item-bg-hover-color: "Màu nền tiêu đề khi trỏ chuột"
+        header-item-font-color: "Phông chữ tiêu đề"
+        header-item-font-hover-color: "Phông chữ tiêu đề khi trỏ chuột"
+        header-border-bottom-color: "Viền của tiêu đề"
+        main-menu-bg-color: "Nền menu chính"
+        main-menu-bg-selected-background: "Menu chính khi được chọn"
+        main-menu-bg-hover-background: "Menu khi trỏ chuột"
+        main-menu-font-color: "Phông chữ menu chính"
+        main-menu-selected-font-color: "Phông chữ menu chính khi được chọn"
+        main-menu-hover-font-color: "Phông chữ menu chính khi trỏ chuột"
+        main-menu-border-color: "Đường viền menu chính"
+      custom_colors: "Tùy chỉnh màu sắc"
+      customize: "Tùy chỉnh cài đặt OpenProject của bạn với logo của riêng bạn: Ghi chú: Logo này sẽ được truy cập công khai."
       enterprise_notice: "As a special 'Thank you!' for their financial contribution to develop OpenProject, this tiny feature is only available for Enterprise Edition support subscribers."
-      manage_colors: "Edit color select options"
+      manage_colors: "Chỉnh sửa màu sắc trong select option"
       instructions:
-        alternative_color: "Strong accent color, typically used for most the important button on a screen."
-        content_link_color: "Màu sắc Font chữ các liên kết"
-        primary_color: "Main color."
-        primary_color_dark: "Typically a darker version of the main color used for hover effects."
-        header_bg_color: "Màu nền của tiêu đề."
-        header_item_bg_hover_color: "Màu nền của tiêu đề được thay đổi khi đưa chuột đến"
-        header_item_font_color: "Màu sắc font chữ của tiêu đề đã nhấp"
-        header_item_font_hover_color: "Màu sắc của tiêu đề được thay đổi khi đưa chuột đến"
-        header_border_bottom_color: "Dòng ngắt trang, chỗ này sẽ bỏ trống nếu bạn không muốn hiễn thị"
-        main_menu_bg_color: "Màu nền của trình đơn ở bên trái."
+        alternative-color: "Màu nhấn mạnh, thường được sử dụng cho nút quan trọng nhất trên màn hình."
+        content-link-color: "Màu sắc Font chữ các liên kết"
+        primary-color: "Màu sắc chính"
+        primary-color-dark: "Typically a darker version of the main color used for hover effects."
+        header-item-bg-hover-color: "Màu nền của tiêu đề được thay đổi khi đưa chuột đến"
+        header-item-font-color: "Màu sắc font chữ của tiêu đề đã nhấp"
+        header-item-font-hover-color: "Màu sắc của tiêu đề được thay đổi khi đưa chuột đến"
+        header-border-bottom-color: "Dòng ngắt trang, chỗ này sẽ bỏ trống nếu bạn không muốn hiễn thị"
+        main-menu-bg-color: "Màu nền của trình đơn ở bên trái."
+      theme_warning: Changing the theme will overwrite you custom style. The design will then be lost. Are you sure you want to continue?
     enterprise:
-      upgrade_to_ee: "Upgrade to Enterprise Edition"
+      upgrade_to_ee: "Nâng cấp lên bản cho doanh nghiệp"
       add_token: "Upload an Enterprise Edition support token"
-      replace_token: "Replace your current support token"
-      order: "Order Enterprise Edition"
-      paste: "Paste your Enterprise Edition support token"
-      required_for_feature: "This feature is only available with an active Enterprise Edition support token."
-      enterprise_link: "For more information, click here."
+      replace_token: "Thay thế support token hiện tại của bạn"
+      order: "Đặt hàng Enterprise Edition"
+      paste: "Dán Enterprise Edition support token của bạn"
+      required_for_feature: "Tính năng này chỉ có sẵn với một  Enterprise Edition support token được kích hoạt"
+      enterprise_link: "Thêm thông tin, nhấn vào đây."
+      start_trial: 'Bắt đầu dùng thử miễn phí'
+      book_now: 'Đặt chỗ ngay'
+      get_quote: 'Lấy trích dẫn'
   announcements:
     show_until: Xem đến khi
     is_active: Đang hiển thị
@@ -45,7 +88,50 @@ vi:
       no_results_content_title: Không có hiện tại không có chế độ xác thực.
       no_results_content_text: Tạo một chế độ xác thực mới
   ldap_auth_sources:
+    technical_warning_html: |
+      Biểu mẫu LDAP này yêu cầu kiến thức kỹ thuật về thiết lập LDAP / Active Directory của bạn.
+      <br/>
+      <a href="https://www.openproject.org/help/administration/manage-ldap-authentication/">Vui lòng truy cập tài liệu của chúng tôi để được hướng dẫn chi tiết</a>.
+    attribute_texts:
+      name: Tên tùy ý của kết nối LDAP
+      host: Tên máy chủ LDAP hoặc địa chỉ IP
+      login_map: Khóa thuộc tính trong LDAP được sử dụng để xác định thông tin đăng nhập người dùng duy nhất. Thông thường, đây sẽ là `uid` hoặc` samAccountName`.
+      generic_map: "84/5000\nKhóa thuộc tính trong LDAP được ánh xạ tới thuộc tính `%{attribute}` của OpenProject"
+      admin_map_html: "Tùy chọn: Khóa thuộc tính trong LDAP mà <strong>nếu có</strong> đánh dấu người dùng OpenProject là quản trị viên. Để trống khi nghi ngờ."
+      system_user_dn_html: |
+
+        58/5000
+        Nhập DN của người dùng hệ thống được sử dụng để truy cập chỉ đọc.
+        <br/>
+        Example: uid=openproject,ou=system,dc=example,dc=com
+      system_user_password: Nhập mật khẩu liên kết của người dùng hệ thống
+      base_dn: |
+        Enter the Base DN of the subtree in LDAP you want OpenProject to look for users and groups.
+        OpenProject will filter for provided usernames in this subtree only.
+        Example: ou=users,dc=example,dc=com
+      filter_string: |
+        Add an optional RFC4515 filter to apply to the results returned for users filtered in the LDAP.
+        This can be used to restrict the set of users that are found by OpenProject for authentication and group synchronization.
+      filter_string_concat: |
+        OpenProject will always filter for the login attribute provided by the user to identify the record. If you provide a filter here,
+        it will be concatenated with an AND. By default, a catch-all (objectClass=*) will be used as a filter.
+      onthefly_register: |
+        If you check this box, OpenProject will automatically create new users from their LDAP entries
+        when they first authenticate with OpenProject.
+        Leave this unchecked to only allow existing accounts in OpenProject to authenticate through LDAP!
+      onthefly_group_sync: |
+        If you enable group synchronization for this LDAP connection, users will also be automatically created
+        in OpenProject for synchronized groups. Without it, only existing accounts in OpenProject will be added to groups.
     connection_encryption: 'Mã hóa kết nối'
+    system_account: 'Tài khoản hệ thống'
+    system_account_legend: |
+      OpenProject requires read-only access through a system account to lookup users and groups in your LDAP tree.
+      Please specify the bind credentials for that system user in the following section.
+    ldap_details: 'Chi tiết LDAP '
+    user_settings: 'Attribute mapping'
+    user_settings_legend: |
+      The following fields are related to how users are created in OpenProject from LDAP entries and
+      what LDAP attributes are used to define the attributes of an OpenProject user (attribute mapping).
     tls_mode:
       plain: 'không'
       simple_tls: 'simple_tls'
@@ -62,10 +148,10 @@ vi:
     index:
       no_results_title_text: Hiện có không có màu sắc.
       no_results_content_text: Tạo một màu mới
-    label_no_color: 'No color'
+    label_no_color: 'Không màu'
   custom_actions:
     actions:
-      name: 'Actions'
+      name: 'Hành động'
       add: 'Thêm hành động'
       assigned_to:
         executing_user_value: '(Assign to executing user)'
@@ -147,9 +233,10 @@ vi:
     index:
       no_results_title_text: Hiện không có tin tức báo cáo.
       no_results_content_text: Thêm một mục tin tức
-    my_page:
-      no_results_title_text: Không có gì mới để báo cáo.
   users:
+    groups:
+      member_in_these_groups: 'This user is currently a member of the following groups:'
+      no_results_title_text: This user is currently not a member in any group.
     memberships:
       no_results_title_text: Người dùng này không phải là thành viên của dự án.
   prioritiies:
@@ -207,15 +294,6 @@ vi:
     move:
       no_common_statuses_exists: "Có là tình trạng không có sẵn cho tất cả các gói đã chọn công việc. Tình trạng của họ không thể thay đổi."
       unsupported_for_multiple_projects: 'Bulk move/copy is not supported for work packages from multiple projects'
-    list_simple:
-      assigned:
-        no_results_title_text: There are currently no work packages assigned to me.
-      reported:
-        no_results_title_text: There are currently no work packages that I have reported.
-      responsible:
-        no_results_title_text: Hiện có không có gói công việc tôi là trách nhiệm.
-      watched:
-        no_results_title_text: There are currently no work packages that I am watching.
     summary:
       reports:
         category:
@@ -280,18 +358,18 @@ vi:
         account: "Tài khoản"
         attr_firstname: "Thuộc tính tên"
         attr_lastname: "Thuộc tính Họ"
-        attr_login: "Thuộc tính đăng nhập"
+        attr_login: "Username attribute"
         attr_mail: "Thuộc tính Email"
         base_dn: "DN căn bản"
         host: "Máy chủ"
-        onthefly: "Tạo người dùng tức thì"
+        onthefly: "Automatic user creation"
         port: "Cổng"
       changeset:
         repository: "Repository"
       comment:
-        commented: "Nhận xét"
+        commented: "Nhận xét" #an object that this comment belongs to
       custom_action:
-        actions: "Actions"
+        actions: "Hành động"
       custom_field:
         default_value: "Giá trị mặc định"
         editable: "Có thể chỉnh sửa"
@@ -337,6 +415,13 @@ vi:
         types: "Các loại"
         versions: "Các phiên bản"
         work_packages: "Work Packages"
+      projects/status:
+        code: 'Trạng thái'
+        explanation: 'Mô tả trạng thái'
+        codes:
+          on_track: 'Theo dõi'
+          at_risk: 'Có rủi ro'
+          off_track: 'Không theo dõi'
       query:
         column_names: "Cột"
         relations_to_type_column: "Quan hệ với %{type}"
@@ -395,12 +480,13 @@ vi:
         done_ratio: "Progress (%)"
         end_insertion: "End of the insertion"
         end_deletion: "End of the deletion"
-        fixed_version: "Phiên bản"
+        version: "Phiên bản"
         parent: "Cha"
         parent_issue: "Cha"
         parent_work_package: "Cha"
         priority: "Độ ưu tiên"
         progress: "Progress (%)"
+        schedule_manually: "Schedule manually"
         spent_hours: "Thời gian"
         spent_time: "Thời gian"
         subproject: "Dự án con"
@@ -428,6 +514,8 @@ vi:
         confirmation: "doesn't match %{attribute}."
         could_not_be_copied: "could not be (fully) copied."
         does_not_exist: "does not exist."
+        error_unauthorized: "Có thể không được truy cập."
+        error_readonly: "was attempted to be written but is not writable."
         empty: "can't be empty."
         even: "must be even."
         exclusion: "is reserved."
@@ -491,6 +579,8 @@ vi:
               invalid_values: "A value is invalid."
               id_filter_required: "An 'id' filter is required."
         project:
+          archived_ancestor: 'Dự án có một khu vực lưu trữ'
+          foreign_wps_reference_version: 'Các gói công việc trong các phiên bản tham chiếu không kế thừa của dự án hoặc kế thừa nó.'
           attributes:
             types:
               in_use_by_work_packages: "still in use by work packages: %{types}"
@@ -524,6 +614,10 @@ vi:
         role:
           permissions:
             dependency_missing: "need to also include '%{dependency}' as '%{permission}' is selected."
+        time_entry:
+          attributes:
+            hours:
+              day_limit: "Tối đa một ngày chỉ có 24 giờ."
         work_package:
           is_not_a_valid_target_for_time_entries: "Work package #%{id} không phải là một mục tiêu hợp lệ để gán lại các mục thời gian."
           attributes:
@@ -616,6 +710,7 @@ vi:
   activity:
     created: "Đã tạo: %{title}"
     updated: "Đã cập nhật: %{title}"
+  #common attributes of all models
   attributes:
     active: "Đang hoạt động"
     assigned_to: "Người được giao"
@@ -648,14 +743,16 @@ vi:
     is_default: "Giá trị mặc định"
     is_for_all: "Cho tất cả các dự án"
     is_public: "Công cộng"
+    #kept for backwards compatibility
     issue: "Work Package"
     lastname: "Họ"
-    login: "Đăng nhập"
+    login: "Username"
     mail: "Thư điện tử"
     name: "Tên"
     password: "Mật khẩu"
     priority: "Độ ưu tiên"
     project: "Dự án"
+    public: "Công cộng"
     responsible: "Trách nhiệm"
     role: "Vai trò"
     roles: "Vai trò"
@@ -667,10 +764,12 @@ vi:
     type: "Kiểu"
     updated_at: "Được cập nhật vào lúc"
     updated_on: "Được cập nhật vào lúc"
+    uploader: "Tải lên"
     user: "Người dùng"
     version: "Phiên bản"
     work_package: "Work Package"
   button_add: "Thêm"
+  button_add_comment: "Thêm bình luận"
   button_add_member: Add member
   button_add_watcher: "Thêm người theo dõi"
   button_annotate: "Chú giải"
@@ -791,9 +890,13 @@ vi:
       - "Thứ sáu"
       - "Thứ 7"
     formats:
+      #Use the strftime parameters for formats.
+      #When no format has been given, it uses default.
+      #You can provide other formats here if you like!
       default: "%d-%m-%Y"
       long: "%d %B, %Y"
       short: "%b %d"
+    #Don't forget the nil at the beginning; there's no such thing as a 0th month
     month_names:
       - null
       - "Tháng Một"
@@ -808,6 +911,7 @@ vi:
       - "Tháng mười"
       - "Tháng Mười một"
       - "Tháng mười hai"
+    #Used in date_select and datime_select.
     order:
       - ':năm'
       - ':tháng'
@@ -925,6 +1029,7 @@ vi:
   description_sub_work_package: "Work package con hiện tại"
   description_toc_toggle: "Hiển thị/ẩn mục lục"
   description_wiki_subpages_reassign: "Chọn trang cha mới"
+  #Text direction: Left-to-Right (ltr) or Right-to-Left (rtl)
   direction: ltr
   ee:
     upsale:
@@ -933,13 +1038,12 @@ vi:
         add_groups: "Add new attribute groups"
         rename_groups: "Rename attributes groups"
       project_filters:
-        description_html: "Upgrade to %{link} to filter and sort on custom fields"
-  enumeration_activities: "Hoạt động (theo dõi thời gian)"
+        description_html: "Lọc và sắp xếp trên các trường tùy chỉnh là một tính năng phiên bản doanh nghiệp."
+  enumeration_activities: "Theo dõi hoạt động"
   enumeration_work_package_priorities: "Độ ưu tiên của work package"
-  enumeration_system_activity: "Hoạt động hệ thống"
   enumeration_reported_project_statuses: "Tình trạng dự án đã báo cáo"
   error_auth_source_sso_failed: "Single Sign-On (SSO) for user '%{value}' failed"
-  error_can_not_archive_project: "Dự án này không thể được lưu trữ: có ít nhất một gói công việc được chỉ định cho một phiên bản được xác định trong dự án này."
+  error_can_not_archive_project: "Dự án này không thể lưu trữ: %{errors}"
   error_can_not_delete_entry: "Không thể xoá"
   error_can_not_delete_custom_field: "Không thể xóa mục tùy biến"
   error_can_not_delete_type: "Kiểu này chứa các work package và không thể bị xóa."
@@ -948,6 +1052,7 @@ vi:
   error_can_not_remove_role: "Vai trò này đang được sử dụng và không thể bị xóa."
   error_can_not_reopen_work_package_on_closed_version: "Không thể mở lại cho một work package đã được gán cho một phiên bản đã đóng"
   error_can_not_find_all_resources: "Could not find all related resources to this request."
+  error_can_not_unarchive_project: "Dự án này không thể lưu trữ: %{errors}"
   error_check_user_and_role: "Hãy chọn người dùng và một vai trò."
   error_code: "Error %{code}"
   error_cookie_missing: 'The OpenProject cookie is missing. Please ensure that cookies are enabled, as this application will not properly function without.'
@@ -1005,6 +1110,8 @@ vi:
       pdf_with_descriptions: "PDF có mô tả"
       pdf_with_descriptions_and_attachments: "PDF with descriptions and attachments"
       pdf_with_attachments: "PDF with attachments"
+    image:
+      omitted: "Hình ảnh không được xuất"
   extraction:
     available:
       pdftotext: "Pdftotext có sẵn (không bắt buộc)"
@@ -1035,15 +1142,10 @@ vi:
     blocks:
       community: "Cộng đồng OpenProject"
       upsale:
-        become_hero: "Become a hero!"
-        title: "Upgrade to Enterprise Edition"
-        description: "What are the benefits?"
+        title: "Nâng cấp lên Ultimate Edition"
         more_info: "More information"
-        additional_features: "Additional powerful premium features"
-        professional_support: "Professional support from the OpenProject experts"
-        you_contribute: "Developers need to pay their bills, too. With Enterprise Edition you substantially contribute to this Open-Source community effort."
     links:
-      upgrade_enterprise_edition: "Upgrade to Enterprise Edition"
+      upgrade_enterprise_edition: "Nâng cấp lên Ultimate Edition"
       postgres_migration: "Migrating your installation to PostgreSQL"
       user_guides: "User guides"
       faq: "FAQ"
@@ -1052,8 +1154,11 @@ vi:
       blog: "OpenProject blog"
       forums: "Diễn đàn cộng đồng"
       newsletter: "Security alerts / Newsletter"
+  journals:
+    changes_retracted: "Những thay đổi đã bị rút lại"
   links:
     configuration_guide: 'Configuration guide'
+    get_in_touch: "Nếu bạn còn những câu hỏi khác ? Hãy liên lạc với chúng tôi"
   instructions_after_registration: "Bạn có thể đăng nhập ngay sau khi tài khoản của bạn đã được kích hoạt bằng cách nhấn vào %{signin}."
   instructions_after_logout: "Bạn có thể đăng nhập một lần nữa bằng cách nhấp vào %{signin}."
   instructions_after_error: "Bạn có thể thử đăng nhập lại bằng cách nhấn vào %{signin}. Nếu lỗi vẫn còn, yêu cầu quản trị của bạn để được giúp đỡ."
@@ -1193,6 +1298,7 @@ vi:
   label_delete_project: "Delete project"
   label_deleted: "đã xóa"
   label_deleted_custom_field: "(đã xóa các mục tùy chỉnh)"
+  label_deleted_custom_option: "(deleted option)"
   label_descending: "Giảm dần"
   label_details: "Chi tiết"
   label_development_roadmap: "Development roadmap"
@@ -1210,6 +1316,7 @@ vi:
   label_duplicate: "duplicate"
   label_duplicates: "duplicates"
   label_edit: "Chỉnh sửa"
+  label_edit_x: "Edit: %{x}"
   label_enable_multi_select: "Bật/tắt đa lựa chọn"
   label_enabled_project_custom_fields: 'Enabled custom fields'
   label_enabled_project_modules: 'Enabled modules'
@@ -1316,7 +1423,6 @@ vi:
   label_member_new: "New member"
   label_member_all_admin: "(All roles due to admin status)"
   label_member_plural: "Members"
-  label_view_all_members: "View all members"
   label_menu_item_name: "Name of menu item"
   label_message: "Message"
   label_message_last: "Last message"
@@ -1338,13 +1444,13 @@ vi:
   label_move_work_package: "Di chuyển work package"
   label_my_account: "Tài khoản của tôi"
   label_my_account_data: "Dữ liệu tài khoản của tôi"
-  label_my_page: "Trang của tôi"
   label_my_projects: "Dự án của tôi"
   label_my_queries: "Các truy vấn tùy biến của tôi"
   label_never: "Never"
   label_new: "Mới"
   label_new_features: "New features"
   label_new_statuses_allowed: "Trạng thái mới được phép"
+  label_news_singular: "Tin tức"
   label_news_added: "Đã thêm tin"
   label_news_comment_added: "Bình luận được thêm vào một tin tức"
   label_news_latest: "Tin mới"
@@ -1551,6 +1657,7 @@ vi:
   label_wiki_content_added: "Wiki page added"
   label_wiki_content_updated: "Wiki page updated"
   label_wiki_toc: "Bảng mục lục"
+  label_wiki_toc_empty: "Table of Contents is empty as no headings are present."
   label_wiki_dont_show_menu_item: "Do not show this wikipage in project navigation"
   label_wiki_edit: "Wiki edit"
   label_wiki_edit_plural: "Wiki edits"
@@ -1582,51 +1689,23 @@ vi:
   label_work_package_updated: "đã cập nhật work package"
   label_work_package_tracking: "Theo dõi work package"
   label_work_package_view_all: "Xem tất cả các work package"
-  label_work_package_view_all_assigned_to_me: "Xem tất cả các work package được chỉ định cho tôi"
-  label_work_package_view_all_reported_by_me: "Xem tất cả các work package được báo cáo bởi tôi"
-  label_work_package_view_all_responsible_for: "Xem tất cả các gói công việc mà tôi có trách nhiệm"
-  label_work_package_view_all_watched: "View all watched work packages"
-  label_work_package_watchers: "Watchers"
   label_workflow: "Quy trình làm việc"
   label_workflow_plural: "Workflows"
   label_workflow_summary: "Tóm tắt"
   label_x_closed_work_packages_abbr:
+    zero: "0 đóng"
     other: "%{count} closed"
   label_x_comments:
+    zero: "Không có bình luận"
     other: "%{count} comments"
   label_x_open_work_packages_abbr:
+    zero: "0 mở"
     other: "%{count} open"
-  label_x_open_work_packages_abbr_on_total:
-    other: "%{count} open / %{total}"
   label_x_projects:
+    zero: "Không có dự án"
     other: "%{count} projects"
   label_year: "Year"
   label_yesterday: "yesterday"
-  label_keyboard_function: "Function"
-  label_keyboard_shortcut: "Shortcut"
-  label_keyboard_accesskey: "Accesskey"
-  label_keyboard_shortcut_help_heading: "Available Keyboard Shortcuts"
-  label_keyboard_shortcut_within_project: "Project related shortcuts:"
-  label_keyboard_shortcut_global_shortcuts: "Global shortcuts:"
-  label_keyboard_shortcut_some_pages_only: "Special shortcuts:"
-  label_keyboard_shortcut_search_global: "Global search"
-  label_keyboard_shortcut_search_project: "Find a project"
-  label_keyboard_shortcut_go_my_page: "Go to my page"
-  label_keyboard_shortcut_show_help: "Show this help message"
-  label_keyboard_shortcut_go_overview: "Go to project overview"
-  label_keyboard_shortcut_go_work_package: "Go to project work packages"
-  label_keyboard_shortcut_go_wiki: "Go to project wiki"
-  label_keyboard_shortcut_go_activity: "Go to project activities"
-  label_keyboard_shortcut_go_calendar: "Go to project calendar"
-  label_keyboard_shortcut_go_news: "Go to project news"
-  label_keyboard_shortcut_go_timelines: "Go to timelines"
-  label_keyboard_shortcut_new_work_package: "Create new work package"
-  label_keyboard_shortcut_details_package: "Show work packages details pane"
-  label_keyboard_shortcut_go_edit: "Go to edit the current item (on detail pages only)"
-  label_keyboard_shortcut_open_more_menu: "Open more-menu (on detail pages only)"
-  label_keyboard_shortcut_go_preview: "Go to preview the current edit (on edit pages only)"
-  label_keyboard_shortcut_focus_previous_item: "Focus previous list element (on some lists only)"
-  label_keyboard_shortcut_focus_next_item: "Focus next list element (on some lists only)"
   auth_source:
     using_abstract_auth_source: "Can't use an abstract authentication source."
     ldap_error: "LDAP-Error: %{error_message}"
@@ -1640,9 +1719,10 @@ vi:
     legacy_warning:
       timeline: 'Macro này đã bị xóa. Bạn có thể thay thế các chức năng với một table macro.'
     include_wiki_page:
+      removed: 'The macro does no longer exist.'
+    wiki_child_pages:
       errors:
         page_not_found: "Không tim thấy trang wiki %{name}."
-        circular_inclusion: "Phát hiện có tham chiếu vòng tròn giữa các trang."
     create_work_package_link:
       errors:
         no_project_context: 'Calling create_work_package_link macro from outside project context.'
@@ -1650,19 +1730,21 @@ vi:
       link_name: 'Work package mới'
       link_name_type: 'New %{type_name}'
   mail:
-    actions: 'Actions'
+    actions: 'Hành động'
   mail_body_account_activation_request: "A new user (%{value}) has registered. The account is pending your approval:"
   mail_body_account_information: "Your account information"
   mail_body_account_information_external: "You can use your %{value} account to log in."
   mail_body_lost_password: "To change your password, click on the following link:"
   mail_body_register: "To activate your account, click on the following link:"
   mail_body_reminder: "%{count} work package(s) that are assigned to you are due in the next %{days} days:"
+  mail_body_group_reminder: "%{count}  gói công việc được gán cho nhóm \"%{group}\" là do %{days} ngày tiếp theo:"
   mail_body_wiki_content_added: "The '%{id}' wiki page has been added by %{author}."
   mail_body_wiki_content_updated: "The '%{id}' wiki page has been updated by %{author}."
   mail_subject_account_activation_request: "%{value} account activation request"
   mail_subject_lost_password: "Your %{value} password"
   mail_subject_register: "Your %{value} account activation"
   mail_subject_reminder: "%{count} work package(s) due in the next %{days} days"
+  mail_subject_group_reminder: "Dành cho nhóm \"%{group}\" %{count} gói công việc %{days} ngày tiếp theo"
   mail_subject_wiki_content_added: "'%{id}' wiki page has been added"
   mail_subject_wiki_content_updated: "'%{id}' wiki page has been updated"
   mail_user_activation_limit_reached:
@@ -1672,8 +1754,8 @@ vi:
       The user cannot activate their account since the user limit has been reached.
     steps:
       label: "To allow the user to sign in you can either: "
-      a: "Upgrade your payment plan ([here](upgrade_url))"
-      b: "Lock or delete an existing user ([here](users_url))"
+      a: "Upgrade your payment plan ([here](upgrade_url))" #here turned into a link
+      b: "Lock or delete an existing user ([here](users_url))" #here turned into a link
   more_actions: "More functions"
   noscript_description: "You need to activate JavaScript in order to use OpenProject!"
   noscript_heading: "JavaScript disabled"
@@ -1740,6 +1822,7 @@ vi:
   notice_project_cannot_update_custom_fields: "Bạn không thể cập nhật các mục tùy chỉnh có sẵn của dự án. Dự án không hợp lệ: %{errors}"
   notice_attachment_migration_wiki_page: >
     Trang này được tạo ra tự động trong quá trình Cập Nhật của OpenProject. Nó chứa tất cả các tập tin đính kèm trước đó liên kết với %{container_type} "%{container_name}".
+  #Default format for numbers
   number:
     format:
       delimiter: ""
@@ -1844,6 +1927,7 @@ vi:
       title: Change the project's identifier
     archive:
       are_you_sure: "Bạn có chắc bạn muốn lưu trữ các dự án '%{name}'?"
+      archived: "Archived"
   project_module_activity: "Hoạt động"
   project_module_forums: "Diễn đàn"
   project_module_calendar: "Lịch"
@@ -1855,6 +1939,8 @@ vi:
   project_module_wiki: "Wiki"
   query:
     attribute_and_direction: "%{attribute} (%{direction})"
+  #possible query parameters (e.g. issue queries),
+  #which are not attributes of an AR-Model.
   query_fields:
     active_or_archived: "Active or archived"
     assigned_to_role: "Assignee's role"
@@ -2070,7 +2156,6 @@ vi:
   setting_welcome_text: "Welcome block text"
   setting_welcome_title: "Welcome block title"
   setting_welcome_on_homescreen: "Display welcome block on homescreen"
-  setting_wiki_compression: "Wiki history compression"
   setting_work_package_group_assignment: "Allow assignment to groups"
   setting_work_package_list_default_highlighting_mode: "Default highlighting mode"
   setting_work_package_list_default_highlighted_attributes: "Default inline highlighted attributes"
@@ -2098,6 +2183,7 @@ vi:
   status_invited: invited
   status_locked: locked
   status_registered: registered
+  #Used in array.to_sentence.
   support:
     array:
       sentence_connector: "and"
@@ -2133,7 +2219,7 @@ vi:
   text_destroy_with_associated: "There are additional objects assossociated with the work package(s) that are to be deleted. Those objects are of the following types:"
   text_destroy_what_to_do: "What do you want to do?"
   text_diff_truncated: "... This diff was truncated because it exceeds the maximum size that can be displayed."
-  text_email_delivery_not_configured: "Email delivery is not configured, and notifications are disabled.\nConfigure your SMTP server in config/configuration.yml and restart the application to enable them."
+  text_email_delivery_not_configured: "Gửi email không được cấu hình và thông báo bị vô hiệu hóa.\nCấu hình máy chủ SMTP của bạn để kích hoạt chúng."
   text_enumeration_category_reassign_to: "Reassign them to this value:"
   text_enumeration_destroy_question: "%{count} objects are assigned to this value."
   text_file_repository_writable: "Attachments directory writable"
@@ -2146,7 +2232,8 @@ vi:
   text_work_package_category_destroy_question: "Some work packages (%{count}) are assigned to this category. What do you want to do?"
   text_work_package_category_reassign_to: "Reassign work packages to this category"
   text_work_package_updated: "Work package %{id} has been updated by %{author}."
-  text_work_package_watcher_added: "You have been added as a watcher to Work package %{id} by %{watcher_setter}."
+  text_work_package_watcher_added: "You have been added as a watcher to Work package %{id} by %{watcher_changer}."
+  text_work_package_watcher_removed: "You have been removed from watchers of Work package %{id} by %{watcher_changer}."
   text_work_packages_destroy_confirmation: "Are you sure you want to delete the selected work package(s)?"
   text_work_packages_ref_in_commit_messages: "Referencing and fixing work packages in commit messages"
   text_journal_added: "%{label} %{value} added"
@@ -2406,6 +2493,7 @@ vi:
       mail_self_notified: "I want to be notified of changes that I make myself"
     status_user_and_brute_force: "%{user} and %{brute_force}"
     status_change: "Status change"
+    text_change_disabled_for_provider_login: "Tên được thiết lập với người cung cấp đăng nhập của bạn và vì thế không thể thay đổi"
     unlock: "Mở khoá"
     unlock_and_reset_failed_logins: "Unlock and reset failed logins"
   version_status_closed: "đã đóng"
@@ -2423,6 +2511,17 @@ vi:
     User limit reached. You cannot activate any more users. Please <a href="%{upgrade_url}">upgrade your plan</a> or block members to allow for additional users.
   warning_user_limit_reached_instructions: >
     You reached your user limit (%{current}/%{max} active users). Please contact sales@openproject.com to upgrade your Enterprise Edition plan and add additional users.
+  0: >
+
+  warning_bar:
+    protocol_mismatch:
+      title: 'Giao thức cài đặt không khớp'
+      text_html: >
+        Ứng dụng của bạn đang chạy với cài đặt giao thức được đặt thành  <code>%{set_protocol}</code>, nhưng yêu cầu là <code>%{actual_protocol}</code>  yêu cầu. Điều này sẽ dẫn đến lỗi! Truy cập  <a href="%{setting_path}"> Cài đặt hệ thống </a> và thay đổi cài đặt "Giao thức" để sửa lỗi này.
+    hostname_mismatch:
+      title: 'Giao thức cài đặt không khớp'
+      text_html: >
+        Ứng dụng của bạn đang chạy với cài đặt tên máy chủ được đặt thành <code>%{set_hostname}</code>, nhưng yêu cầu là <code>%{actual_hostname}</code> máy chủ  . Điều này sẽ dẫn đến lỗi! Truy cập <a href="%{setting_path}"> Cài đặt hệ thống </a> và thay đổi cài đặt "Tên máy chủ" để sửa lỗi này.
   menu_item: "Menu item"
   menu_item_setting: "Visibility"
   wiki_menu_item_for: "Menu item for wikipage \"%{title}\""
@@ -2431,6 +2530,7 @@ vi:
     You are deleting the only main wiki menu item. You now have to choose a wiki page for which a new main item will be generated. To delete the wiki the wiki module can be deactivated by project administrators.
   wiki_menu_item_delete_not_permitted: The wiki menu item of the only wiki page cannot be deleted.
   query_menu_item_for: "Menu item for query \"%{title}\""
+  #TODO: merge with work_packages top level key
   work_package:
     updated_automatically_by_child_changes: |
       _Updated automatically by changing values within child work package %{child}_
@@ -2475,7 +2575,9 @@ vi:
         estimated_hours: "Estimated hours cannot be set on parent work packages."
         invalid_user_assigned_to_work_package: "The chosen user is not allowed to be '%{property}' for this work package."
         start_date: "Start date cannot be set on parent work packages."
-      writing_read_only_attributes: "You must not write a read-only attribute."
+      eprops:
+        invalid_gzip: "is invalid gzip: %{message}"
+        invalid_json: "is invalid json: %{message}"
     resources:
       schema: 'Schema'
   doorkeeper:
@@ -2483,6 +2585,7 @@ vi:
       status: 'Xác thực'
     errors:
       messages:
+        #Common error messages
         invalid_request: 'Yêu cầu thiếu tham số bắt buộc, bao gồm giá trị tham số không được hỗ trợ hoặc không đúng định dạng.'
         invalid_redirect_uri: "Uri chuyển hướng được yêu cầu không đúng định dạng hoặc không khớp với URI chuyển hướng máy khách."
         unauthorized_client: 'Máy khách không được phép thực hiện yêu cầu bằng phương pháp này.'
@@ -2491,10 +2594,13 @@ vi:
         invalid_code_challenge_method: 'Phương thức thử thách mã phải đơn giản hoặc S256.'
         server_error: 'Máy chủ ủy quyền đã gặp phải một điều kiện không mong muốn khiến nó không thể đáp ứng yêu cầu.'
         temporarily_unavailable: 'Máy chủ ủy quyền hiện không thể xử lý yêu cầu do quá tải tạm thời hoặc bảo trì máy chủ.'
+        #Configuration error messages
         credential_flow_not_configured: 'Resource Owner Password Credentials flow failed due to Doorkeeper.configure.resource_owner_from_credentials being unconfigured.'
         resource_owner_authenticator_not_configured: 'Resource Owner find failed due to Doorkeeper.configure.resource_owner_authenticator being unconfigured.'
         admin_authenticator_not_configured: 'Quyền truy cập vào bảng quản trị bị cấm do Doorkeeper.configure.admin_authenticator không được định cấu hình.'
+        #Access grant errors
         unsupported_response_type: 'Máy chủ ủy quyền không hỗ trợ loại phản hồi này.'
+        #Access token errors
         invalid_client: 'Xác thực ứng dụng khách không thành công do máy khách không xác định, không bao gồm xác thực ứng dụng khách hoặc phương thức xác thực không được hỗ trợ.'
         invalid_grant: 'Quyền được cung cấp không hợp lệ, hết hạn, bị thu hồi, không khớp với URI chuyển hướng được sử dụng trong yêu cầu ủy quyền hoặc được cấp cho một khách hàng khác.'
         unsupported_grant_type: 'Loại cấp quyền không được hỗ trợ bởi máy chủ ủy quyền.'
@@ -2519,6 +2625,7 @@ vi:
         redirect_uri_html: >
           Các URL người dùng được ủy quyền có thể được chuyển hướng đến. Mỗi mục nhập trên một dòng. <br/> Nếu bạn đang đăng ký một ứng dụng máy tính để bàn, hãy sử dụng URL sau.
         confidential: "Kiểm tra xem ứng dụng sẽ được sử dụng trong khi thông tin mật của khách hàng vẫn được đảm bảo. Các ứng dụng di động và Ứng dụng web được cho là không bảo mật."
+        scopes: "Check the scopes you want the application to grant access to. If no scope is checked, api_v3 is assumed."
         client_credential_user_id: "ID người dùng tùy chọn để mạo danh khi khách hàng sử dụng ứng dụng này. Để trống để chỉ cho phép truy cập công cộng"
         register_intro: "If you are developing an OAuth API client application for OpenProject, you can register it using this form for all users to use."
         default_scopes: ""
@@ -2533,8 +2640,8 @@ vi:
       wants_to_access_html: >
         This application requests access to your OpenProject account. <br/> <strong>It has requested the following permissions:</strong>
     scopes:
-      api_v3: "Full API access"
-      api_v3_text: "Application will receive full read & write access to the OpenProject API to perform actions on your behalf."
+      api_v3: "Full API v3 access"
+      api_v3_text: "Application will receive full read & write access to the OpenProject API v3 to perform actions on your behalf."
     grants:
       created_date: "Đã duyệt"
       scopes: "Phân Quyền"

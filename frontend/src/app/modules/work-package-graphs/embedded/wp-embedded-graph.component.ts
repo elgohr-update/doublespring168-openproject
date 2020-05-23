@@ -1,7 +1,7 @@
 import {Component, Input, SimpleChanges} from '@angular/core';
 import {WorkPackageTableConfiguration} from 'core-components/wp-table/wp-table-configuration';
 import {GroupObject} from 'core-app/modules/hal/resources/wp-collection-resource';
-import {Chart, ChartOptions, ChartType} from 'chart.js';
+import {ChartOptions, ChartType} from 'chart.js';
 import {I18nService} from "core-app/modules/common/i18n/i18n.service";
 
 export interface WorkPackageEmbeddedGraphDataset {
@@ -9,6 +9,10 @@ export interface WorkPackageEmbeddedGraphDataset {
   queryProps:any;
   queryId?:number|string;
   groups?:GroupObject[];
+}
+interface ChartDataSet {
+  label:string;
+  data:number[];
 }
 
 @Component({
@@ -21,21 +25,30 @@ export class WorkPackageEmbeddedGraphComponent {
   @Input('chartOptions') public inputChartOptions:ChartOptions;
   @Input('chartType') chartType:ChartType = 'horizontalBar';
 
-  public showTablePagination = false;
   public configuration:WorkPackageTableConfiguration;
   public error:string|null = null;
 
+  public chartHeight = '100%';
   public chartLabels:string[] = [];
-  public chartData:any = [];
+  public chartData:ChartDataSet[] = [];
   public chartOptions:ChartOptions;
+  public initialized = false;
 
-  constructor(readonly i18n:I18nService) {
-  }
+  public text = {
+    noResults: this.i18n.t('js.work_packages.no_results.title'),
+  };
+
+  constructor(readonly i18n:I18nService) {}
 
   ngOnChanges(changes:SimpleChanges) {
     if (changes.datasets) {
       this.setChartOptions();
       this.updateChartData();
+
+
+      if (!changes.datasets.firstChange) {
+        this.initialized = true;
+      }
     } else if (changes.chartType) {
       this.setChartOptions();
     }
@@ -67,6 +80,8 @@ export class WorkPackageEmbeddedGraphComponent {
       }
     });
 
+    this.setHeight();
+
     // keep the array in order to update the labels
     this.chartLabels.length = 0;
     this.chartLabels.push(...uniqLabels);
@@ -84,31 +99,70 @@ export class WorkPackageEmbeddedGraphComponent {
       }
     };
 
-    let chartTypeDefaults:ChartOptions = {};
-
-    if (this.chartType === 'horizontalBar') {
-      chartTypeDefaults = {
-        scales: {
-          xAxes: [{
-            stacked: true,
-            ticks: {
-              callback: (value:number) => {
-                if (Math.floor(value) === value) {
-                  return value;
-                } else {
-                  return 0;
-                }
-              }
-            }
-          }],
-            yAxes:
-          [{
-            stacked: true
-          }]
-        }
-      };
+    let chartTypeDefaults:ChartOptions = {scales:{}};
+    if (this.chartType === 'horizontalBar' || this.chartType === 'bar' ) {
+     this.setChartAxesValues(chartTypeDefaults);
     }
 
     this.chartOptions = Object.assign({}, defaults, chartTypeDefaults, this.inputChartOptions);
+  }
+
+  public get hasDataToDisplay() {
+    return this.chartData.length > 0 && this.chartData.some(set => set.data.length > 0);
+  }
+
+  private setHeight() {
+    if (this.chartType === 'horizontalBar' && this.datasets && this.datasets[0]) {
+      let labels:string[] = [];
+      this.datasets.forEach(d => d.groups!.forEach(g => {
+        if (!labels.includes(g.value)) {
+          labels.push(g.value);
+        }
+      }));
+      let height = labels.length * 40;
+
+      if (this.datasets.length > 1) {
+        // make some more room for the legend
+        height += 40;
+      }
+
+      // some minimum height e.g. for the labels
+      height += 40;
+
+      this.chartHeight = `${height}px`;
+    } else {
+      this.chartHeight = '100%';
+    }
+  }
+
+  // function to set ticks of axis
+  private setChartAxesValues(chartOptions:ChartOptions) {
+
+    let changeableValuesAxis = [{
+      stacked: true,
+      ticks: {
+        callback: (value:number) => {
+          if (Math.floor(value) === value) {
+            return value;
+          } else {
+            return null;
+          }
+        }
+      }
+    }];
+
+    let constantValuesAxis = [{
+      stacked: true
+    }];
+
+    if (chartOptions.scales) {
+      if (this.chartType === 'bar') {
+        chartOptions.scales.yAxes = changeableValuesAxis;
+        chartOptions.scales.xAxes = constantValuesAxis;
+       } else if (this.chartType === 'horizontalBar') {
+        chartOptions.scales.xAxes = changeableValuesAxis;
+        chartOptions.scales.yAxes = constantValuesAxis;
+      }
+    }
   }
 }

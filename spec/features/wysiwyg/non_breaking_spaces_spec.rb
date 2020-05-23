@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -30,7 +30,9 @@ require 'spec_helper'
 
 describe 'Wysiwyg &nbsp; behavior',
          type: :feature, js: true do
-  let(:user) { FactoryBot.create :admin }
+  using_shared_fixtures :admin
+  let(:user) { admin}
+
   let(:project) { FactoryBot.create(:project, enabled_module_names: %w[wiki]) }
   let(:editor) { ::Components::WysiwygEditor.new }
 
@@ -45,13 +47,7 @@ describe 'Wysiwyg &nbsp; behavior',
       end
 
       it 'can insert strong formatting with nbsp' do
-        editor.in_editor do |container, editable|
-
-          editor.click_and_type_slowly 'some text '
-          container.find('.ck-button', visible: :all, text: 'Bold').click
-
-          editor.click_and_type_slowly 'with bold '
-        end
+        editor.click_and_type_slowly 'some text ', [:control, 'b'], 'with bold'
 
         # Save wiki page
         click_on 'Save'

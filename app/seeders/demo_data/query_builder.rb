@@ -1,7 +1,7 @@
 #-- encoding: UTF-8
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2015 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -24,7 +24,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
-# See doc/COPYRIGHT.rdoc for more details.
+# See docs/COPYRIGHT.rdoc for more details.
 module DemoData
   class QueryBuilder < ::Seeder
     attr_reader :config
@@ -49,10 +49,10 @@ module DemoData
 
     def base_attributes
       {
-        project: project,
         name: config[:name],
         user: User.admin.first,
-        is_public: true,
+        is_public: config[:is_public] != false,
+        hidden: config[:hidden] == true,
         show_hierarchies: config[:hierarchy] == true,
         timeline_visible: config[:timeline] == true
       }
@@ -61,10 +61,12 @@ module DemoData
     def create_query
       attr = base_attributes
 
+      set_project! attr
       set_columns! attr
       set_sort_by! attr
       set_group_by! attr
       set_filters! attr
+      set_display_representation! attr
 
       query = Query.create! attr
 
@@ -79,6 +81,14 @@ module DemoData
         name: SecureRandom.uuid,
         title: query.name
       )
+    end
+
+    def set_project!(attr)
+      attr[:project] = project unless project.nil?
+    end
+
+    def set_display_representation!(attr)
+      attr[:display_representation] = config[:display_representation] unless config[:display_representation].nil?
     end
 
     def set_columns!(attr)
@@ -113,6 +123,7 @@ module DemoData
       set_status_filter! filters
       set_version_filter! filters
       set_type_filter! filters
+      set_parent_filter! filters
 
       filters
     end
@@ -125,7 +136,7 @@ module DemoData
 
     def set_version_filter!(filters)
       if version = config[:version].presence
-        filters[:fixed_version_id] = {
+        filters[:version_id] = {
           operator: "=",
           values: [Version.find_by(name: version).id]
         }
@@ -141,6 +152,15 @@ module DemoData
         filters[:type_id] = {
           operator: "=",
           values: types.map(&:id).map(&:to_s)
+        }
+      end
+    end
+
+    def set_parent_filter!(filters)
+      if parent_filter_value = config[:parent].presence
+        filters[:parent] = {
+          operator: "=",
+          values: [parent_filter_value]
         }
       end
     end

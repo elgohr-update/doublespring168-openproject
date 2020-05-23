@@ -1,6 +1,6 @@
 // -- copyright
-// OpenProject is a project management system.
-// Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+// OpenProject is an open source project management software.
+// Copyright (C) 2012-2020 the OpenProject GmbH
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License version 3.
@@ -23,14 +23,12 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //
-// See doc/COPYRIGHT.rdoc for more details.
+// See docs/COPYRIGHT.rdoc for more details.
 // ++
 
 import {APP_INITIALIZER, ErrorHandler, NgModule} from '@angular/core';
 import {HTTP_INTERCEPTORS, HttpClientModule} from '@angular/common/http';
-import {
-  initializeHalResourceConfig
-} from 'core-app/modules/hal/services/hal-resource.config';
+import {initializeHalResourceConfig} from 'core-app/modules/hal/services/hal-resource.config';
 import {HalResourceService} from 'core-app/modules/hal/services/hal-resource.service';
 import {ConfigurationDmService} from 'core-app/modules/hal/dm-services/configuration-dm.service';
 import {HelpTextDmService} from 'core-app/modules/hal/dm-services/help-text-dm.service';
@@ -43,14 +41,16 @@ import {TypeDmService} from 'core-app/modules/hal/dm-services/type-dm.service';
 import {OpenProjectHeaderInterceptor} from 'core-app/modules/hal/http/openproject-header-interceptor';
 import {UserDmService} from 'core-app/modules/hal/dm-services/user-dm.service';
 import {ProjectDmService} from 'core-app/modules/hal/dm-services/project-dm.service';
-import {HalResourceSortingService} from "core-app/modules/hal/services/hal-resource-sorting.service";
-import {HalAwareErrorHandler} from "core-app/modules/hal/services/hal-aware-error-handler";
 import {GridDmService} from "core-app/modules/hal/dm-services/grid-dm.service";
 import {TimeEntryDmService} from './dm-services/time-entry-dm.service';
 import {CommonModule} from "@angular/common";
 import {NewsDmService} from './dm-services/news-dm.service';
 import {StatusDmService} from "core-app/modules/hal/dm-services/status-dm.service";
 import {VersionDmService} from "core-app/modules/hal/dm-services/version-dm.service";
+import {QueryOrderDmService} from "core-app/modules/hal/dm-services/query-order-dm.service";
+import {MembershipDmService} from "core-app/modules/hal/dm-services/membership-dm.service";
+import {HalResourceNotificationService} from "core-app/modules/hal/services/hal-resource-notification.service";
+import {HalAwareErrorHandler} from "core-app/modules/hal/services/hal-aware-error-handler";
 
 @NgModule({
   imports: [
@@ -59,17 +59,17 @@ import {VersionDmService} from "core-app/modules/hal/dm-services/version-dm.serv
   ],
   providers: [
     { provide: ErrorHandler, useClass: HalAwareErrorHandler },
-    HalResourceService,
-    HalResourceSortingService,
     { provide: HTTP_INTERCEPTORS, useClass: OpenProjectHeaderInterceptor, multi: true },
     { provide: APP_INITIALIZER, useFactory: initializeHalResourceConfig, deps: [HalResourceService], multi: true },
     ConfigurationDmService,
     GridDmService,
     HelpTextDmService,
+    MembershipDmService,
     NewsDmService,
     PayloadDmService,
     ProjectDmService,
     QueryDmService,
+    QueryOrderDmService,
     QueryFormDmService,
     RelationsDmService,
     RootDmService,
@@ -78,6 +78,7 @@ import {VersionDmService} from "core-app/modules/hal/dm-services/version-dm.serv
     UserDmService,
     StatusDmService,
     VersionDmService,
+    HalResourceNotificationService
   ]
 })
 export class OpenprojectHalModule { }

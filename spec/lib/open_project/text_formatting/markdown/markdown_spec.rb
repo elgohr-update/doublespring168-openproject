@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -214,7 +214,7 @@ describe OpenProject::TextFormatting,
       let(:issue_link) do
         link_to("##{issue.id}",
                 work_package_path(issue),
-                class: 'issue work_package preview-trigger status-3 priority-1 created-by-me', title: "#{issue.subject} (#{issue.status})")
+                class: 'issue work_package preview-trigger')
       end
 
       context 'Plain issue link' do
@@ -229,10 +229,12 @@ describe OpenProject::TextFormatting,
         it { is_expected.to be_html_eql("<p>foo (bar #{issue_link})</p>") }
       end
 
-      context 'Plain issue link to non-existing element' do
+      context 'Plain issue link to non-existing element still links' do
         subject { format_text('#0123456789') }
 
-        it { is_expected.to be_html_eql('<p>#0123456789</p>') }
+        it {
+          is_expected.to be_html_eql('<p>#0123456789</p>')
+        }
       end
 
       context 'Escaping issue link' do
@@ -255,8 +257,7 @@ describe OpenProject::TextFormatting,
         let(:issue_link) do
           link_to("##{issue.id}",
                   work_package_path(issue),
-                  class: 'issue work_package preview-trigger status-3 priority-1 created-by-me',
-                  title: "#{issue.subject} (#{issue.status})")
+                  class: 'issue work_package preview-trigger')
         end
 
         subject { format_text("##{issue.id}") }
@@ -273,8 +274,8 @@ describe OpenProject::TextFormatting,
     end
 
     context 'Project links' do
-      let(:subproject) { FactoryBot.create :valid_project, parent: project, is_public: true }
-      let(:project_url) { { controller: 'projects', action: 'show', id: subproject.identifier } }
+      let(:subproject) { FactoryBot.create :valid_project, parent: project, public: true }
+      let(:project_url) { project_overview_path(subproject) }
 
       context 'Plain project link' do
         subject { format_text("project##{subproject.id}") }
@@ -627,7 +628,7 @@ describe OpenProject::TextFormatting,
       let(:expected) do
         <<~EXPECTED
           <p><a class="wiki-page" href="/projects/#{project.identifier}/wiki/cookbook-documentation">CookBook documentation</a></p>
-          <p><a class="issue work_package preview-trigger status-3 priority-1 created-by-me" href="/work_packages/#{issue.id}" title="#{issue.subject} (#{issue.status})">##{issue.id}</a></p>
+          <p><a class="issue work_package preview-trigger" href="/work_packages/#{issue.id}">##{issue.id}</a></p>
           <pre><code>
           [[CookBook documentation]]
 

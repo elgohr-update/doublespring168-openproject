@@ -26,6 +26,10 @@ SecureHeaders::Configuration.default do |config|
   # Allow requests to CLI in dev mode
   connect_src = default_src
 
+  if OpenProject::Configuration.sentry_dsn.present?
+    connect_src += [OpenProject::Configuration.sentry_host]
+  end
+
   # Add proxy configuration for Angular CLI to csp
   if FrontendAssetHelper.assets_proxied?
     proxied = ['ws://localhost:*', 'http://localhost:*', FrontendAssetHelper.cli_proxy]
@@ -68,4 +72,10 @@ SecureHeaders::Configuration.default do |config|
     # Connect sources for CLI in dev mode
     connect_src: connect_src
   }
+end
+
+SecureHeaders::Configuration.named_append(:oauth) do |request|
+  hosts = request.controller_instance.try(:allowed_forms) || []
+
+  { form_action: hosts }
 end

@@ -50,12 +50,12 @@ export class Board {
   }
 
   public addQuery(widget:GridWidgetResource) {
-    widget.isNew = true;
+    widget.isNewWidget = true;
     this.grid.widgets.push(widget);
   }
 
   public removeQuery(widget:GridWidgetResource) {
-    this.grid.widgets = this.grid.widgets.filter(el => el.options.query_id !== widget.options.query_id);
+    this.grid.widgets = this.grid.widgets.filter(el => el.options.queryId !== widget.options.queryId);
   }
 
   public get queries():GridWidgetResource[] {

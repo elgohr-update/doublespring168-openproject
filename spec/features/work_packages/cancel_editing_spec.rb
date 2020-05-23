@@ -1,6 +1,6 @@
 # -- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2015 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -23,7 +23,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
-# See doc/COPYRIGHT.rdoc for more details.
+# See docs/COPYRIGHT.rdoc for more details.
 # ++
 
 require 'spec_helper'
@@ -155,6 +155,29 @@ describe 'Cancel editing work package', js: true do
     # Visiting another page does not create alert
     find('.home-link').click
     expect(wp_page).not_to have_alert_dialog
+  end
+
+  it 'correctly cancels setting the back route (Regression #30714)' do
+    wp_page = ::Pages::FullWorkPackage.new work_package
+    wp_page.visit!
+    wp_page.ensure_page_loaded
+
+    # Edit description in full view
+    description = wp_page.edit_field :description
+    description.activate!
+    description.click_and_type_slowly 'foobar'
+
+    # Try to move back to list, expect warning
+    wp_page.go_back
+    wp_page.dismiss_alert_dialog!
+
+    # Now cancel the field
+    description.cancel_by_click
+
+    # Now we should be able to get back to list
+    wp_page.go_back
+
+    wp_table.expect_work_package_listed(work_package, work_package2)
   end
 
   context 'when user does not want to be warned' do

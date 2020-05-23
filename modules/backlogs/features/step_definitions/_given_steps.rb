@@ -1,20 +1,13 @@
 #-- copyright
-# OpenProject Backlogs Plugin
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
-# Copyright (C)2013-2014 the OpenProject Foundation (OPF)
-# Copyright (C)2011 Stephan Eckardt, Tim Felgentreff, Marnen Laibow-Koser, Sandro Munda
-# Copyright (C)2010-2011 friflaj
-# Copyright (C)2010 Maxime Guilbot, Andrew Vit, Joakim Kolsjö, ibussieres, Daniel Passos, Jason Vasquez, jpic, Emiliano Heyns
-# Copyright (C)2009-2010 Mark Maglana
-# Copyright (C)2009 Joe Heck, Nate Lowrie
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License version 3.
 #
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of the GNU General Public License version 3.
-#
-# OpenProject Backlogs is a derivative work based on ChiliProject Backlogs.
-# The copyright follows:
-# Copyright (C) 2010-2011 - Emiliano Heyns, Mark Maglana, friflaj
-# Copyright (C) 2011 - Jens Ulferts, Gregor Schmidt - Finn GmbH - Berlin, Germany
+# OpenProject is a fork of ChiliProject, which is a fork of Redmine. The copyright follows:
+# Copyright (C) 2006-2017 Jean-Philippe Lang
+# Copyright (C) 2010-2013 the ChiliProject Team
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -30,7 +23,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
-# See doc/COPYRIGHT.rdoc for more details.
+# See docs/COPYRIGHT.rdoc for more details.
 #++
 
 Given /^I am logged out$/ do
@@ -45,7 +38,7 @@ Given /^I set the (.+) of the story to (.+)$/ do |attribute, value|
     attribute = 'status_id'
     value = Status.find_by(name: value).id
   elsif %w[backlog sprint].include? attribute
-    attribute = 'fixed_version_id'
+    attribute = 'version_id'
     value = Version.find_by(name: value).id
   end
   @story_params[attribute] = value
@@ -178,7 +171,7 @@ Given /^the [pP]roject(?: "([^\"]*)")? has the following stories in the followin
     params = initialize_story_params(project)
     params['parent'] = WorkPackage.find_by(subject: story['parent'])
     params['subject'] = story['subject']
-    params['fixed_version_id'] = Version.find_by(name: story['sprint'] || story['backlog']).id
+    params['version_id'] = Version.find_by(name: story['sprint'] || story['backlog']).id
     params['story_points'] = story['story_points']
     params['status'] =  if story['status']
                           Status.find_by(name: story['status'])
@@ -244,7 +237,7 @@ Given /^the [pP]roject(?: "([^\"]*)")? has the following work_packages:$/ do |pr
       params = initialize_work_package_params(project, type, parent)
       params['subject'] = task['subject']
       version = Version.find_by(name: task['sprint'] || task['backlog'])
-      params['fixed_version_id'] = version.id if version
+      params['version_id'] = version.id if version
       params['priority'] = if task['priority']
                              IssuePriority.find_by(name: task['priority'])
                            else

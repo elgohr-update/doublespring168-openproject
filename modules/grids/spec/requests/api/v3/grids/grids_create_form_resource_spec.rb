@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -67,7 +67,9 @@ describe "POST /api/v3/grids/form", type: :request, content_type: :json do
         "columnCount": 5,
         "widgets": [],
         "options": {},
-        "_links": {}
+        "_links": {
+          "attachments": []
+        }
       }
 
       expect(subject.body)

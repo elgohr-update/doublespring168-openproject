@@ -1,8 +1,8 @@
 #-- encoding: UTF-8
 
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -37,9 +37,9 @@ class Queries::WorkPackages::Filter::SubprojectFilter <
   end
 
   def available_operators
-    [::Queries::Operators::All,
-     ::Queries::Operators::None,
-     ::Queries::Operators::Equals]
+    all_and_none = [::Queries::Operators::All, ::Queries::Operators::None]
+
+    all_and_none + (super - all_and_none)
   end
 
   def available?
@@ -49,7 +49,7 @@ class Queries::WorkPackages::Filter::SubprojectFilter <
   end
 
   def type
-    :list
+    :list_optional
   end
 
   def human_name
@@ -71,20 +71,24 @@ class Queries::WorkPackages::Filter::SubprojectFilter <
   end
 
   def where
-    ids = [project.id]
-
-    case operator
-    when '='
-      # include the selected subprojects
-      ids += values.each(&:to_i)
-    when '*'
-      ids += visible_subproject_array.map(&:first)
-    end
-
-    "#{Project.table_name}.id IN (%s)" % ids.join(',')
+    "#{Project.table_name}.id IN (%s)" % ids_for_where.join(',')
   end
 
   private
+
+  def ids_for_where
+    [project.id] + case operator
+                   when ::Queries::Operators::Equals.symbol
+                     # include the selected subprojects
+                     value_ints
+                   when ::Queries::Operators::All.symbol
+                     visible_subproject_ids
+                   when ::Queries::Operators::NotEquals.symbol
+                     visible_subproject_ids - value_ints
+                   else # None
+                     []
+                   end
+  end
 
   def visible_subproject_array
     visible_subprojects.pluck(:id, :name)
@@ -101,14 +105,11 @@ class Queries::WorkPackages::Filter::SubprojectFilter <
     end
   end
 
-  def operator_strategy
-    case operator
-    when '*'
-      ::Queries::Operators::All
-    when '!*'
-      ::Queries::Operators::None
-    when '='
-      ::Queries::Operators::Equals
-    end
+  def visible_subproject_ids
+    visible_subproject_array.map(&:first)
+  end
+
+  def value_ints
+    values.map(&:to_i)
   end
 end

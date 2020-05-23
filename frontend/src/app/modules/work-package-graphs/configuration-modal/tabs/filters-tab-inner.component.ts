@@ -2,11 +2,10 @@ import {Component} from '@angular/core';
 import {I18nService} from 'core-app/modules/common/i18n/i18n.service';
 import {TabComponent} from 'core-components/wp-table/configuration-modal/tab-portal-outlet';
 import {WorkPackageFiltersService} from 'core-components/filters/wp-filters/wp-filters.service';
-import {WorkPackageTableFiltersService} from 'core-components/wp-fast-table/state/wp-table-filters.service';
+import {WorkPackageViewFiltersService} from 'core-app/modules/work_packages/routing/wp-view-base/view-services/wp-view-filters.service';
 import {QueryFilterInstanceResource} from "core-app/modules/hal/resources/query-filter-instance-resource";
 import {WpGraphConfigurationService} from "core-app/modules/work-package-graphs/configuration/wp-graph-configuration.service";
 import {WorkPackageStatesInitializationService} from "core-components/wp-list/wp-states-initialization.service";
-import {QueryResource} from "core-app/modules/hal/resources/query-resource";
 import {QuerySpacedTabComponent} from "core-app/modules/work-package-graphs/configuration-modal/tabs/abstract-query-spaced-tab.component";
 
 @Component({
@@ -21,7 +20,7 @@ export class WpGraphConfigurationFiltersTabInner extends QuerySpacedTabComponent
   };
 
   constructor(readonly I18n:I18nService,
-              readonly wpTableFilters:WorkPackageTableFiltersService,
+              readonly wpTableFilters:WorkPackageViewFiltersService,
               readonly wpFiltersService:WorkPackageFiltersService,
               readonly wpStatesInitialization:WorkPackageStatesInitializationService,
               readonly wpGraphConfiguration:WpGraphConfigurationService) {

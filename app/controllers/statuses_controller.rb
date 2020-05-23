@@ -1,7 +1,7 @@
 #-- encoding: UTF-8
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -34,7 +34,6 @@ class StatusesController < ApplicationController
 
   before_action :require_admin
 
-  verify method: :get, only: :index, render: { nothing: true, status: :method_not_allowed }
   def index
     @statuses = Status.page(page_param)
                 .per_page(per_page_param)
@@ -42,12 +41,10 @@ class StatusesController < ApplicationController
     render action: 'index', layout: false if request.xhr?
   end
 
-  verify method: :get, only: :new, render: { nothing: true, status: :method_not_allowed }
   def new
     @status = Status.new
   end
 
-  verify method: :post, only: :create, render: { nothing: true, status: :method_not_allowed }
   def create
     @status = Status.new(permitted_params.status)
     if @status.save
@@ -58,15 +55,13 @@ class StatusesController < ApplicationController
     end
   end
 
-  verify method: :get, only: :edit, render: { nothing: true, status: :method_not_allowed }
   def edit
     @status = Status.find(params[:id])
   end
 
-  verify method: :patch, only: :update, render: { nothing: true, status: :method_not_allowed }
   def update
     @status = Status.find(params[:id])
-    if @status.update_attributes(permitted_params.status)
+    if @status.update(permitted_params.status)
       flash[:notice] = l(:notice_successful_update)
       redirect_to action: 'index'
     else
@@ -74,7 +69,6 @@ class StatusesController < ApplicationController
     end
   end
 
-  verify method: :delete, only: :destroy, render: { nothing: true, status: :method_not_allowed }
   def destroy
     status = Status.find(params[:id])
     if status.is_default?
@@ -89,8 +83,6 @@ class StatusesController < ApplicationController
     redirect_to action: 'index'
   end
 
-  verify method: :post, only: :update_work_package_done_ratio,
-         render: { nothing: true, status: 405 }
   def update_work_package_done_ratio
     if Status.update_work_package_done_ratios
       flash[:notice] = l(:notice_work_package_done_ratios_updated)

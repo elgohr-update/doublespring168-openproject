@@ -1,12 +1,12 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2014 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
 #
 # OpenProject is a fork of ChiliProject, which is a fork of Redmine. The copyright follows:
-# Copyright (C) 2006-2013 Jean-Philippe Lang
+# Copyright (C) 2006-2017 Jean-Philippe Lang
 # Copyright (C) 2010-2013 the ChiliProject Team
 #
 # This program is free software; you can redistribute it and/or
@@ -23,7 +23,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
-# See doc/COPYRIGHT.rdoc for more details.
+# See docs/COPYRIGHT.rdoc for more details.
 #++
 
 require 'spec_helper'
@@ -46,6 +46,8 @@ describe 'OpenID Connect', type: :rails_request do
   end
 
   before do
+    allow(EnterpriseToken).to receive(:show_banners?).and_return(false)
+
     # The redirect will include an authorisation code.
     # Since we don't actually get a valid code in the test we will stub the resulting AccessToken.
     allow_any_instance_of(OpenIDConnect::Client).to receive(:access_token!) do
@@ -73,14 +75,6 @@ describe 'OpenID Connect', type: :rails_request do
           }
         }
       )
-    end
-
-    after(:all) do
-      User.delete_all
-    end
-
-    after do
-      User.current = nil
     end
 
     it 'works' do
@@ -137,7 +131,7 @@ describe 'OpenID Connect', type: :rails_request do
   end
 
   context 'provider configuration through the settings' do
-    it 'should make providers that have been configured through settings available without requiring a restart' do
+    before do
       allow(Setting).to receive(:plugin_openproject_openid_connect).and_return(
         'providers' => {
           'google' => {
@@ -150,7 +144,16 @@ describe 'OpenID Connect', type: :rails_request do
           }
         }
       )
+    end
 
+    it 'will show no option unless EE' do
+      allow(EnterpriseToken).to receive(:show_banners?).and_return(true)
+      get '/login'
+      expect(response.body).not_to match /Google/i
+      expect(response.body).not_to match /Azure/i
+    end
+
+    it 'should make providers that have been configured through settings available without requiring a restart' do
       get '/login'
       expect(response.body).to match /Google/i
       expect(response.body).to match /Azure/i

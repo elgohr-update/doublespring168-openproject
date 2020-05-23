@@ -1,8 +1,8 @@
 #-- encoding: UTF-8
 
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -38,8 +38,9 @@ class Queries::Projects::Orders::RequiredDiskSpaceOrder < Queries::BaseOrder
   private
 
   def order
-    attribute = Project.required_disk_space_sum
-
-    model.order("#{attribute} #{direction}")
+    with_raise_on_invalid do
+      attribute = Project.required_disk_space_sum
+      model.order(Arel.sql(attribute).send(direction))
+    end
   end
 end

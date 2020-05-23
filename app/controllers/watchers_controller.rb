@@ -1,7 +1,7 @@
 #-- encoding: UTF-8
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -28,9 +28,9 @@
 #++
 
 class WatchersController < ApplicationController
-  before_action :find_watched_by_object, except: [:destroy]
+  before_action :find_watched_by_object
   before_action :find_project
-  before_action :require_login, :check_project_privacy, only: [:watch, :unwatch]
+  before_action :require_login, :check_project_privacy, only: %i[watch unwatch]
 
   def watch
     if @watched.respond_to?(:visible?) && !@watched.visible?(User.current)

@@ -1,7 +1,7 @@
 #-- encoding: UTF-8
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -30,7 +30,7 @@
 def aggregate_mocked_configuration(example, config)
   # We have to manually check parent groups for with_config:,
   # since they are being ignored otherwise
-  example.example_group.parents.each do |parent|
+  example.example_group.module_parents.each do |parent|
     if parent.respond_to?(:metadata) && parent.metadata[:with_config]
       config.reverse_merge!(parent.metadata[:with_config])
     end
@@ -46,7 +46,7 @@ RSpec.configure do |config|
       config = aggregate_mocked_configuration(example, config).with_indifferent_access
 
       allow(OpenProject::Configuration).to receive(:[]).and_call_original
-      config.each do |k,v|
+      config.each do |k, v|
         allow(OpenProject::Configuration)
           .to receive(:[])
           .with(k.to_s)

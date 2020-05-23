@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -40,10 +40,10 @@ describe ApplicationController, type: :controller do
   end
 
   describe 'logging requesting users' do
-    let(:user_message) {
+    let(:user_message) do
       "OpenProject User: #{user.firstname} Crazy! Name with \#\# " +
         "Newline (#{user.login} ID: #{user.id} <#{user.mail}>)"
-    }
+    end
 
     let(:anonymous_message) { 'OpenProject User: Anonymous' }
 

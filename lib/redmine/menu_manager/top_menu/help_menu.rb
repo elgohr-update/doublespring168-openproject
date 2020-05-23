@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -26,16 +26,14 @@
 # See docs/COPYRIGHT.rdoc for more details.
 #++
 
-require 'concerns/omniauth_login'
-require 'open_project/static/links'
-
 module Redmine::MenuManager::TopMenu::HelpMenu
   def render_help_top_menu_node(item = help_menu_item)
-    cache_key = OpenProject::Cache::CacheKey.key('help_top_menu_node',
-                                                 OpenProject::Static::Links.links,
-                                                 I18n.locale,
-                                                 OpenProject::Static::Links.help_link)
-    Rails.cache.fetch(cache_key) do
+    cache_key = ['help_top_menu_node',
+                 OpenProject::Static::Links.links,
+                 I18n.locale,
+                 OpenProject::Static::Links.help_link]
+
+    OpenProject::Cache.fetch(cache_key) do
       if OpenProject::Static::Links.help_link_overridden?
         render_menu_node(item)
         content_tag('li', render_single_menu_node(item), class: 'help-menu--overridden-link')
@@ -99,12 +97,7 @@ module Redmine::MenuManager::TopMenu::HelpMenu
               title: l('label_videos'),
               target: '_blank'
     }
-    result << content_tag(:li) {
-      link_to l('homescreen.links.shortcuts'),
-              '',
-              class: 'help-link-shortcuts-link',
-              title: l('homescreen.links.shortcuts')
-    }
+    result << static_link_item(:shortcuts)
     result << static_link_item(:forums)
     result << static_link_item(:professional_support)
     result << content_tag(:hr, '', class: 'form--separator')

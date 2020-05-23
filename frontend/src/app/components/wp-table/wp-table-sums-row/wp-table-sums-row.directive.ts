@@ -1,6 +1,6 @@
 // -- copyright
-// OpenProject is a project management system.
-// Copyright (C) 2012-2015 the OpenProject Foundation (OPF)
+// OpenProject is an open source project management software.
+// Copyright (C) 2012-2020 the OpenProject GmbH
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License version 3.
@@ -23,11 +23,10 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //
-// See doc/COPYRIGHT.rdoc for more details.
+// See docs/COPYRIGHT.rdoc for more details.
 // ++
 
-import {AfterViewInit, Directive, ElementRef, Inject, Injector} from '@angular/core';
-import {combine} from 'reactivestates';
+import {AfterViewInit, Directive, ElementRef, Injector} from '@angular/core';
 import {takeUntil} from 'rxjs/operators';
 import {I18nService} from 'core-app/modules/common/i18n/i18n.service';
 import {SchemaResource} from 'core-app/modules/hal/resources/schema-resource';
@@ -37,16 +36,16 @@ import {IsolatedQuerySpace} from "core-app/modules/work_packages/query-space/iso
 import {DisplayFieldService} from "core-app/modules/fields/display/display-field.service";
 import {IFieldSchema} from "core-app/modules/fields/field.base";
 import {QueryColumn} from "core-components/wp-query/query-column";
-import {WorkPackageTableColumnsService} from "core-components/wp-fast-table/state/wp-table-columns.service";
-import {WorkPackageTableSumService} from "core-components/wp-fast-table/state/wp-table-sum.service";
-import {combineLatest, concat} from "rxjs";
+import {WorkPackageViewColumnsService} from "core-app/modules/work_packages/routing/wp-view-base/view-services/wp-view-columns.service";
+import {WorkPackageViewSumService} from "core-app/modules/work_packages/routing/wp-view-base/view-services/wp-view-sum.service";
+import {combineLatest} from "rxjs";
 
 @Directive({
   selector: '[wpTableSumsRow]'
 })
 export class WorkPackageTableSumsRowController implements AfterViewInit {
 
-  private text:{ sumFor:string, allWorkPackages:string };
+  private text:{ sum:string };
 
   private $element:JQuery;
 
@@ -55,13 +54,12 @@ export class WorkPackageTableSumsRowController implements AfterViewInit {
               readonly querySpace:IsolatedQuerySpace,
               readonly states:States,
               readonly displayFieldService:DisplayFieldService,
-              readonly wpTableColumns:WorkPackageTableColumnsService,
-              readonly wpTableSums:WorkPackageTableSumService,
+              readonly wpTableColumns:WorkPackageViewColumnsService,
+              readonly wpTableSums:WorkPackageViewSumService,
               readonly I18n:I18nService) {
 
     this.text = {
-      sumFor: I18n.t('js.label_sum_for'),
-      allWorkPackages: I18n.t('js.label_all_work_packages')
+      sum: I18n.t('js.label_sum')
     };
   }
 
@@ -97,15 +95,16 @@ export class WorkPackageTableSumsRowController implements AfterViewInit {
   }
 
   private render(columns:QueryColumn[], resource:WorkPackageCollectionResource, schema:SchemaResource) {
-    this.elementRef.nativeElement.classList.add('sum', 'group', 'all', 'issue', 'work_package');
-
     // build
     columns.forEach((column, i:number) => {
       const td = document.createElement('td');
+      td.classList.add('wp-table--sum-container');
       const div = this.renderContent(resource.totalSums!, column.id, schema[column.id]);
 
       if (i === 0) {
         this.appendFirstLabel(div);
+        // colspan 2 for the d&d column
+        td.setAttribute('colspan', '2');
       }
 
       td.appendChild(div);
@@ -141,7 +140,7 @@ export class WorkPackageTableSumsRowController implements AfterViewInit {
 
   private appendFirstLabel(div:HTMLElement) {
     const span = document.createElement('span');
-    span.textContent = `${this.text.sumFor} ${this.text.allWorkPackages}`;
+    span.textContent = `${this.text.sum}`;
     jQuery(div).prepend(span);
   }
 }

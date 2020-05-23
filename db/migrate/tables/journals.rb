@@ -1,8 +1,8 @@
 #-- encoding: UTF-8
 
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -45,7 +45,8 @@ class Tables::Journals < Tables::Base
       t.index :journable_type
       t.index :user_id
       t.index :activity_type
-      t.index %i[journable_type journable_id version], unique: true
+      t.index %i[journable_type journable_id version],
+              unique: true
     end
   end
 end

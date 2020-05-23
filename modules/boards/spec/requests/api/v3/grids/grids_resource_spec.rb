@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -56,7 +56,6 @@ describe 'API v3 Grids resource for Board Grids', type: :request, content_type: 
   let(:other_board_grid) do
     FactoryBot.create(:board_grid, project: other_project)
   end
-  let(:before_hook) { nil }
 
   before do
     login_as(current_user)
@@ -74,8 +73,6 @@ describe 'API v3 Grids resource for Board Grids', type: :request, content_type: 
 
     before do
       stored_grids
-
-      before_hook&.call
 
       get path
     end
@@ -172,15 +169,10 @@ describe 'API v3 Grids resource for Board Grids', type: :request, content_type: 
     end
 
     context 'with the scope not existing' do
-      let(:path) { api_v3_paths.grid(5) }
-      let(:before_hook) do
-        ->(*) do
-          expect_any_instance_of(::Grids::Query)
-            .to receive(:find)
-            .with(1234)
-            .and_raise(ActiveRecord::RecordNotFound)
-        end
+      let(:stored_grids) do
       end
+
+      let(:path) { api_v3_paths.grid(5) }
 
       it 'responds with 404 NOT FOUND' do
         expect(subject.status).to eql 404
@@ -189,7 +181,6 @@ describe 'API v3 Grids resource for Board Grids', type: :request, content_type: 
 
     context 'when lacking permission to see the grid' do
       let(:stored_grids) do
-        manage_board_views_grid
         other_board_grid
       end
 
@@ -297,21 +288,7 @@ describe 'API v3 Grids resource for Board Grids', type: :request, content_type: 
         }.with_indifferent_access
       end
 
-      it 'responds with 422 and mentions the error' do
-        expect(subject.status).to eq 422
-
-        expect(subject.body)
-          .to be_json_eql('Error'.to_json)
-          .at_path('_type')
-
-        expect(subject.body)
-          .to be_json_eql("You must not write a read-only attribute.".to_json)
-          .at_path('message')
-
-        expect(subject.body)
-          .to be_json_eql("scope".to_json)
-          .at_path('_embedded/details/attribute')
-      end
+      it_behaves_like 'read-only violation', 'scope', Boards::Grid
     end
 
     context 'with the grid not existing' do

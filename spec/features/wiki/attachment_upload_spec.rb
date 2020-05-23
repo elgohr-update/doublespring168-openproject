@@ -1,8 +1,8 @@
 #-- encoding: UTF-8
 
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -66,8 +66,9 @@ describe 'Upload attachment to wiki page', js: true do
       click_on "Edit"
     end
 
-    # Replace one image with a named attachment URL (Regression #28381)
-    editor.set_markdown "![my-first-image](image.png)\n\nText that prevents the two images colliding"
+    # Replace the image with a named attachment URL (Regression #28381)
+    expect(page).to have_selector('.ck-editor__editable')
+    editor.set_markdown "\n\nSome text\n![my-first-image](image.png)\n\nText that prevents the two images colliding"
 
     editor.drag_attachment image_fixture, 'Image uploaded the second time'
 

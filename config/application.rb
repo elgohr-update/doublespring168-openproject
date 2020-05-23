@@ -1,7 +1,7 @@
 #-- encoding: UTF-8
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -29,26 +29,10 @@
 
 require_relative 'boot'
 
-require 'benchmark'
-module SimpleBenchmark
-  #
-  # Measure execution of block and display result
-  #
-  # Time is measured by Benchmark module, displayed time is total
-  # (user cpu time + system cpu time + user and system cpu time of children)
-  # This is not wallclock time.
-  def self.bench(title)
-    $stderr.print "#{title}... "
-    result = Benchmark.measure do
-      yield
-    end
-    $stderr.printf "%.03fs\n", result.total
-  end
-end
-
 require 'rails/all'
 require 'active_support'
 require 'active_support/dependencies'
+require 'core_extensions'
 
 ActiveSupport::Deprecation.silenced = Rails.env.production? && !ENV['OPENPROJECT_SHOW_DEPRECATIONS']
 
@@ -70,7 +54,30 @@ if defined?(Bundler)
   Bundler.require(*Rails.groups(:opf_plugins))
 end
 
-require File.dirname(__FILE__) + '/../lib/open_project/configuration'
+require_relative '../lib/open_project/configuration'
+
+env = ENV['RAILS_ENV'] || 'production'
+db_config = ActiveRecord::Base.configurations[env] || {}
+db_adapter = db_config['adapter']
+if db_adapter&.start_with? 'mysql'
+  warn <<~ERROR
+    ======= INCOMPATIBLE DATABASE DETECTED =======
+    Your database is set up for use with a MySQL or MySQL-compatible variant.
+    This installation of OpenProject no longer supports these variants.
+
+    The following guides provide extensive documentation for migrating
+    your installation to a PostgreSQL database:
+
+    https://www.openproject.org/migration-guides/
+
+    This process is mostly automated so you can continue using your
+    OpenProject installation within a few minutes!
+
+    ==============================================
+  ERROR
+
+  Kernel.exit 1
+end
 
 module OpenProject
   class Application < Rails::Application
@@ -98,11 +105,11 @@ module OpenProject
     # http://stackoverflow.com/questions/4590229
     config.middleware.use Rack::TempfileReaper
 
+    config.autoloader = :zeitwerk
     # Custom directories with classes and modules you want to be autoloadable.
-    # config.autoload_paths += %W(#{config.root}/extras)
     config.enable_dependency_loading = true
-    config.autoload_paths << Rails.root.join('lib').to_s
-    config.autoload_paths << Rails.root.join('lib/constraints').to_s
+    config.paths.add Rails.root.join('lib').to_s, eager_load: true
+    config.paths.add Rails.root.join('lib/constraints').to_s, eager_load: true
 
     # Only load the plugins named here, in the order given (default is alphabetical).
     # :all can be used as a placeholder for all plugins not explicitly named.
@@ -150,6 +157,10 @@ module OpenProject
     # Use SHA-1 instead of MD5 to generate non-sensitive digests, such as the ETag header.
     Rails.application.config.active_support.use_sha1_digests = true
 
+    # This option is not backwards compatible with earlier Rails versions.
+    # It's best enabled when your entire app is migrated and stable on 6.0.
+    Rails.application.config.action_dispatch.use_cookies_with_metadata = true
+
     # Make `form_with` generate id attributes for any generated HTML tags.
     # Rails.application.config.action_view.form_with_generates_ids = true
 
@@ -171,15 +182,14 @@ module OpenProject
     # This allows for setting the root either via config file or via environment variable.
     config.action_controller.relative_url_root = OpenProject::Configuration['rails_relative_url_root']
 
-    # Load API files
-    config.paths.add File.join('app', 'api'), glob: File.join('**', '*.rb')
-    config.autoload_paths += Dir[Rails.root.join('app', 'api', '*')]
-
     OpenProject::Configuration.configure_cache(config)
 
     config.active_job.queue_adapter = :delayed_job
 
     config.action_controller.asset_host = OpenProject::Configuration::AssetHost.value
+
+    # Return false instead of self when enqueuing is aborted from a callback.
+    # Rails.application.config.active_job.return_false_on_aborted_enqueue = true
 
     config.log_level = OpenProject::Configuration['log_level'].to_sym
 

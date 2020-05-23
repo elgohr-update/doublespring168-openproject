@@ -1,7 +1,8 @@
 #-- encoding: UTF-8
+
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -75,8 +76,8 @@ class User < Principal
   }, class_name: 'UserPassword',
      dependent: :destroy,
      inverse_of: :user
-  has_one :rss_token, class_name: '::Token::Rss', dependent: :destroy
-  has_one :api_token, class_name: '::Token::Api', dependent: :destroy
+  has_one :rss_token, class_name: '::Token::RSS', dependent: :destroy
+  has_one :api_token, class_name: '::Token::API', dependent: :destroy
   belongs_to :auth_source
 
   # Authorized OAuth grants
@@ -130,6 +131,9 @@ class User < Principal
   validates_confirmation_of :password, allow_nil: true
   validates_inclusion_of :mail_notification, in: MAIL_NOTIFICATION_OPTIONS.map(&:first), allow_blank: true
 
+  auto_strip_attributes :login, nullify: false
+  auto_strip_attributes :mail, nullify: false
+
   validate :login_is_not_special_value
   validate :password_meets_requirements
 
@@ -140,13 +144,25 @@ class User < Principal
   before_destroy :reassign_associated
 
   scope :in_group, ->(group) {
-    group_id = group.is_a?(Group) ? group.id : group.to_i
-    where(["#{User.table_name}.id IN (SELECT gu.user_id FROM #{table_name_prefix}group_users#{table_name_suffix} gu WHERE gu.group_id = ?)", group_id])
+    within_group(group)
   }
   scope :not_in_group, ->(group) {
-    group_id = group.is_a?(Group) ? group.id : group.to_i
-    where(["#{User.table_name}.id NOT IN (SELECT gu.user_id FROM #{table_name_prefix}group_users#{table_name_suffix} gu WHERE gu.group_id = ?)", group_id])
+    within_group(group, false)
   }
+  scope :within_group, ->(group, positive = true) {
+    group_id = group.is_a?(Group) ? [group.id] : Array(group).map(&:to_i)
+
+    sql_condition = group_id.any? ? 'WHERE gu.group_id IN (?)' : ''
+    sql_not = positive ? '' : 'NOT'
+
+    sql_query = ["#{User.table_name}.id #{sql_not} IN (SELECT gu.user_id FROM #{table_name_prefix}group_users#{table_name_suffix} gu #{sql_condition})"]
+    if group_id.any?
+      sql_query.push group_id
+    end
+
+    where(sql_query)
+  }
+
   scope :admin, -> { where(admin: true) }
 
   scope :newest, -> { not_builtin.order(created_on: :desc) }
@@ -187,6 +203,7 @@ class User < Principal
     @name = nil
     @projects_by_role = nil
     @authorization_service = ::Authorization::UserAllowedService.new(self)
+    @project_role_cache = ::User::ProjectRoleCache.new(self)
 
     super
   end
@@ -252,25 +269,27 @@ class User < Principal
   def self.try_authentication_and_create_user(login, password)
     return nil if OpenProject::Configuration.disable_password_login?
 
-    user = nil
     attrs = AuthSource.authenticate(login, password)
-    if attrs
-      # login is both safe and protected in chilis core code
-      # in case it's intentional we keep it that way
-      user = new(attrs.except(:login))
-      user.login = login
+    try_to_create(attrs) if attrs
+  end
+
+  # Try to create the user from attributes
+  def self.try_to_create(attrs, notify: false)
+    new(attrs).tap do |user|
       user.language = Setting.default_language
 
       if OpenProject::Enterprise.user_limit_reached?
-        OpenProject::Enterprise.send_activation_limit_notification_about user
+        OpenProject::Enterprise.send_activation_limit_notification_about(user) if notify
 
+        Rails.logger.error("User '#{user.login}' could not be created as user limit exceeded.")
         user.errors.add :base, I18n.t(:error_enterprise_activation_user_limit)
       elsif user.save
         user.reload
-        logger.info("User '#{user.login}' created from external auth source: #{user.auth_source.type} - #{user.auth_source.name}") if logger && user.auth_source
+        Rails.logger.info("User '#{user.login}' created from external auth source: #{user.auth_source&.type} - #{user.auth_source&.name}")
+      else
+        Rails.logger.error("User '#{user.login}' could not be created: #{user.errors.full_messages.join(". ")}")
       end
     end
-    user
   end
 
   # Returns the user who matches the given autologin +key+ or nil
@@ -307,7 +326,7 @@ class User < Principal
   end
 
   def status_name
-    STATUSES.keys[status].to_s
+    STATUSES.invert[status].to_s
   end
 
   def active?
@@ -485,7 +504,7 @@ class User < Principal
   def self.find_by_rss_key(key)
     return nil unless Setting.feeds_enabled?
 
-    token = Token::Rss.find_by(value: key)
+    token = Token::RSS.find_by(value: key)
 
     if token&.user&.active?
       token.user
@@ -495,7 +514,7 @@ class User < Principal
   def self.find_by_api_key(key)
     return nil unless Setting.rest_api_enabled?
 
-    token = Token::Api.find_by_plaintext_value(key)
+    token = Token::API.find_by_plaintext_value(key)
 
     if token&.user&.active?
       token.user
@@ -528,7 +547,7 @@ class User < Principal
   end
 
   def rss_key
-    token = rss_token || ::Token::Rss.create(user: self)
+    token = rss_token || ::Token::RSS.create(user: self)
     token.value
   end
 
@@ -555,29 +574,9 @@ class User < Principal
 
   # Return user's roles for project
   def roles_for_project(project)
-    roles = []
-
-    # No role on archived projects
-    return roles unless project&.active?
-
-    # Return all roles if user is admin
-    return Role.givable.to_a if admin?
-
-    if logged?
-      # Find project membership
-      membership = memberships.detect { |m| m.project_id == project.id }
-      if membership
-        roles = membership.roles
-      else
-        @role_non_member ||= Role.non_member
-        roles << @role_non_member
-      end
-    else
-      @role_anonymous ||= Role.anonymous
-      roles << @role_anonymous
-    end
-    roles
+    project_role_cache.fetch(project)
   end
+  alias :roles :roles_for_project
 
   # Cheap version of Project.visible.count
   def number_of_known_projects
@@ -671,10 +670,6 @@ class User < Principal
     User.current = previous_user
   end
 
-  def roles(project)
-    User.current.admin? ? Role.all : User.current.roles_for_project(project)
-  end
-
   ##
   # Returns true if no authentication method has been chosen for this user yet.
   # There are three possible methods currently:
@@ -689,18 +684,21 @@ class User < Principal
   # Returns the anonymous user.  If the anonymous user does not exist, it is created.  There can be only
   # one anonymous user per database.
   def self.anonymous
-    anonymous_user = AnonymousUser.first
-    if anonymous_user.nil?
-      (anonymous_user = AnonymousUser.new.tap do |u|
-        u.lastname = 'Anonymous'
-        u.login = ''
-        u.firstname = ''
-        u.mail = ''
-        u.status = 0
-      end).save
-      raise 'Unable to create the anonymous user.' if anonymous_user.new_record?
+    RequestStore[:anonymous_user] ||= begin
+      anonymous_user = AnonymousUser.first
+
+      if anonymous_user.nil?
+        (anonymous_user = AnonymousUser.new.tap do |u|
+          u.lastname = 'Anonymous'
+          u.login = ''
+          u.firstname = ''
+          u.mail = ''
+          u.status = User::STATUSES[:active]
+        end).save
+        raise 'Unable to create the anonymous user.' if anonymous_user.new_record?
+      end
+      anonymous_user
     end
-    anonymous_user
   end
 
   def self.system
@@ -713,7 +711,7 @@ class User < Principal
         login: "",
         mail: "",
         admin: false,
-        status: User::STATUSES[:locked],
+        status: User::STATUSES[:active],
         first_login: false
       )
 
@@ -769,7 +767,11 @@ class User < Principal
   end
 
   def authorization_service
-    @authorization_service ||= ::Authorization::UserAllowedService.new(self)
+    @authorization_service ||= ::Authorization::UserAllowedService.new(self, role_cache: project_role_cache)
+  end
+
+  def project_role_cache
+    @project_role_cache ||= ::User::ProjectRoleCache.new(self)
   end
 
   def former_passwords_include?(password)
@@ -860,63 +862,3 @@ class User < Principal
     !User.active.find_by_login('admin').try(:current_password).try(:matches_plaintext?, 'admin')
   end
 end
-
-class AnonymousUser < User
-  validate :validate_unique_anonymous_user, on: :create
-
-  # There should be only one AnonymousUser in the database
-  def validate_unique_anonymous_user
-    errors.add :base, 'An anonymous user already exists.' if AnonymousUser.any?
-  end
-
-  def available_custom_fields
-    []
-  end
-
-  # Overrides a few properties
-  def logged?; false end
-
-  def admin; false end
-
-  def name(*_args); I18n.t(:label_user_anonymous) end
-
-  def mail; nil end
-
-  def time_zone; nil end
-
-  def rss_key; nil end
-
-  def destroy; false end
-end
-
-class DeletedUser < User
-  validate :validate_unique_deleted_user, on: :create
-
-  default_scope { where(status: STATUSES[:builtin]) }
-
-  # There should be only one DeletedUser in the database
-  def validate_unique_deleted_user
-    errors.add :base, 'A DeletedUser already exists.' if DeletedUser.any?
-  end
-
-  def self.first
-    super || create(type: to_s, status: STATUSES[:builtin])
-  end
-
-  # Overrides a few properties
-  def logged?; false end
-
-  def admin; false end
-
-  def name(*_args); I18n.t('user.deleted') end
-
-  def mail; nil end
-
-  def time_zone; nil end
-
-  def rss_key; nil end
-
-  def destroy; false end
-end
-
-require_dependency "system_user"

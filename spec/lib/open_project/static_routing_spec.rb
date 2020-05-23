@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -33,7 +33,7 @@ describe OpenProject::StaticRouting do
     subject { described_class.recognize_route path }
 
     context 'with no relative URL root', with_config: { rails_relative_url_root: nil } do
-      let(:path) { '/projects/foo' }
+      let(:path) { '/news/1' }
 
       it 'detects the route' do
         expect(subject).to be_present
@@ -42,7 +42,7 @@ describe OpenProject::StaticRouting do
     end
 
     context 'with a relative URL root', with_config: { rails_relative_url_root: '/foobar' } do
-      let(:path) { '/foobar/projects/foo' }
+      let(:path) { '/foobar/news/1' }
 
       it 'detects the route' do
         expect(subject).to be_present

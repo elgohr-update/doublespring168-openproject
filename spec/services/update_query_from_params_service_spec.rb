@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -109,6 +109,19 @@ describe UpdateQueryFromParamsService,
 
         expect(query.column_names)
           .to match_array(params[:columns].map(&:to_sym))
+      end
+    end
+
+    context 'display representation' do
+      let(:params) do
+        { display_representation: 'list' }
+      end
+
+      it 'sets the display_representation' do
+        subject
+
+        expect(query.display_representation)
+          .to eq('list')
       end
     end
 

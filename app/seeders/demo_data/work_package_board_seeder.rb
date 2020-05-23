@@ -2,8 +2,8 @@
 
 #-- copyright
 
-# OpenProject is a project management system.
-# Copyright (C) 2012-2015 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -26,7 +26,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
-# See doc/COPYRIGHT.rdoc for more details.
+# See docs/COPYRIGHT.rdoc for more details.
 module DemoData
   class WorkPackageBoardSeeder < Seeder
     attr_accessor :project, :key
@@ -154,11 +154,13 @@ module DemoData
           query.add_filter('manual_sort', 'ow', [])
           query.sort_criteria = [[:manual_sorting, 'asc']]
 
-          query.ordered_work_packages = list[:wps]
+          list[:wps].each_with_index do |wp_id, i|
+            query.ordered_work_packages.build(work_package_id: wp_id, position: i)
+          end
+
           query.save!
         end
       end
-
     end
 
     def scrum_query_work_packages

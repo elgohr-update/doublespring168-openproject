@@ -1,13 +1,12 @@
-import {Component, Inject, Injector} from '@angular/core';
+import {Component, Injector} from '@angular/core';
 import {I18nService} from 'core-app/modules/common/i18n/i18n.service';
 import {
   QUERY_SORT_BY_ASC,
   QUERY_SORT_BY_DESC,
   QuerySortByResource
 } from 'core-app/modules/hal/resources/query-sort-by-resource';
-import {WorkPackageTableSortByService} from 'core-components/wp-fast-table/state/wp-table-sort-by.service';
+import {WorkPackageViewSortByService} from 'core-app/modules/work_packages/routing/wp-view-base/view-services/wp-view-sort-by.service';
 import {TabComponent} from 'core-components/wp-table/configuration-modal/tab-portal-outlet';
-import {take} from 'rxjs/operators';
 
 export class SortModalObject {
   constructor(public column:SortColumn,
@@ -56,7 +55,7 @@ export class WpTableConfigurationSortByTab implements TabComponent {
 
   constructor(readonly injector:Injector,
               readonly I18n:I18nService,
-              readonly wpTableSortBy:WorkPackageTableSortByService) {
+              readonly wpTableSortBy:WorkPackageViewSortByService) {
 
   }
 

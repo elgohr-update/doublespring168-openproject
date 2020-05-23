@@ -1,8 +1,8 @@
 #-- encoding: UTF-8
 
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -120,7 +120,7 @@ module API
           if project.present? &&
              (current_user.try(:admin?) || current_user_allowed_to(:edit_project, context: project))
             {
-              href: settings_project_path(project.identifier, tab: 'custom_fields'),
+              href: settings_custom_fields_project_path(project.identifier),
               type: 'text/html',
               title: I18n.t('label_custom_field_plural')
             }
@@ -158,7 +158,7 @@ module API
                  exec_context: :decorator,
                  getter: ->(*) {
                    if total_sums
-                     ::API::V3::WorkPackages::WorkPackageSumsRepresenter.create(total_sums)
+                     ::API::V3::WorkPackages::WorkPackageSumsRepresenter.create(total_sums, current_user)
                    end
                  },
                  render_nil: false
@@ -173,6 +173,10 @@ module API
 
         def schemas
           schemas = schema_pairs.map do |project, type, available_custom_fields|
+            # This hack preloads the custom fields for a project so that they do not have to be
+            # loaded again later on
+            project.instance_variable_set(:'@all_work_package_custom_fields', all_cfs_of_project[project.id])
+
             Schema::TypedWorkPackageSchema.new(project: project, type: type, custom_fields: available_custom_fields)
           end
 
@@ -193,6 +197,13 @@ module API
           represented
             .map { |work_package| [work_package.project, work_package.type, work_package.available_custom_fields] }
             .uniq
+        end
+
+        def all_cfs_of_project
+          @all_cfs_of_project ||= represented
+                                  .group_by(&:project_id)
+                                  .map { |id, wps| [id, wps.map(&:available_custom_fields).flatten.uniq] }
+                                  .to_h
         end
 
         def paged_models(models)

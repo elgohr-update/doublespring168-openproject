@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -26,12 +26,14 @@
 # See docs/COPYRIGHT.rdoc for more details.
 #++
 
-class JournalFormatter::Datetime < JournalFormatter::Attribute
-  def format_values(values)
-    values.map do |v|
-      v.nil? ?
-        nil :
-        format_date(v.to_date)
+module JournalFormatter
+  class Datetime < Attribute
+    def format_values(values)
+      values.map do |v|
+        v.nil? ?
+          nil :
+          format_date(v.to_date)
+      end
     end
   end
 end

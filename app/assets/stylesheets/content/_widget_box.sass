@@ -1,6 +1,6 @@
 //-- copyright
-// OpenProject is a project management system.
-// Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+// OpenProject is an open source project management software.
+// Copyright (C) 2012-2020 the OpenProject GmbH
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License version 3.
@@ -64,7 +64,7 @@ $widget-box--enumeration-width: 20px
   .widget-box
     position: relative
     @include widget-box--style
-    padding: 10px 20px 30px 20px
+    padding: 20px
     min-height: 250px
     word-wrap: break-word
     overflow: hidden
@@ -79,18 +79,6 @@ $widget-box--enumeration-width: 20px
       padding: 0
       border: 0
 
-    .widget-box--header
-      font-weight: bold
-      font-size: 1.25rem
-      border: none
-
-      .widget-box--header-title
-        vertical-align: middle
-      .icon:before,
-      .icon-context:before
-        display: inline-block
-        padding-top: 0
-        vertical-align: middle
 
     .widget-box--enumeration
       margin-left: 1.5rem
@@ -113,12 +101,35 @@ $widget-box--enumeration-width: 20px
         @include varprop(color, alternative-color)
         width: $widget-box--enumeration-width
 
+    .widget-box--description
+      display: grid
+      grid-template-columns: auto auto
+      grid-column-gap: 20px
+      margin-bottom: 20px
 
-    .widget-box--teaser-image
-      max-width: 30%
-      max-height: 100px
-      margin-left: auto
-      margin-right: auto
+.widget-box--header
+  font-weight: bold
+  font-size: 1.25rem
+  display: flex
+  margin-top: 4px
+  margin-bottom: 13px
+  border-bottom: none
+  padding-bottom: 0
+
+.widget-box--header-title
+  vertical-align: middle
+  margin-bottom: 0
+  flex-grow: 1
+  align-self: center
+
+  // Ensure style for read-only widget headers
+  .editable-toolbar-title--fixed,
+  input[type="text"].toolbar--editable-toolbar
+    color: #5F5F5F
+    font-size: 16px
+    letter-spacing: 1px
+    text-transform: uppercase
+    font-weight: bold
 
 .widget-box--additional-info
   font-style: italic
@@ -142,6 +153,7 @@ $widget-box--enumeration-width: 20px
 
   .-widget-box--arrow-multiline
     &:before
+      line-height: 2
       float: left
 
     &:after
@@ -161,3 +173,7 @@ $widget-box--enumeration-width: 20px
     &.-flex
       .widget-box
         flex-basis: 100%
+
+  .widget-box--arrow-links
+    .-widget-box--arrow-multiline:before
+      padding-top: 0

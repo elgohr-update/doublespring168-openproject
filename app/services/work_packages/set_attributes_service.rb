@@ -1,8 +1,8 @@
 #-- encoding: UTF-8
 
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -29,41 +29,37 @@
 #++
 
 class WorkPackages::SetAttributesService < ::BaseServices::SetAttributes
+  include Attachments::SetReplacements
+
   private
 
   def set_attributes(attributes)
     set_attachments_attributes(attributes)
     set_static_attributes(attributes)
 
-    work_package.change_by_system do
-      set_default_attributes
+    change_by_system do
+      set_default_attributes(attributes)
       update_project_dependent_attributes
     end
 
     set_custom_attributes(attributes)
 
-    work_package.change_by_system do
+    change_by_system do
       update_dates
       reassign_invalid_status_if_type_changed
       set_templated_description
     end
   end
 
-  def set_attachments_attributes(attributes)
-    return unless attributes.key?(:attachment_ids)
-
-    work_package.attachments_replacements = Attachment.where(id: attributes[:attachment_ids])
-  end
-
   def set_static_attributes(attributes)
-    assignable_attributes = attributes.except(:attachment_ids).select do |key, _|
+    assignable_attributes = attributes.select do |key, _|
       !CustomField.custom_field_attribute?(key) && work_package.respond_to?(key)
     end
 
     work_package.attributes = assignable_attributes
   end
 
-  def set_default_attributes
+  def set_default_attributes(*)
     return unless work_package.new_record?
 
     work_package.priority ||= IssuePriority.active.default
@@ -89,12 +85,12 @@ class WorkPackages::SetAttributesService < ::BaseServices::SetAttributes
     return unless default_description.present?
 
     # And the current description matches ANY current default text
-    return unless work_package.description.blank? || is_default_description?
+    return unless work_package.description.blank? || default_description?
 
     work_package.description = default_description
   end
 
-  def is_default_description?
+  def default_description?
     Type
       .pluck(:description)
       .compact
@@ -134,8 +130,8 @@ class WorkPackages::SetAttributesService < ::BaseServices::SetAttributes
   def update_project_dependent_attributes
     return unless work_package.project_id_changed? && work_package.project_id
 
-    work_package.change_by_system do
-      set_fixed_version_to_nil
+    change_by_system do
+      set_version_to_nil
       reassign_category
 
       reassign_type unless work_package.type_id_changed?
@@ -153,10 +149,11 @@ class WorkPackages::SetAttributesService < ::BaseServices::SetAttributes
     end
   end
 
-  def set_fixed_version_to_nil
-    unless work_package.fixed_version &&
-           work_package.project.shared_versions.include?(work_package.fixed_version)
-      work_package.fixed_version = nil
+  def set_version_to_nil
+    if work_package.version &&
+       !(work_package.project &&
+         work_package.project.shared_versions.include?(work_package.version))
+      work_package.version = nil
     end
   end
 
@@ -177,11 +174,11 @@ class WorkPackages::SetAttributesService < ::BaseServices::SetAttributes
 
     work_package.type = available_types.detect(&:is_default) || available_types.first
 
-    reassign_status work_package.new_statuses_allowed_to(user, true)
+    reassign_status assignable_statuses
   end
 
   def reassign_status(available_statuses)
-    return if available_statuses.include? work_package.status
+    return if available_statuses.include?(work_package.status) || work_package.status.is_a?(Status::InexistentStatus)
 
     new_status = available_statuses.detect(&:is_default) || available_statuses.first
     work_package.status = new_status if new_status.present?
@@ -217,5 +214,9 @@ class WorkPackages::SetAttributesService < ::BaseServices::SetAttributes
 
   def work_package
     model
+  end
+
+  def assignable_statuses
+    instantiate_contract(work_package, user).assignable_statuses(true)
   end
 end

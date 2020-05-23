@@ -1,6 +1,6 @@
 // -- copyright
-// OpenProject is a project management system.
-// Copyright (C) 2012-2015 the OpenProject Foundation (OPF)
+// OpenProject is an open source project management software.
+// Copyright (C) 2012-2020 the OpenProject GmbH
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License version 3.
@@ -23,73 +23,63 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //
-// See doc/COPYRIGHT.rdoc for more details.
+// See docs/COPYRIGHT.rdoc for more details.
 // ++
 
 import {WorkPackageResource} from 'core-app/modules/hal/resources/work-package-resource';
-import {WorkPackageEditingService} from 'core-components/wp-edit-form/work-package-editing-service';
-import {ChangeDetectorRef, Component, Inject, Input, OnDestroy, OnInit} from '@angular/core';
+
+import {HalResourceEditingService} from "core-app/modules/fields/edit/services/hal-resource-editing.service";
+import {ChangeDetectorRef, Component, Input, OnInit} from '@angular/core';
 import {I18nService} from 'core-app/modules/common/i18n/i18n.service';
-import {IWorkPackageEditingServiceToken} from "../../wp-edit-form/work-package-editing.service.interface";
 import {Highlighting} from "core-components/wp-fast-table/builders/highlighting/highlighting.functions";
 import {HalResource} from "core-app/modules/hal/resources/hal-resource";
 import {WorkPackageCacheService} from "core-components/work-packages/work-package-cache.service";
-import {untilComponentDestroyed} from "ng2-rx-componentdestroyed";
-import {SchemaCacheService} from "core-components/schemas/schema-cache.service";
+import {UntilDestroyedMixin} from "core-app/helpers/angular/until-destroyed.mixin";
 
 @Component({
   selector: 'wp-status-button',
   styleUrls: ['./wp-status-button.component.sass'],
   templateUrl: './wp-status-button.html'
 })
-export class WorkPackageStatusButtonComponent implements OnInit, OnDestroy {
+export class WorkPackageStatusButtonComponent extends UntilDestroyedMixin implements OnInit {
   @Input('workPackage') public workPackage:WorkPackageResource;
   @Input('containerClass') public containerClass:string;
 
   public text = {
     explanation: this.I18n.t('js.label_edit_status'),
-    workPackageReadOnly: this.I18n.t('js.work_packages.message_work_package_read_only')
+    workPackageReadOnly: this.I18n.t('js.work_packages.message_work_package_read_only'),
+    workPackageStatusBlocked: this.I18n.t('js.work_packages.message_work_package_status_blocked')
   };
 
   constructor(readonly I18n:I18nService,
               readonly cdRef:ChangeDetectorRef,
               readonly wpCacheService:WorkPackageCacheService,
-              readonly schemaCacheService:SchemaCacheService,
-              readonly changeDetectorRef:ChangeDetectorRef,
-              @Inject(IWorkPackageEditingServiceToken) protected wpEditing:WorkPackageEditingService) {
+              readonly halEditing:HalResourceEditingService) {
+    super();
   }
 
   ngOnInit() {
-    this.wpCacheService
-      .observe(this.workPackage.id!)
+    this.halEditing
+      .temporaryEditResource(this.workPackage)
+      .values$()
       .pipe(
-        untilComponentDestroyed(this)
+        this.untilDestroyed()
       )
       .subscribe((wp) => {
         this.workPackage = wp;
         this.cdRef.detectChanges();
-        this.workPackage.status.$load();
-      });
 
-    this.schemaCacheService
-      .state(this.workPackage)
-      .changes$()
-      .pipe(
-        untilComponentDestroyed(this)
-      )
-      .subscribe((wp) => {
-        // we have to explicitly force the component to update
-        this.changeDetectorRef.detectChanges();
+        if (this.workPackage.status) {
+          this.workPackage.status.$load();
+        }
       });
-  }
-
-  ngOnDestroy():void {
-    // Nothing to do
   }
 
   public get buttonTitle() {
     if (this.workPackage.isReadonly) {
       return this.text.workPackageReadOnly;
+    } else if (this.workPackage.isEditable && this.isDisabled) {
+      return this.text.workPackageStatusBlocked;
     } else {
       return '';
     }
@@ -97,14 +87,18 @@ export class WorkPackageStatusButtonComponent implements OnInit, OnDestroy {
 
   public get statusHighlightClass() {
     let status = this.status;
-    if (!status) { return; }
+    if (!status) {
+      return;
+    }
     return Highlighting.backgroundClass('status', status.id!);
   }
 
   public get status():HalResource|undefined {
-    if (!this.wpEditing) { return; }
+    if (!this.halEditing) {
+      return;
+    }
 
-    return this.changeset.value('status');
+    return this.changeset.projectedResource.status;
   }
 
   public get allowed() {
@@ -118,6 +112,6 @@ export class WorkPackageStatusButtonComponent implements OnInit, OnDestroy {
   }
 
   private get changeset() {
-    return this.wpEditing.changesetFor(this.workPackage);
+    return this.halEditing.changeFor(this.workPackage);
   }
 }

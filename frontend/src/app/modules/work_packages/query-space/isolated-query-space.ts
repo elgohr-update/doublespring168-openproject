@@ -1,15 +1,12 @@
-import {RenderedRow} from 'app/components/wp-fast-table/builders/primary-render-pass';
 import {derive, input, InputState, State, StatesGroup} from 'reactivestates';
 import {Subject} from 'rxjs';
 import {Injectable} from '@angular/core';
 import {map} from 'rxjs/operators';
 import {QueryResource} from 'core-app/modules/hal/resources/query-resource';
 import {GroupObject, WorkPackageCollectionResource} from 'core-app/modules/hal/resources/wp-collection-resource';
-import {WorkPackageResource} from 'core-app/modules/hal/resources/work-package-resource';
 import {QueryFormResource} from "core-app/modules/hal/resources/query-form-resource";
-import {WPFocusState} from "core-components/wp-fast-table/state/wp-table-focus.service";
 import {QueryColumn} from "core-components/wp-query/query-column";
-import {WorkPackageTableRefreshRequest} from "core-components/wp-table/wp-table-refresh-request.service";
+import {RenderedWorkPackage} from "core-app/modules/work_packages/render-info/rendered-work-package.type";
 
 @Injectable()
 export class IsolatedQuerySpace extends StatesGroup {
@@ -35,20 +32,23 @@ export class IsolatedQuerySpace extends StatesGroup {
 
   // Current state of collapsed groups (if any)
   collapsedGroups = input<{ [identifier:string]:boolean }>();
-  // State to be updated when the table is up to date
-  rendered = input<RenderedRow[]>();
 
-  renderedWorkPackages:State<RenderedRow[]> = derive(this.rendered, $ => $.pipe(
+  // State to be updated when the table is up to date
+  tableRendered = input<RenderedWorkPackage[]>();
+
+  // Event to be raised when the timeline is up to date
+  timelineRendered = new Subject<null>();
+
+  renderedWorkPackages:State<RenderedWorkPackage[]> = derive(this.tableRendered, $ => $.pipe(
     map(rows => rows.filter(row => !!row.workPackageId)))
   );
 
-  // Current focused work package (e.g, row preselected for details button)
-  focusedWorkPackage:InputState<WPFocusState> = input<WPFocusState>();
+  renderedWorkPackageIds:State<string[]> = derive(this.renderedWorkPackages, $ => $.pipe(
+    map(rows => rows.map(row => row.workPackageId!.toString())))
+  );
 
   // Subject used to unregister all listeners of states above.
   stopAllSubscriptions = new Subject();
-  // Fire when table refresh is required
-  refreshRequired = input<WorkPackageTableRefreshRequest>();
 
   // Required work packages to be rendered by hierarchy mode + relation columns
   additionalRequiredWorkPackages = input<null>();

@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2017 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -23,7 +23,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
-# See doc/COPYRIGHT.rdoc for more details.
+# See docs/COPYRIGHT.rdoc for more details.
 #++
 require 'spec_helper'
 require_relative '../shared_expectations'
@@ -48,27 +48,19 @@ describe CustomActions::Conditions::Role, type: :model do
     end
 
     describe '#fulfilled_by?' do
-      let(:work_package) { double('work_package', project_id: 1) }
-      let(:user) { double('user', id: 3) }
-
-      before do
-        role1 = double('role', id: 1)
-        role2 = double('role', id: 2)
-        roles = [role1, role2]
-
-        allow(Role)
-          .to receive(:joins)
-          .with(:members)
-          .and_return(roles)
-        allow(roles)
-          .to receive(:where)
-          .with(members: { project_id: [work_package.project_id],
-                           user_id: user.id })
-          .and_return(roles)
-        allow(roles)
-          .to receive(:select)
-          .and_return(roles)
+      let(:project) { double('project', id: 1) }
+      let(:work_package) { double('work_package', project: project, project_id: 1) }
+      let(:user) do
+        double('user', id: 3).tap do |user|
+          allow(user)
+            .to receive(:roles_for_project)
+            .with(project)
+            .and_return(roles)
+        end
       end
+      let(:role1) { double('role', id: 1) }
+      let(:role2) { double('role', id: 2) }
+      let(:roles) { [role1, role2] }
 
       it 'is true if values are empty' do
         instance.values = []

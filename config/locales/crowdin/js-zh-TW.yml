@@ -1,3 +1,24 @@
+#-- copyright
+#OpenProject is an open source project management software.
+#Copyright (C) 2012-2020 the OpenProject GmbH
+#This program is free software; you can redistribute it and/or
+#modify it under the terms of the GNU General Public License version 3.
+#OpenProject is a fork of ChiliProject, which is a fork of Redmine. The copyright follows:
+#Copyright (C) 2006-2017 Jean-Philippe Lang
+#Copyright (C) 2010-2013 the ChiliProject Team
+#This program is free software; you can redistribute it and/or
+#modify it under the terms of the GNU General Public License
+#as published by the Free Software Foundation; either version 2
+#of the License, or (at your option) any later version.
+#This program is distributed in the hope that it will be useful,
+#but WITHOUT ANY WARRANTY; without even the implied warranty of
+#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#GNU General Public License for more details.
+#You should have received a copy of the GNU General Public License
+#along with this program; if not, write to the Free Software
+#Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+#See docs/COPYRIGHT.rdoc for more details.
+#++
 zh-TW:
   js:
     ajax:
@@ -15,20 +36,13 @@ zh-TW:
     close_popup_title: "關閉彈出式視窗"
     close_filter_title: "關閉篩選器"
     close_form_title: "關閉表單"
-    card:
-      add_new: 'Add new card'
-      highlighting:
-        inline: 'Highlight inline:'
-        entire_card_by: 'Entire card by'
-      remove_from_list: 'Remove card from list'
-    clipboard:
-      browser_error: "您的瀏覽器不支援複製到剪貼簿。請手動複製選取的文字。"
-      copied_successful: "成功複製到剪貼簿上!"
     button_add_watcher: "新增監看者"
+    button_add: "增加"
     button_back: "返回"
     button_back_to_list_view: "返回清單"
     button_cancel: "取消"
     button_close: "關閉"
+    button_change_project: "切換專案"
     button_check_all: "勾選全部"
     button_configure-form: "配置表單"
     button_confirm: "確認"
@@ -46,10 +60,11 @@ zh-TW:
     button_show_view: "全螢幕瀏覽"
     button_log_time: "日誌的時間"
     button_more: "更多"
-    button_move: "移動"
     button_open_details: "開啟詳細檢視"
     button_close_details: "關閉詳細檢視"
     button_open_fullscreen: "開啟全螢幕檢視"
+    button_show_cards: "顯示卡片檢視"
+    button_show_list: "Show list view"
     button_quote: "引言"
     button_save: "儲存"
     button_settings: "設定"
@@ -59,7 +74,34 @@ zh-TW:
     button_export-atom: "下載 Atom"
     calendar:
       title: '行事曆'
-      too_many: '與日曆 (%{max}) 所顯示的工作包 (%{count}) 相比, 有更多的工作包 (123_0_321)。添加篩選器以將焦點放在相關篩選器上。'
+      too_many: 'There are %{count} work packages in total, but only %{max} can be shown.'
+    card:
+      add_new: '新增卡片'
+      highlighting:
+        inline: 'Highlight inline:'
+        entire_card_by: 'Entire card by'
+      remove_from_list: '從清單列表中移除'
+    caption_rate_history: "Rate history"
+    clipboard:
+      browser_error: "您的瀏覽器不支援複製到剪貼簿。請手動複製選取的文字。"
+      copied_successful: "成功複製到剪貼簿上!"
+    chart:
+      type: 'Chart type'
+      axis_criteria: 'Axis criteria'
+      modal_title: 'Work package graph configuration'
+      types:
+        line: 'Line'
+        horizontal_bar: 'Horizontal bar'
+        bar: 'Bar'
+        pie: 'Pie'
+        doughnut: 'Doughnut'
+        radar: 'Radar'
+        polar_area: 'Polar area'
+      tabs:
+        graph_settings: '一般'
+        dataset: 'Dataset %{number}'
+      errors:
+        could_not_load: 'The data to display the graph could not be loaded. The necessary permissions may be lacking.'
     description_available_columns: "可用欄"
     description_current_position: "You are here: "
     description_select_work_package: "選取工作項目 #%{id}"
@@ -121,6 +163,59 @@ zh-TW:
         edit_query: 'Edit query'
         new_group: '新增群組'
         reset_to_defaults: '重設為預設值'
+      enterprise:
+        trial:
+          confirmation: "Confirmation of email address"
+          confirmation_info: "We sent you an email. Please check your emails and click the confirmation link provided to start your 14 days trial."
+          form:
+            general_consent: >
+              I agree with the <a target="_blank" href="%{link_terms}">terms of service</a> and the <a target="_blank" href="%{link_privacy}">privacy policy</a>.
+            invalid_email: "Invalid email address"
+            label_company: "Company"
+            label_first_name: "名字"
+            label_last_name: "姓："
+            label_email: "電子郵件"
+            label_domain: "Domain"
+            label_subscriber: "訂閱者"
+            label_maximum_users: "最大活動使用者數"
+            label_starts_at: "Starts at"
+            label_expires_at: "過期於"
+            receive_newsletter: I want to receive the OpenProject <a target="_blank" href="%{link}">newsletter</a>.
+            taken_domain: There can only be one active trial per domain.
+            taken_email: Each user can only create one trial.
+          email_not_received: "You did not receive an email? You can resend the email with the link on the right."
+          try_another_email: "Or try it with another email address."
+          next_steps: "Next steps"
+          resend_link: "重新發送"
+          resend_success: "Email has been resent. Please check your emails and click the confirmation link provided."
+          resend_warning: "Could not resend email."
+          session_timeout: "Your session timed out. Please try to reload the page or resend email."
+          status_label: "Status:"
+          status_confirmed: "confirmed"
+          status_waiting: "email sent - waiting for confirmation"
+          test_ee: "Test the Enterprise Edition 14 days for free"
+          quick_overview: "Get a quick overview of project management and team collaboration with OpenProject Enterprise Edition."
+        upsale:
+          become_hero: "成為英雄!"
+          benefits:
+            description: "有什麼好處？"
+            high_security: "Security features"
+            high_security_text: "Single sign on (SAML, OpenID Connect, CAS), two-factor authentication and automatic sync of LDAP groups."
+            installation: "Installation support"
+            installation_text: "Experienced software engineers guide you through the complete installation and setup process in your own infrastructure."
+            premium_features: "Premium features"
+            premium_features_text: "Agile boards, custom theme and logo, graphs, intelligent workflows with custom actions, full text search for work package attachments and multi-select custom fields."
+            professional_support: "專業支援"
+            professional_support_text: "Get reliable, high-touch support from senior support engineers with expert knowledge about running OpenProject in business-critical environments."
+          button_start_trial: "Start free trial"
+          button_book_now: "Book now"
+          confidence: >
+            We deliver the confidence of a tested and supported enterprise-class project management software - with Open Source and an open mind.
+          link_quote: "Get a quote"
+          text: >
+            The OpenProject Enterprise Edition builds on top of the Community Edition. It includes premium features and professional support mainly aimed at organizations with more than 10 users that manage business critical projects with OpenProject.
+          unlimited: "Unlimited"
+          you_contribute: "Developers need to pay their bills, too. With the Enterprise Edition, you substantially contribute to this Open Source community effort."
     custom_actions:
       date:
         specific: '開啟'
@@ -130,6 +225,9 @@ zh-TW:
       cannot_save_changes_with_message: "由於以下錯誤, 無法保存所做的更改: %{error}"
       query_saving: "無法保存視圖。"
       embedded_table_loading: "無法載入嵌入視圖: %{message}"
+    enumeration_activities: "活動 (時間追蹤)"
+    enumeration_doc_categories: "文件類別"
+    enumeration_work_package_priorities: "工作項目優先等級"
     filter:
       description:
         text_open_filter: "使用 ALT 和方向鍵打開此篩選器。"
@@ -151,43 +249,28 @@ zh-TW:
     general_text_yes: "是"
     general_text_No: "否"
     general_text_Yes: "是"
-    grid:
-      add_modal:
-        choose_widget: 'Choose widget'
-      remove: 'Remove widget'
-      widgets:
-        documents:
-          title: '文件'
-          no_results: 'No documents yet.'
-        news:
-          title: '新知'
-          at: 'at'
-          no_results: '沒有新的消息可以報告'
-        time_entries_current_user:
-          title: 'Spent time (last 7 days)'
-          no_results: 'No time entries for the last 7 days.'
-        work_packages_accountable:
-          title: "我負責的工作項目"
-        work_packages_assigned:
-          title: '分配給我的工作項目'
-        work_packages_created:
-          title: 'Work packages created by me'
-        work_packages_watched:
-          title: 'Work packages watched by me'
-        work_packages_table:
-          title: 'Work packages'
-        work_packages_calendar:
-          title: '行事曆'
+    global_roles: 全域角色
+    hal:
+      error:
+        update_conflict_refresh: "Click here to refresh the resource and update to the newest version."
+        edit_prohibited: "Editing %{attribute} is blocked for this resource. Either this attribute is derived from relations (e.g, children) or otherwise not configurable."
+        format:
+          date: "%{attribute} 不是有效日期 - 需要 YYYY-MM-DD。"
+        general: "發生錯誤。"
     homescreen:
       blocks:
         new_features:
           text_new_features: "Read about new features and product updates."
-          current_new_feature_html: "OpenProject contains a new <b>Boards view</b> for Agile project management. </br> To activate this new feature for your existing projects, please do the following steps: <ul><li>Activate the module Boards within existing projects' settings.</li> <li>Configure your Boards in a project.</li> <li>Verify roles and permissions</li></ul>"
-          image_alt_text: "Board teaser image"
-          learn_about: "Learn more about Agile Boards"
+          learn_about: "Learn more about the new features"
+          standard:
+            learn_about_link: https://www.openproject.org/openproject-10-5
+            current_new_feature_html: >
+              The release contains various new features and improvements: <br><br> <ul> <li><b>Action board for assignees</b>: create action boards that will automatically update the assignee when moving cards across lists.</li> <li>Sort versions by name not by dates which makes it much easier to select a version from the list.</li> <li><b>Remove 24-hour restriction</b> for time tracking.</li> <li>Show news summary on project overview widget.</li> <li>Various bug fixes and <b>usability improvements</b>.</li> </ul>
+          bim:
+            learn_about_link: https://www.openproject.org/openproject-bim-10-5
+            current_new_feature_html: >
+              OpenProject 10.5 now supports the <b>BIM Collaboration Format (BCF)</b> – the open issue tracking standard for BIM models.<br><br> <ul> <li>Easily create and <b>manage BIM issues</b> such as clashes, requests and questions in the interactive 3D IFC model and <b>share it with the project team.</b></li> <li>Integrate OpenProject with your favorite BIM software using the powerful <a target="_blank" href="%{bcf_api_link}">BCF REST API.</a></li> <li>Import and export BCF XML files.</li> </ul>
     label_activate: "啟用"
-    label_activity_no: "活動條目編號 %{activityNo}"
-    label_activity_with_comment_no: "活動條目編號 %{activityNo}。有的使用者評論。"
     label_add_column_after: "在後面增加一欄"
     label_add_column_before: "在前面增加一欄"
     label_add_columns: "增加欄"
@@ -197,17 +280,18 @@ zh-TW:
     label_add_row_before: "在前面增加一列"
     label_add_selected_columns: "新增所選欄"
     label_added_by: "新增者"
-    label_added_time_by: "由 %{author} 於%{age} 新增"
+    label_added_time_by: "Added by <a href=%{authorLink}>%{author}</a> at %{age}"
     label_ago: "天前"
     label_all: "所有"
     label_all_work_packages: "所有工作項目"
     label_and: "和"
     label_ascending: "昇冪"
     label_author: "作者: %{user}"
+    label_avatar: "Avatar"
     label_between: "介於"
-    label_board: "Board"
+    label_board: "面板"
     label_board_locked: "鎖定"
-    label_board_plural: "Boards"
+    label_board_plural: "看板"
     label_board_sticky: "附著"
     label_create: "建立"
     label_create_work_package: "建立新的工作項目"
@@ -217,6 +301,8 @@ zh-TW:
     label_deactivate: "停用"
     label_descending: "降冪"
     label_description: "說明"
+    label_details: "詳細資料"
+    label_display: "顯示"
     label_cancel_comment: "取消注釋"
     label_closed_work_packages: "已關閉"
     label_collapse: "折疊"
@@ -235,32 +321,42 @@ zh-TW:
     label_expand_all: "全部展開"
     label_expand_project_menu: "展開專案選單"
     label_export: "匯出"
+    label_export_preparing: "The export is being prepared and will be downloaded shortly."
     label_filename: "檔案"
     label_filesize: "檔案大小"
+    label_general: "一般"
     label_greater_or_equal: ">="
     label_group: '群組'
     label_group_by: "分組依據"
+    label_group_plural: "群組"
     label_hide_attributes: "簡略"
     label_hide_column: "隱藏欄"
     label_hide_project_menu: "折疊專案選單"
     label_in: "在"
     label_in_less_than: "少於"
     label_in_more_than: "多於"
+    label_incoming_emails: "接收到的電子郵件"
+    label_information_plural: "資訊"
+    label_import: "Import"
     label_latest_activity: "最新活動"
     label_last_updated_on: "最後更新於"
+    label_learn_more_link: "了解更多"
     label_less_or_equal: "<="
     label_less_than_ago: "少於幾天前"
     label_loading: "讀取中..."
+    label_mail_notification: "電子郵件通知"
     label_me: "我"
+    label_meeting_agenda: "會議大綱"
+    label_meeting_minutes: "會議記錄"
     label_menu_collapse: "收合"
     label_menu_expand: "展開"
     label_more_than_ago: "很多天之前"
-    label_my_page: "我的首頁"
     label_next: "下一個"
     label_no_color: "無顏色"
     label_no_data: "沒有資料可顯示"
     label_no_due_date: "無結束日期"
     label_no_start_date: "無開始日期"
+    label_no_value: "無值"
     label_none: "無"
     label_not_contains: "不包含"
     label_not_equals: "不是"
@@ -272,12 +368,16 @@ zh-TW:
     label_previous: "上一個"
     label_per_page: "每頁："
     label_please_wait: "請稍候"
+    label_project_plural: "專案"
     label_visibility_settings: "可見度設定"
     label_quote_comment: "引述這個評論"
+    label_recent: "Recent"
     label_reset: "重置"
     label_remove_column: "移除欄"
     label_remove_columns: "移除所選欄"
     label_remove_row: "移除列"
+    label_report: "報表"
+    label_repository_plural: "Repositories"
     label_save_as: "保存為"
     label_select_watcher: "選擇一位關注者"
     label_selected_filter_list: "所選的篩選器"
@@ -288,21 +388,26 @@ zh-TW:
     label_sort_higher: "往上移動"
     label_sort_lower: "往下移動"
     label_sorting: "排序"
+    label_spent_time: "耗時"
     label_star_query: "喜好"
     label_press_enter_to_save: "按 Enter 即可儲存。"
     label_public_query: "公開"
+    label_sum: "總和"
     label_sum_for: "總和"
     label_subject: "主題"
     label_this_week: "本週"
     label_today: "今天"
+    label_time_entry_plural: "耗時"
     label_up: "向上"
+    label_user_plural: "使用者"
     label_activity_show_only_comments: "只顯示活動和其評論"
     label_activity_show_all: "顯示所有的活動"
     label_total_progress: "%{percent}%總進度"
     label_total_amount: "總計: %{amount}"
     label_updated_on: "更新於"
+    label_value_derived_from_children: "(value derived from children)"
     label_warning: "警告"
-    label_work_package: "Work package"
+    label_work_package: "工作項目"
     label_work_package_plural: "Work packages"
     label_watch: "監看"
     label_watch_work_package: "關注工作項目"
@@ -336,6 +441,7 @@ zh-TW:
     label_wait: "請等待配置..."
     label_upload_counter: "%{count} 個中的 %{done} 個文件已完成"
     label_validation_error: "由於下列錯誤，無法儲存工作包:"
+    label_version_plural: "版本"
     label_view_has_changed: "This view has unsaved changes. Click to save them."
     help_texts:
       show_modal: '顯示屬性說明文字項目'
@@ -402,23 +508,22 @@ zh-TW:
         upgrade_to_ee_text: "哇！如果您需要使用此功能，說明您非常專業！您是否願意成為企業版客戶來支持 OpenSource 開發人員？"
         more_information: "更多資訊"
         nevermind: "無視"
-        filter_types:
-          parent: "成為子級"
-          precedes: "前"
-          follows: "接著的"
-          relates: "相關於"
-          duplicates: "複製中..."
-          duplicated: "標示重複者"
-          blocks: "阻止"
-          blocked: "標示禁止者"
-          partof: "成為的一部分"
-          includes: "包括"
-          requires: "需要"
-          required: "被以下需要"
+      edit:
+        form_configuration: "Form Configuration"
+        projects: "專案"
+        settings: "設定"
     time_entry:
+      project: '專案'
+      work_package: '工作項目'
+      work_package_required: 'Requires selecting a work package first.'
       activity: '活動'
       comment: '評論'
+      duration: '時間長度'
+      spent_on: '日期'
       hours: '小時'
+      title: '日誌的時間'
+    two_factor_authentication:
+      label_two_factor_authentication: '雙重身分驗證'
     watchers:
       label_loading: 正在載入關注者...
       label_error_loading: 而發生錯誤裝載的觀察家
@@ -449,6 +554,8 @@ zh-TW:
       set_parent: "設置父級"
       change_parent: "改變上層"
       remove_parent: "移除上一層"
+      hierarchy_indent: "Indent hierarchy"
+      hierarchy_outdent: "Outdent hierarchy"
       group_by_wp_type: "按工作包類型分組"
       group_by_relation_type: "按關聯類型分組"
       add_parent: "增加現有的上一層"
@@ -474,14 +581,6 @@ zh-TW:
       select_tag: '選擇標籤'
       select_branch: '選擇分支'
     field_value_enter_prompt: "輸入'%{field}'的值"
-    select2:
-      input_too_short:
-        other: "請再輸入{{count}} 個字元"
-      load_more: "正在載入更多結果..."
-      no_matches: "找不到符合項目"
-      searching: "正在搜尋…"
-      selection_too_big:
-        other: "您只能選擇 {{limit}} 個項目"
     project_menu_details: "詳細資料"
     sort:
       sorted_asc: '已套用升冪排序， '
@@ -543,9 +642,9 @@ zh-TW:
         in: "放大"
         out: "縮小"
         auto: "自動縮放"
-        days: "Days"
-        weeks: "Weeks"
-        months: "Months"
+        days: "日"
+        weeks: "週"
+        months: "月"
         quarters: "季"
         years: "年"
         slider: "縮放滑動器"
@@ -574,7 +673,7 @@ zh-TW:
       image: "圖片"
     work_packages:
       bulk_actions:
-        move: '整批移動'
+        move: 'Bulk change of project'
         edit: '整批編輯'
         copy: '整批複製'
         delete: '整批刪除'
@@ -587,12 +686,6 @@ zh-TW:
       description_enter_text: "輸入文字"
       description_options_hide: "隱藏選項"
       description_options_show: "顯示選項"
-      error:
-        update_conflict_refresh: "點擊此處刷新工作包並更新到最新版本。"
-        edit_prohibited: "已禁止對此工作包編輯 %{attribute}。此屬性來源於關聯 (如：子項) 或無法配置。"
-        format:
-          date: "%{attribute} 不是有效日期 - 需要 YYYY-MM-DD。"
-        general: "發生錯誤。"
       edit_attribute: "%{attribute} - 編輯"
       key_value: "%{key}: %{value}"
       label_enable_multi_select: "啟用複選"
@@ -606,7 +699,7 @@ zh-TW:
       message_successful_show_in_fullscreen: "點擊此處以全螢幕開啟此工作包"
       message_view_spent_time: "顯示這個工作包所花費的時間"
       message_work_package_read_only: "工作包被鎖定在此狀態。任何屬性以外的狀態都不能更改。"
-      no_value: "無值"
+      message_work_package_status_blocked: "Work package status is not writable due to closed status and closed version being assigned."
       placeholder_filter_by_text: "主旨, 描述, 評論 ..."
       inline_create:
         title: '點擊添加新的工作項目到此清單'
@@ -631,6 +724,7 @@ zh-TW:
       no_results:
         title: 無工作項目可顯示
         description: 無工作項目或是被篩選器把工作項目隱藏了
+      limited_results: Only %{count} work packages can be shown in manual sorting mode. Please reduce the results by filtering.
       property_groups:
         details: "詳細資料"
         people: "人員"
@@ -672,7 +766,7 @@ zh-TW:
         label_content: "點擊此處跳過功能表直接轉到內容"
       placeholders:
         default: "-"
-        description: "點擊此處輸入描述…"
+        formattable: "%{name}: Click to edit..."
       query:
         column_names: "欄"
         group_by: "分組依據"
@@ -690,6 +784,9 @@ zh-TW:
         confirm_edit_cancel: "確實要取消編輯此視圖的名稱嗎？標題將被設置回以前的值。"
         click_to_edit_query_name: "按一下以編輯此視圖的標題。"
         rename_query_placeholder: "此視圖的名稱"
+        star_text: "Mark this view as favorite and add to the saved views sidebar on the left."
+        public_text: >
+          Publish this view, allowing other users to access your view. Users with the 'Manage public views' permission can modify or remove public query. This does not affect the visibility of work package results in that view and depending on their permissions, users may see different results.
         errors:
           unretrievable_query: "無法從 url 檢索視圖"
           not_found: "無此查詢"
@@ -728,14 +825,13 @@ zh-TW:
           automatic: 'Automatic'
           manually: 'Manually'
           warning: 'You will lose your previous sorting when activating the automatic sorting mode.'
-        columns_help_text: "使用上面的輸入在表視圖中添加或移除列。可以拖放列以對其進行重新排序。"
+        columns_help_text: "Use the input above to add columns to your table view. You can drag and drop the columns to reorder them."
         upsale:
           attribute_highlighting: '需要某些工作包才能從大眾中脫穎而出？'
           relation_columns: '需要檢視工作項目清單的關係嗎'
           check_out_link: '請查閱企業版'
         relation_filters:
-          first_part: "顯示所有工作包"
-          second_part: "當前工作包"
+          filter_work_packages_by_relation_type: 'Filter work packages by relation type'
       tabs:
         overview: 概要
         activity: 活動
@@ -763,7 +859,7 @@ zh-TW:
         page_settings: "重新命名視圖 ..."
         delete: "删除"
       filter: "篩選器"
-      unselected_title: "Work package"
+      unselected_title: "工作項目"
       search_query_label: "搜索保存的視圖"
       search_query_title: "點擊搜尋保存的視圖"
       placeholder_query_title: "為此視圖設置標題"
@@ -819,7 +915,8 @@ zh-TW:
       child_work_packages:
         other: "%{count} 個子工作項目"
       hour:
-        other: "%{count} 一個小時"
+        zero: "0 h"
+        other: "%{count} h"
     zen_mode:
       button_activate: '啟動 zen 模式'
       button_deactivate: '停用 zen 模式'
@@ -833,3 +930,7 @@ zh-TW:
         all_projects: "所有專案"
         project_and_subprojects: "和所有的子專案"
         search_for: "搜尋"
+    views:
+      card: 'Cards'
+      list: 'Table'
+      timeline: '甘特圖'

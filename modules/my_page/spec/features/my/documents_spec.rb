@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -62,19 +62,17 @@ describe 'My page documents widget', type: :feature, js: true do
 
   it 'can add the widget and see the visible documents' do
     # within top-right area, add an additional widget
-    my_page.add_widget(1, 3, 'Documents')
+    my_page.add_widget(1, 1, :within, 'Documents')
 
     document_area = Components::Grids::GridArea.new('.grid--area.-widgeted:nth-of-type(1)')
-    document_area.expect_to_span(1, 3, 4, 5)
-
-    document_area.resize_to(7, 4)
+    document_area.expect_to_span(1, 1, 2, 2)
 
     expect(page)
       .to have_content visible_document.title
     expect(page)
       .to have_content visible_document.description
     expect(page)
-      .to have_content visible_document.created_on.strftime('%m/%d/%Y')
+      .to have_content visible_document.created_at.strftime('%m/%d/%Y')
 
     expect(page)
       .to have_no_content invisible_document.title

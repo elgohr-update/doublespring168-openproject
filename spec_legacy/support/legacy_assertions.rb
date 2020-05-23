@@ -1,7 +1,7 @@
 #-- encoding: UTF-8
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -35,6 +35,7 @@ module LegacyAssertionsAndHelpers
   def reset_global_state!
     User.current = User.anonymous # reset current user in case it was changed in a test
     ActionMailer::Base.deliveries.clear
+    RequestStore.clear!
   end
 
   ##
@@ -138,38 +139,6 @@ module LegacyAssertionsAndHelpers
   def should_render_404
     should respond_with :not_found
     should render_template 'common/error'
-  end
-
-  def should_show_the_old_and_new_values_for(prop_key, model, &block)
-    context '' do
-      before do
-        FactoryBot.create :issue if WorkPackage.count == 0 # some tests use WorkPackage.last
-        if block_given?
-          instance_eval &block
-        else
-          @old_value = FactoryBot.create(model.to_sym)
-          @new_value = FactoryBot.create(model.to_sym)
-        end
-      end
-
-      it "use the new value's name" do
-        journal = FactoryBot.build :work_package_journal
-
-        journal.stub(:journable).and_return(WorkPackage.last)
-        journal.stub(:details).and_return(prop_key => [@old_value.id, @new_value.id])
-
-        assert_match @new_value.class.find(@new_value.id).name, journal.render_detail(prop_key, no_html: true)
-      end
-
-      it "use the old value's name" do
-        journal = FactoryBot.build :work_package_journal
-
-        journal.stub(:journable).and_return(WorkPackage.last)
-        journal.stub(:details).and_return(prop_key => [@old_value.id, @new_value.id])
-
-        assert_match @old_value.class.find(@old_value.id).name, journal.render_detail(prop_key, no_html: true)
-      end
-    end
   end
 
   def should_create_a_new_user(&block)

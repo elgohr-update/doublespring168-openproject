@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -108,7 +108,7 @@ describe 'layouts/base', type: :view do
       end
 
       it 'shows a login form' do
-        expect(rendered).to include 'Login'
+        expect(rendered).to include 'Username'
         expect(rendered).to include 'Password'
       end
     end
@@ -120,7 +120,7 @@ describe 'layouts/base', type: :view do
       end
 
       it 'shows no password login form' do
-        expect(rendered).not_to include 'Login'
+        expect(rendered).not_to include 'Username'
         expect(rendered).not_to include 'Password'
       end
     end
@@ -135,14 +135,14 @@ describe 'layouts/base', type: :view do
 
     it 'renders main favicon' do
       expect(rendered).to have_selector(
-        "link[type='image/x-icon'][href*='#{OpenProject::Design.favicon_asset_path}']",
+        "link[type='image/x-icon'][href*='#{OpenProject::CustomStyles::Design.favicon_asset_path}']",
         visible: false
       )
     end
 
     it 'renders apple icons' do
       expect(rendered).to have_selector(
-        "link[type='image/png'][href='/assets/apple-touch-icon-120x120.png']",
+        "link[type='image/png'][href*='/assets/apple-touch-icon-120x120.png']",
         visible: false
       )
     end

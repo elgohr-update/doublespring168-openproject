@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -30,7 +30,7 @@ require 'spec_helper'
 
 require_relative '../support/pages/dashboard'
 
-describe 'Arbitrary WorkPackage query table widget dashboard', type: :feature, js: true do
+describe 'Arbitrary WorkPackage query table widget dashboard', type: :feature, js: true, with_mail: false do
   let!(:type) { FactoryBot.create :type }
   let!(:other_type) { FactoryBot.create :type }
   let!(:priority) { FactoryBot.create :default_priority }
@@ -94,19 +94,13 @@ describe 'Arbitrary WorkPackage query table widget dashboard', type: :feature, j
 
   context 'with the permission to save queries' do
     it 'can add the widget and see the work packages of the filtered for types' do
-      dashboard_page.add_column(3, before_or_after: :before)
+      dashboard_page.add_widget(1, 1, :row, "Work packages table")
 
-      dashboard_page.add_widget(2, 3, "Work packages table")
-
-      sleep(1)
+      sleep(0.2)
 
       filter_area = Components::Grids::GridArea.new('.grid--area.-widgeted:nth-of-type(2)')
 
-      filter_area.expect_to_span(2, 3, 5, 5)
-      filter_area.resize_to(6, 5)
-
-      filter_area.expect_to_span(2, 3, 7, 6)
-      ## enlarging the table area will have moved the created area down
+      filter_area.expect_to_span(1, 1, 2, 3)
 
       # At the beginning, the default query is displayed
       expect(filter_area.area)
@@ -179,8 +173,7 @@ describe 'Arbitrary WorkPackage query table widget dashboard', type: :feature, j
         .not_to have_selector('.subject', text: other_project_work_package.subject)
 
       within filter_area.area do
-        expect(find('.editable-toolbar-title--input').value)
-          .to eql('My WP Filter')
+        expect(page).to have_field('editable-toolbar-title', with: 'My WP Filter', wait: 10)
       end
     end
   end
@@ -189,9 +182,7 @@ describe 'Arbitrary WorkPackage query table widget dashboard', type: :feature, j
     let(:permissions) { %i[view_work_packages add_work_packages view_dashboards manage_dashboards] }
 
     it 'cannot add the widget' do
-      dashboard_page.add_column(3, before_or_after: :before)
-
-      dashboard_page.expect_unable_to_add_widget(2, 3, "Work packages table")
+      dashboard_page.expect_unable_to_add_widget(1, 1, :within, "Work packages table")
     end
   end
 end

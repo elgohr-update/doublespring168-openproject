@@ -1,7 +1,7 @@
 #-- encoding: UTF-8
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -29,20 +29,14 @@
 
 class JournalManager
   class << self
-    attr_accessor :send_notification
-
     def changes_on_association(current, predecessor, association, key, value)
       merged_journals = merge_reference_journals_by_id(current, predecessor, key.to_s, value.to_s)
 
       changes = added_references(merged_journals)
-                .merge(removed_references(merged_journals))
-                .merge(changed_references(merged_journals))
+        .merge(removed_references(merged_journals))
+        .merge(changed_references(merged_journals))
 
       to_changes_format(changes, association.to_s)
-    end
-
-    def reset_notification
-      @send_notification = true
     end
 
     private
@@ -91,11 +85,15 @@ class JournalManager
     end
 
     def journal_class_name(type)
-      "#{base_class(type).name}Journal"
+      "#{base_class_name(type)}Journal"
     end
 
     def base_class(type)
       type.base_class
+    end
+
+    def base_class_name(type)
+      base_class(type).name
     end
 
     def create_association_data(journable, journal)
@@ -147,8 +145,6 @@ class JournalManager
       end
     end
   end
-
-  self.send_notification = true
 
   def self.journalized?(obj)
     not obj.nil? and obj.respond_to? :journals
@@ -225,37 +221,56 @@ class JournalManager
   end
 
   def self.add_journal!(journable, user = User.current, notes = '')
-    if journalized? journable
-      # Obtain a table lock to ensure consistent version numbers
-      Journal.with_write_lock(journable) do
+    return unless journalized?(journable)
 
-        # Maximum version might be nil, so use to_i here.
-        version = journable.journals.maximum(:version).to_i + 1
+    # Ensure a version exists for this journable type
+    # since no version is changed here, in case of concurrency, one
+    # of the calls is allowed to fail
+    journable_type = base_class_name(journable.class)
+    ::JournalVersion.find_or_create_by(journable_type: journable_type, journable_id: journable.id)
 
-        journal_attributes = { journable_id: journable.id,
-                               journable_type: journal_class_name(journable.class),
-                               version: version,
-                               activity_type: journable.send(:activity_type),
-                               details: journable_details(journable) }
+    version = increment_version!(journable_type, journable.id)
 
-        journal = create_journal journable, journal_attributes, user, notes
+    Rails.logger.debug "Inserting new journal for #{journable_type} ##{journable.id} @ #{version}"
 
-        # FIXME: this is required for the association to be correctly saved...
-        journable.journals.select(&:new_record?)
+    journal_attributes = { journable_id: journable.id,
+                           journable_type: journal_class_name(journable.class),
+                           version: version,
+                           activity_type: journable.send(:activity_type),
+                           details: journable_details(journable) }
 
-        journal.save!
-        journal
-      end
-    end
+    journal = create_journal journable, journal_attributes, user, notes
+
+    # FIXME: this is required for the association to be correctly saved...
+    journable.journals.select(&:new_record?)
+
+    journal.save!
+
+    journal
   end
 
-  def self.create_journal(journable, journal_attributes, user = User.current,  notes = '')
+  def self.increment_version!(journable_type, journable_id)
+    sql = <<~SQL
+      UPDATE #{JournalVersion.table_name}
+      SET version = version + 1
+      WHERE journable_type = :journable_type AND :journable_id = journable_id
+      RETURNING version
+    SQL
+
+    sanitized = ::OpenProject::SqlSanitization.sanitize(sql, journable_type: journable_type, journable_id: journable_id)
+    ::JournalVersion
+      .connection
+      .execute(sanitized)
+      .first['version']
+  end
+
+  def self.create_journal(journable, journal_attributes, user = User.current, notes = '')
     type = base_class(journable.class)
     extended_journal_attributes = journal_attributes
-                                  .merge(journable_type: type.to_s)
-                                  .merge(notes: notes)
-                                  .except(:details)
-                                  .except(:id)
+      .merge(journable_type: type.to_s)
+      .merge(notes: notes)
+      .except(:details)
+      .except(:id)
 
     unless extended_journal_attributes.has_key? :user_id
       extended_journal_attributes[:user_id] = user.id
@@ -325,17 +340,5 @@ class JournalManager
     data.each_with_object({}) do |e, h|
       h[e[0]] = (e[1].is_a?(String) ? e[1].gsub(/\r\n/, "\n") : e[1])
     end
-  end
-
-  def self.with_send_notifications(send_notifications, &block)
-    old_value = send_notification
-
-    self.send_notification = send_notifications
-
-    result = block.call
-
-    self.send_notification = old_value
-
-    result
   end
 end

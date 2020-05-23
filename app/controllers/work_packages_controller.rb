@@ -1,8 +1,8 @@
 #-- encoding: UTF-8
 
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -31,19 +31,17 @@
 class WorkPackagesController < ApplicationController
   include QueriesHelper
   include PaginationHelper
-  include OpenProject::ClientPreferenceExtractor
-  include Concerns::Layout
+  include Layout
 
   accept_key_auth :index, :show
 
-  before_action :authorize_on_work_package, only: :show
+  before_action :authorize_on_work_package,
+                :project, only: :show
   before_action :find_optional_project,
                 :protect_from_unauthorized_export, only: :index
 
-  before_action :load_and_validate_query, only: :index, unless: ->() { request.format.html? }
-  before_action :load_work_packages, only: :index, if: ->() { request.format.atom? }
-
-  before_action :set_gon_settings
+  before_action :load_and_validate_query, only: :index, unless: -> { request.format.html? }
+  before_action :load_work_packages, only: :index, if: -> { request.format.atom? }
 
   def show
     respond_to do |format|
@@ -84,16 +82,13 @@ class WorkPackagesController < ApplicationController
 
   protected
 
-  def set_gon_settings
-    gon.settings = client_preferences
-    gon.settings[:enabled_modules] = project ? project.enabled_modules.collect(&:name) : []
-  end
-
   def export_list(mime_type)
-    exporter = WorkPackage::Exporter.for_list(mime_type)
-    exporter.list(@query, params) do |export|
-      render_export_response export, fallback_path: index_redirect_path
-    end
+    export_storage = WorkPackages::Exports::ScheduleService
+                     .new(user: current_user)
+                     .call(query: @query, mime_type: mime_type, params: params)
+                     .result
+
+    redirect_to work_packages_export_path(export_storage.id)
   end
 
   def export_single(mime_type)
@@ -122,16 +117,6 @@ class WorkPackagesController < ApplicationController
     if export.error?
       flash[:error] = export.message
       redirect_back(fallback_location: fallback_path)
-    elsif export.content.is_a? File
-      # browsers should not try to guess the content-type
-      response.headers['X-Content-Type-Options'] = 'nosniff'
-
-      # TODO avoid reading the file in memory here again
-      # but currently the tempfile gets removed in between
-      send_data(export.content.read,
-                type: export.mime_type,
-                disposition: 'attachment',
-                filename: export.title)
     else
       send_data(export.content,
                 type: export.mime_type,
@@ -140,12 +125,12 @@ class WorkPackagesController < ApplicationController
   end
 
   def authorize_on_work_package
-    deny_access unless work_package
+    deny_access(not_found: true) unless work_package
   end
 
   def protect_from_unauthorized_export
     if supported_export_formats.include?(params[:format]) &&
-      !User.current.allowed_to?(:export_work_packages, @project, global: @project.nil?)
+       !User.current.allowed_to?(:export_work_packages, @project, global: @project.nil?)
 
       deny_access
       false
@@ -153,18 +138,17 @@ class WorkPackagesController < ApplicationController
   end
 
   def supported_export_formats
-    %w[atom rss] + WorkPackage::Exporter.list_formats.map(&:to_s)
+    %w[atom] + WorkPackage::Exporter.list_formats.map(&:to_s)
   end
 
   def load_and_validate_query
     @query ||= retrieve_query
 
     unless @query.valid?
-      # Ensure outputting a html response
+      # Ensure outputting an html response
       request.format = 'html'
-      return render_400(message: @query.errors.full_messages.join(". "))
+      render_400(message: @query.errors.full_messages.join(". "))
     end
-
   rescue ActiveRecord::RecordNotFound
     render_404
   end

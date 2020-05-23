@@ -1,6 +1,6 @@
 //-- copyright
-// OpenProject is a project management system.
-// Copyright (C) 2012-2015 the OpenProject Foundation (OPF)
+// OpenProject is an open source project management software.
+// Copyright (C) 2012-2020 the OpenProject GmbH
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License version 3.
@@ -23,7 +23,7 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //
-// See doc/COPYRIGHT.rdoc for more details.
+// See docs/COPYRIGHT.rdoc for more details.
 //++
 
 import {Injectable} from '@angular/core';
@@ -31,8 +31,6 @@ import {HalResourceService} from 'core-app/modules/hal/services/hal-resource.ser
 import {PathHelperService} from 'core-app/modules/common/path-helper/path-helper.service';
 import {GridResource} from "core-app/modules/hal/resources/grid-resource";
 import {FormResource} from "core-app/modules/hal/resources/form-resource";
-import {CollectionResource} from "core-app/modules/hal/resources/collection-resource";
-import {ApiV3FilterBuilder, FilterOperator} from "core-components/api/api-v3/api-v3-filter-builder";
 import {PayloadDmService} from "core-app/modules/hal/dm-services/payload-dm.service";
 import {SchemaResource} from "core-app/modules/hal/resources/schema-resource";
 import {HalResource} from "core-app/modules/hal/resources/hal-resource";
@@ -61,10 +59,10 @@ export class GridDmService extends AbstractDmService<GridResource> {
                                                       payload).toPromise();
   }
 
-  public update(resource:GridResource, schema:SchemaResource):Promise<GridResource> {
+  public update(resource:GridResource, schema:SchemaResource|null = null):Promise<GridResource> {
     let payload = this.extractPayload(resource, schema);
 
-    return this.halResourceService.patch<GridResource>(this.pathHelper.api.v3.grids.id(resource.idFromLink).toString(),
+    return this.halResourceService.patch<GridResource>(this.pathHelper.api.v3.grids.id(resource.id!).toString(),
                                                        payload).toPromise();
   }
 
@@ -84,6 +82,7 @@ export class GridDmService extends AbstractDmService<GridResource> {
       if (payload.widgets) {
         payload.widgets = resource.widgets.map((widget) => {
           return {
+            id: widget.id,
             startRow: widget.startRow,
             endRow: widget.endRow,
             startColumn: widget.startColumn,

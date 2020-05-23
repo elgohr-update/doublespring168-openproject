@@ -1,6 +1,7 @@
+#English strings go here
 tr:
   label_avatar: "Avatar"
-  label_avatar_plural: "Avatars"
+  label_avatar_plural: "Avatarlar"
   label_current_avatar: "Mevcut Avatar"
   label_choose_avatar: "Dosyadan Avatarı seçin"
   message_avatar_uploaded: "Avatar başarıyla değiştirildi."
@@ -32,7 +33,7 @@ tr:
       Mevcut gravatar aşağıdaki gibidir:
     settings:
       enable_gravatars: 'Kullanıcı gravatarlarını etkinleştir'
-      gravatar_default: "Standart Gravatar resmi"
+      gravatar_default: "Varsayılan Gravatar resmi"
       enable_local_avatars: 'Kullanıcı özel avatarları etkinleştir'
 
 

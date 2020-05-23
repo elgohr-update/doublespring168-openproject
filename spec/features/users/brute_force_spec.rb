@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -42,7 +42,7 @@ describe 'Loggin (with brute force protection)', type: :feature do
   def new_login_attempt(login_attempt, password_attempt)
     # The login name already provided is retained
     expect(page)
-      .to have_field 'Login', with: login_attempt
+      .to have_field 'Username', with: login_attempt
 
     login_with(login_attempt, password_attempt)
   end

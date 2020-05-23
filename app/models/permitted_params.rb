@@ -1,7 +1,7 @@
 #-- encoding: UTF-8
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -162,19 +162,6 @@ class PermittedParams
     p
   end
 
-  def calendar_filter
-    keys =  Query.registered_filters.map(&:key)
-    op_keys = keys_whitelisted_by_list(params["op"], keys)
-    v_keys = keys_whitelisted_by_list(params["v"], keys).map { |f| { f => [] } }
-
-    params.permit(:project_id,
-                  :month,
-                  :year,
-                  f: [],
-                  op: op_keys,
-                  v: v_keys)
-  end
-
   def role
     params.require(:role).permit(*self.class.permitted_attributes[:role])
   end
@@ -208,13 +195,6 @@ class PermittedParams
     permitted_params = permitted_params.merge(custom_field_values(:user))
 
     permitted_params
-  end
-
-  def user_update_as_admin(external_authentication, change_password_allowed)
-    # Found group_ids in safe_attributes and added them here as I
-    # didn't know the consequences of removing these.
-    # They were not allowed on create.
-    user_create_as_admin(external_authentication, change_password_allowed, [group_ids: []])
   end
 
   def user_create_as_admin(external_authentication,
@@ -294,21 +274,28 @@ class PermittedParams
   def project
     whitelist = params.require(:project).permit(:name,
                                                 :description,
-                                                :is_public,
+                                                :public,
                                                 :responsible_id,
                                                 :identifier,
                                                 :project_type_id,
+                                                :parent_id,
+                                                status: %i(code explanation),
                                                 custom_fields: [],
                                                 work_package_custom_field_ids: [],
                                                 type_ids: [],
                                                 enabled_module_names: [])
+
+    if whitelist[:status] && whitelist[:status][:code] && whitelist[:status][:code].blank?
+      whitelist[:status][:code] = nil
+    end
 
     whitelist.merge(custom_field_values(:project))
   end
 
   def time_entry
     permitted_params = params.fetch(:time_entry, {}).permit(
-      :hours, :comments, :work_package_id, :activity_id, :spent_on)
+      :hours, :comments, :work_package_id, :activity_id, :spent_on
+    )
 
     permitted_params.merge(custom_field_values(:time_entry, required: false))
   end
@@ -345,8 +332,9 @@ class PermittedParams
   # `params.fetch` and not `require` because the update controller action associated
   # with this is doing multiple things, therefore not requiring a message hash
   # all the time.
-  def message(instance = nil)
-    if instance && current_user.allowed_to?(:edit_messages, instance.project)
+  def message(project = nil)
+    # TODO: Move this distinction into the contract where it belongs
+    if project && current_user.allowed_to?(:edit_messages, project)
       params.fetch(:message, {}).permit(:subject, :content, :forum_id, :locked, :sticky)
     else
       params.fetch(:message, {}).permit(:subject, :content, :forum_id)
@@ -373,6 +361,7 @@ class PermittedParams
             # We rely on enum being an integer, an id that is. This will blow up
             # otherwise, which is fine.
             next if params[:enumerations][enum][param].nil?
+
             whitelist[enum][param] = params[:enumerations][enum][param]
           end
         end
@@ -384,6 +373,10 @@ class PermittedParams
     end
 
     whitelist.permit!
+  end
+
+  def time_entry_activities_project
+    params.permit(time_entry_activities_project: %i[activity_id active]).require(:time_entry_activities_project)
   end
 
   def watcher
@@ -449,6 +442,7 @@ class PermittedParams
           account
           account_password
           base_dn
+          filter_string
           onthefly_register
           attr_login
           attr_firstname
@@ -487,6 +481,7 @@ class PermittedParams
           :default_value,
           :possible_values,
           :multi_value,
+          :content_right_to_left,
           { custom_options_attributes: %i(id value default_value position) },
           type_ids: []
         ],
@@ -526,7 +521,7 @@ class PermittedParams
           :done_ratio,
           :due_date,
           :estimated_hours,
-          :fixed_version_id,
+          :version_id,
           :parent_id,
           :priority_id,
           :responsible_id,

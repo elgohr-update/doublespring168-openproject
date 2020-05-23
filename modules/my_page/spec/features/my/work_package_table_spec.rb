@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -30,7 +30,7 @@ require 'spec_helper'
 
 require_relative '../../support/pages/my/page'
 
-describe 'Arbitrary WorkPackage query table widget on my page', type: :feature, js: true do
+describe 'Arbitrary WorkPackage query table widget on my page', type: :feature, js: true, with_mail: false do
   let!(:type) { FactoryBot.create :type }
   let!(:other_type) { FactoryBot.create :type }
   let!(:priority) { FactoryBot.create :default_priority }
@@ -75,21 +75,19 @@ describe 'Arbitrary WorkPackage query table widget on my page', type: :feature, 
 
   context 'with the permission to save queries' do
     it 'can add the widget and see the work packages of the filtered for types' do
-      my_page.add_column(3, before_or_after: :before)
+      sleep(0.5)
 
-      my_page.add_widget(2, 3, "Work packages table")
+      my_page.add_widget(1, 2, :column, "Work packages table")
 
+      # Actually there are two success messages displayed currently. One for the grid getting updated and one
+      # for the query assigned to the new widget being created. A user will not notice it but the automated
+      # browser can get confused. Therefore we wait.
       sleep(1)
 
+      my_page.expect_and_dismiss_notification message: I18n.t('js.notice_successful_update')
+
       filter_area = Components::Grids::GridArea.new('.grid--area.-widgeted:nth-of-type(3)')
-      created_area = Components::Grids::GridArea.new('.grid--area.-widgeted:nth-of-type(2)')
-
-      filter_area.expect_to_span(2, 3, 5, 4)
-      filter_area.resize_to(6, 4)
-
-      filter_area.expect_to_span(2, 3, 7, 5)
-      ## enlarging the table area will have moved the created area down
-      created_area.expect_to_span(7, 4, 13, 6)
+      filter_area.expect_to_span(1, 2, 2, 3)
 
       # At the beginning, the default query is displayed
       expect(filter_area.area)
@@ -129,6 +127,8 @@ describe 'Arbitrary WorkPackage query table widget on my page', type: :feature, 
         input.native.send_keys(:return)
       end
 
+      my_page.expect_and_dismiss_notification message: I18n.t('js.notice_successful_update')
+
       sleep(1)
 
       # The whole of the configuration survives a reload
@@ -150,8 +150,7 @@ describe 'Arbitrary WorkPackage query table widget on my page', type: :feature, 
         .to have_no_selector('.id', text: other_type_work_package.id)
 
       within filter_area.area do
-        expect(find('.editable-toolbar-title--input').value)
-          .to eql('My WP Filter')
+        expect(page).to have_field('editable-toolbar-title', with: 'My WP Filter', wait: 10)
       end
     end
   end
@@ -160,9 +159,7 @@ describe 'Arbitrary WorkPackage query table widget on my page', type: :feature, 
     let(:permissions) { %i[view_work_packages add_work_packages] }
 
     it 'cannot add the widget' do
-      my_page.add_column(3, before_or_after: :before)
-
-      my_page.expect_unable_to_add_widget(2, 3, "Work packages table")
+      my_page.expect_unable_to_add_widget(1, 1, :within, "Work packages table")
     end
   end
 end

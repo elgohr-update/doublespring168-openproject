@@ -1,11 +1,18 @@
 #-- copyright
-# OpenProject Reporting Plugin
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
-# Copyright (C) 2010 - 2014 the OpenProject Foundation (OPF)
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License version 3.
+#
+# OpenProject is a fork of ChiliProject, which is a fork of Redmine. The copyright follows:
+# Copyright (C) 2006-2017 Jean-Philippe Lang
+# Copyright (C) 2010-2013 the ChiliProject Team
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
-# version 3.
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -15,6 +22,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+#
+# See docs/COPYRIGHT.rdoc for more details.
 #++
 
 module OpenProject::Reporting
@@ -24,7 +33,7 @@ module OpenProject::Reporting
     include OpenProject::Plugins::ActsAsOpEngine
 
     register 'openproject-reporting',
-             author_url: 'https://www.openproject.org',
+             author_url: 'https://www.openproject.com',
              bundled: true do
 
       view_actions = [:index, :show, :drill_down, :available_values, :display_report_list]
@@ -51,7 +60,9 @@ module OpenProject::Reporting
       OpenProject::AccessControl.permission(:view_own_cost_entries).actions << "work_package_costlog/index"
 
       #menu extensions
-      menu :top_menu, :cost_reports_global, { controller: '/cost_reports', action: 'index', project_id: nil },
+      menu :top_menu,
+           :cost_reports_global,
+           { controller: '/cost_reports', action: 'index', project_id: nil },
            caption: :cost_reports_title,
            if: Proc.new {
              (User.current.logged? || !Setting.login_required?) &&
@@ -63,7 +74,8 @@ module OpenProject::Reporting
                )
            }
 
-      menu :project_menu, :cost_reports,
+      menu :project_menu,
+           :cost_reports,
            { controller: '/cost_reports', action: 'index' },
            param: :project_id,
            after: :time_entries,
@@ -98,7 +110,7 @@ module OpenProject::Reporting
     config.to_prepare do
       require_dependency 'report/walker'
       require_dependency 'report/transformer'
-      require_dependency 'widget/entry_table'
+      require_dependency 'widget/table/entry_table'
       require_dependency 'widget/settings_patch'
       require_dependency 'cost_query/group_by'
     end

@@ -1,6 +1,6 @@
 //-- copyright
-// OpenProject is a project management system.
-// Copyright (C) 2012-2015 the OpenProject Foundation (OPF)
+// OpenProject is an open source project management software.
+// Copyright (C) 2012-2020 the OpenProject GmbH
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License version 3.
@@ -23,29 +23,21 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //
-// See doc/COPYRIGHT.rdoc for more details.
+// See docs/COPYRIGHT.rdoc for more details.
 //++
 
-import {WorkPackageTableFiltersService} from '../../wp-fast-table/state/wp-table-filters.service';
-import {WorkPackageFiltersService} from "../../filters/wp-filters/wp-filters.service";
-import {
-  ChangeDetectionStrategy,
-  Component,
-  Input,
-  OnChanges,
-  OnDestroy,
-  OnInit,
-  Output,
-  ViewChild
-} from '@angular/core';
+import {ChangeDetectionStrategy, Component, Input, OnChanges, OnInit, Output, ViewChild} from '@angular/core';
 import {QueryFilterInstanceResource} from 'core-app/modules/hal/resources/query-filter-instance-resource';
 import {I18nService} from 'core-app/modules/common/i18n/i18n.service';
-import {componentDestroyed} from 'ng2-rx-componentdestroyed';
 import {QueryFilterResource} from 'core-app/modules/hal/resources/query-filter-resource';
 import {DebouncedEventEmitter} from 'core-components/angular/debounced-event-emitter';
 import {AngularTrackingHelpers} from "core-components/angular/tracking-functions";
 import {BannersService} from "core-app/modules/common/enterprise/banners.service";
 import {NgSelectComponent} from "@ng-select/ng-select";
+import {WorkPackageViewFiltersService} from "core-app/modules/work_packages/routing/wp-view-base/view-services/wp-view-filters.service";
+import {WorkPackageFiltersService} from "core-components/filters/wp-filters/wp-filters.service";
+import {UntilDestroyedMixin} from "core-app/helpers/angular/until-destroyed.mixin";
+import {componentDestroyed} from "@w11k/ngx-componentdestroyed";
 
 const ADD_FILTER_SELECT_INDEX = -1;
 
@@ -55,9 +47,9 @@ const ADD_FILTER_SELECT_INDEX = -1;
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './query-filters.component.html'
 })
-export class QueryFiltersComponent implements OnInit, OnChanges, OnDestroy {
+export class QueryFiltersComponent extends UntilDestroyedMixin implements OnInit, OnChanges {
 
-  @ViewChild(NgSelectComponent, { static: false }) public ngSelectComponent:NgSelectComponent;
+  @ViewChild(NgSelectComponent) public ngSelectComponent:NgSelectComponent;
   @Input() public filters:QueryFilterInstanceResource[];
   @Input() public showCloseFilter:boolean = false;
   @Output() public filtersChanged = new DebouncedEventEmitter<QueryFilterInstanceResource[]>(componentDestroyed(this));
@@ -81,18 +73,15 @@ export class QueryFiltersComponent implements OnInit, OnChanges, OnDestroy {
     filter_by_text: this.I18n.t('js.work_packages.label_filter_by_text')
   };
 
-  constructor(readonly wpTableFilters:WorkPackageTableFiltersService,
+  constructor(readonly wpTableFilters:WorkPackageViewFiltersService,
               readonly wpFiltersService:WorkPackageFiltersService,
               readonly I18n:I18nService,
               readonly bannerService:BannersService) {
+    super();
   }
 
   ngOnInit() {
     this.eeShowBanners = this.bannerService.eeShowBanners;
-  }
-
-  ngOnDestroy() {
-    // Nothing to do.
   }
 
   ngOnChanges() {
@@ -164,5 +153,14 @@ export class QueryFiltersComponent implements OnInit, OnChanges, OnDestroy {
 
   public isFilterAvailable(id:string):boolean {
     return (this.wpTableFilters.availableFilters.some(filter => filter.id === id));
+  }
+
+  public onOpen() {
+    setTimeout(() => {
+      const component = this.ngSelectComponent as any;
+      if (component && component.dropdownPanel) {
+        component.dropdownPanel._updatePosition();
+      }
+    }, 25);
   }
 }

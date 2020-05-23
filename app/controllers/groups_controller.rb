@@ -1,7 +1,7 @@
 #-- encoding: UTF-8
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -28,12 +28,14 @@
 #++
 
 class GroupsController < ApplicationController
+  include GroupsHelper
   layout 'admin'
 
+  helper_method :gon
+
   before_action :require_admin
-  before_action :find_group, only: [:destroy, :autocomplete_for_user,
-                                    :show, :create_memberships, :destroy_membership,
-                                    :edit_membership]
+  before_action :find_group, only: %i[destroy show create_memberships destroy_membership
+                                      edit_membership add_users]
 
   # GET /groups
   # GET /groups.xml
@@ -69,6 +71,8 @@ class GroupsController < ApplicationController
   # GET /groups/1/edit
   def edit
     @group = Group.includes(:members, :users).find(params[:id])
+
+    set_filters_for_user_autocompleter
   end
 
   # POST /groups
@@ -94,7 +98,7 @@ class GroupsController < ApplicationController
     @group = Group.includes(:users).find(params[:id])
 
     respond_to do |format|
-      if @group.update_attributes(permitted_params.group)
+      if @group.update(permitted_params.group)
         flash[:notice] = l(:notice_successful_update)
         format.html do redirect_to(groups_path) end
         format.xml  do head :ok end
@@ -118,11 +122,15 @@ class GroupsController < ApplicationController
   end
 
   def add_users
-    @group = Group.includes(:users).find(params[:id])
-    @users = User.includes(:memberships).where(id: params[:user_ids])
-    @group.users << @users
+    call = @group
+      .add_members!(User.where(id: params[:user_ids]).pluck(:id))
 
-    I18n.t :notice_successful_update
+    if call.success?
+      flash[:notice] = I18n.t(:notice_successful_update)
+    else
+      call.apply_flash_message!(flash)
+    end
+
     redirect_to controller: '/groups', action: 'edit', id: @group, tab: 'users'
   end
 
@@ -132,11 +140,6 @@ class GroupsController < ApplicationController
 
     I18n.t :notice_successful_update
     redirect_to controller: '/groups', action: 'edit', id: @group, tab: 'users'
-  end
-
-  def autocomplete_for_user
-    @users = User.active.not_in_group(@group).like(params[:q]).limit(100)
-    render layout: false
   end
 
   def create_memberships

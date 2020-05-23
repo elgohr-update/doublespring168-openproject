@@ -1,6 +1,6 @@
 // -- copyright
-// OpenProject is a project management system.
-// Copyright (C) 2012-2015 the OpenProject Foundation (OPF)
+// OpenProject is an open source project management software.
+// Copyright (C) 2012-2020 the OpenProject GmbH
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License version 3.
@@ -23,23 +23,26 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //
-// See doc/COPYRIGHT.rdoc for more details.
+// See docs/COPYRIGHT.rdoc for more details.
 // ++
 
 import {Component, ElementRef, OnInit} from '@angular/core';
 import {TimelineZoomLevel} from 'core-app/modules/hal/resources/query-resource';
 import {WorkPackageTimelineTableController} from 'core-components/wp-table/timeline/container/wp-timeline-container.directive';
 import * as moment from 'moment';
-import {calculatePositionValueForDayCount, getTimeSlicesForHeader, TimelineViewParameters} from '../wp-timeline';
-import Moment = moment.Moment;
+import {
+  calculatePositionValueForDayCount,
+  getTimeSlicesForHeader,
+  timelineHeaderCSSClass,
+  timelineHeaderSelector,
+  TimelineViewParameters
+} from '../wp-timeline';
 import {I18nService} from "core-app/modules/common/i18n/i18n.service";
-import {WorkPackageTableTimelineService} from "core-components/wp-fast-table/state/wp-table-timeline.service";
-
-
-export const timelineHeaderCSSClass = 'wp-timeline--header-element';
+import {WorkPackageViewTimelineService} from "core-app/modules/work_packages/routing/wp-view-base/view-services/wp-view-timeline.service";
+import Moment = moment.Moment;
 
 @Component({
-  selector: 'wp-timeline-header',
+  selector: timelineHeaderSelector,
   templateUrl: './wp-timeline-header.html'
 })
 export class WorkPackageTimelineHeaderController implements OnInit {
@@ -52,7 +55,7 @@ export class WorkPackageTimelineHeaderController implements OnInit {
 
   constructor(elementRef:ElementRef,
               readonly I18n:I18nService,
-              readonly wpTimelineService:WorkPackageTableTimelineService,
+              readonly wpTimelineService:WorkPackageViewTimelineService,
               readonly workPackageTimelineTableController:WorkPackageTimelineTableController) {
 
     this.$element = jQuery(elementRef.nativeElement);

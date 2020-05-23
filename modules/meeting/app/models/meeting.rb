@@ -1,10 +1,18 @@
 #-- copyright
-# OpenProject Meeting Plugin
-#
-# Copyright (C) 2011-2014 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
+#
+# OpenProject is a fork of ChiliProject, which is a fork of Redmine. The copyright follows:
+# Copyright (C) 2006-2017 Jean-Philippe Lang
+# Copyright (C) 2010-2013 the ChiliProject Team
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -15,10 +23,12 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
-# See doc/COPYRIGHT.md for more details.
+# See docs/COPYRIGHT.rdoc for more details.
 #++
 
-class Meeting < ActiveRecord::Base
+class Meeting < ApplicationRecord
+  include VirtualAttribute
+
   self.table_name = 'meetings'
 
   belongs_to :project
@@ -45,7 +55,7 @@ class Meeting < ActiveRecord::Base
                      date_column: "#{table_name}.created_at"
 
   acts_as_journalized
-  acts_as_event title: Proc.new {|o|
+  acts_as_event title: Proc.new { |o|
     "#{l :label_meeting}: #{o.title} \
                  #{format_date o.start_time} \
                  #{format_time o.start_time, false}-#{format_time o.end_time, false})"
@@ -65,7 +75,13 @@ class Meeting < ActiveRecord::Base
 
   # We only save start_time as an aggregated value of start_date and hour,
   # but still need start_date and _hour for validation purposes
-  attr_reader :start_date, :start_time_hour
+  virtual_attribute :start_date do
+    @start_date
+  end
+  virtual_attribute :start_time_hour do
+    @start_time_hour
+  end
+
   validate :validate_date_and_time
   before_save :update_start_time!
 
@@ -75,22 +91,6 @@ class Meeting < ActiveRecord::Base
 
   User.before_destroy do |user|
     Meeting.where(['author_id = ?', user.id]).update_all ['author_id = ?', DeletedUser.first.id]
-  end
-
-  ##
-  # Assign a date string without validation
-  # The actual aggregated start_time is derived after valdiation
-  def start_date=(value)
-    attribute_will_change! :start_date
-    @start_date = value
-  end
-
-  ##
-  # Assign a HH:MM hour string without validation
-  # The actual aggregated start_time is derived after valdiation
-  def start_time_hour=(value)
-    attribute_will_change! :start_time_hour
-    @start_time_hour = value
   end
 
   ##
@@ -146,9 +146,13 @@ class Meeting < ActiveRecord::Base
   def copy(attrs)
     copy = dup
 
+    # Called simply to initialize the value
+    copy.start_date
+    copy.start_time_hour
+
     copy.author = attrs.delete(:author)
     copy.attributes = attrs
-    copy.send(:set_initial_values)
+    copy.set_initial_values
 
     copy.participants.clear
     copy.participants_attributes = participants.collect(&:copy_attributes)
@@ -164,17 +168,11 @@ class Meeting < ActiveRecord::Base
     end
 
     meetings.group_by(&:start_year).each do |year, objs|
-
       objs.group_by(&:start_month).each do |month, objs|
-
         objs.group_by(&:start_time).each do |date, objs|
-
           by_start_year_month_date[year][month][date] = objs
-
         end
-
       end
-
     end
 
     by_start_year_month_date
@@ -213,7 +211,7 @@ class Meeting < ActiveRecord::Base
   def set_initial_values
     # set defaults
     write_attribute(:start_time, Date.tomorrow + 10.hours) if start_time.nil?
-    self.duration   ||= 1
+    self.duration ||= 1
 
     @start_date = start_time.to_date.iso8601
     @start_time_hour = start_time.strftime('%H:%M')

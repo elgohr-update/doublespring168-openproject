@@ -1,6 +1,6 @@
 // -- copyright
-// OpenProject is a project management system.
-// Copyright (C) 2012-2015 the OpenProject Foundation (OPF)
+// OpenProject is an open source project management software.
+// Copyright (C) 2012-2020 the OpenProject GmbH
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License version 3.
@@ -23,43 +23,42 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //
-// See doc/COPYRIGHT.rdoc for more details.
+// See docs/COPYRIGHT.rdoc for more details.
 // ++
 
-import {Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
+import {Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, Injector} from '@angular/core';
 import {AbstractWidgetComponent} from "app/modules/grids/widgets/abstract-widget.component";
 import {I18nService} from "core-app/modules/common/i18n/i18n.service";
-import {ProjectDmService} from "core-app/modules/hal/dm-services/project-dm.service";
 import {CurrentProjectService} from "core-components/projects/current-project.service";
+import {ProjectCacheService} from "core-components/projects/project-cache.service";
+import {Observable} from "rxjs";
+import {ProjectResource} from "core-app/modules/hal/resources/project-resource";
+import {HalResourceEditingService} from "core-app/modules/fields/edit/services/hal-resource-editing.service";
 
 @Component({
   templateUrl: './project-description.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [
+    HalResourceEditingService
+  ]
 })
 export class WidgetProjectDescriptionComponent extends AbstractWidgetComponent implements OnInit {
-  public description:string;
+  public project$:Observable<ProjectResource>;
 
   constructor(protected readonly i18n:I18nService,
-              protected readonly projectDm:ProjectDmService,
+              protected readonly injector:Injector,
+              protected readonly projectCache:ProjectCacheService,
               protected readonly currentProject:CurrentProjectService,
-              protected readonly cdr:ChangeDetectorRef) {
-    super(i18n);
+              protected readonly cdRef:ChangeDetectorRef) {
+    super(i18n, injector);
   }
 
   ngOnInit() {
-    this.setDescription();
+    this.project$ = this.projectCache.requireAndStream(this.currentProject.id!);
+    this.cdRef.detectChanges();
   }
 
-  private setDescription() {
-    this
-      .loadCurrentProject()
-      .then(project => {
-        this.description = project.description.html;
-        this.cdr.detectChanges();
-      });
-  }
-
-  private loadCurrentProject() {
-    return this.projectDm.load(this.currentProject.id as string);
+  public get isEditable() {
+    return false;
   }
 }

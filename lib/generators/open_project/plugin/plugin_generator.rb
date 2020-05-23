@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -26,7 +26,9 @@
 # See docs/COPYRIGHT.rdoc for more details.
 #++
 
-class OpenProject::PluginGenerator < Rails::Generators::Base
+require 'rails/generators'
+
+class Generators::OpenProject::Plugin::PluginGenerator < Rails::Generators::Base
   source_root File.expand_path('../templates', __FILE__)
 
   argument :plugin_name, type: :string, default: 'openproject-new-plugin'

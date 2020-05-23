@@ -1,8 +1,8 @@
 #-- encoding: UTF-8
 
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -109,14 +109,5 @@ describe GroupsController, type: :controller do
     assert_difference 'Group.find(10).members.count', -1 do
       delete :destroy_membership, params: { id: 10, membership_id: 6 }
     end
-  end
-
-  it 'should autocomplete for user' do
-    get :autocomplete_for_user, params: { id: 10, q: 'mis' }
-    assert_response :success
-    users = assigns(:users)
-    refute_nil users
-    assert users.any?
-    assert !users.include?(Group.find(10).users.first)
   end
 end

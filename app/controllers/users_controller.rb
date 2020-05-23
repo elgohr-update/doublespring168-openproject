@@ -1,7 +1,7 @@
 #-- encoding: UTF-8
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -32,7 +32,6 @@ class UsersController < ApplicationController
 
   helper_method :gon
 
-  before_action :disable_api
   before_action :require_admin, except: [:show, :deletion_info, :destroy]
   before_action :find_user, only: [:show,
                                    :edit,
@@ -49,14 +48,12 @@ class UsersController < ApplicationController
                                                    :destroy]
 
   # Password confirmation helpers and actions
-  include Concerns::PasswordConfirmation
+  include PasswordConfirmation
   before_action :check_password_confirmation, only: [:destroy]
 
-  include Concerns::UserLimits
+  include Accounts::UserLimits
   before_action :enforce_user_limit, only: [:create]
   before_action -> { enforce_user_limit flash_now: true }, only: [:new]
-
-  accept_key_auth :index, :show, :create, :update, :destroy
 
   include SortHelper
   include CustomFieldsHelper
@@ -79,7 +76,7 @@ class UsersController < ApplicationController
     @memberships = @user.memberships
                         .visible(current_user)
 
-    events = Redmine::Activity::Fetcher.new(User.current, author: @user).events(nil, nil, limit: 10)
+    events = Activities::Fetcher.new(User.current, author: @user).events(nil, nil, limit: 10)
     @events_by_day = events.group_by { |e| e.event_datetime.to_date }
 
     unless User.current.admin?
@@ -102,7 +99,6 @@ class UsersController < ApplicationController
     @auth_sources = AuthSource.all
   end
 
-  verify method: :post, only: :create, render: { nothing: true, status: :method_not_allowed }
   def create
     @user = User.new(language: Setting.default_language,
                      mail_notification: Setting.default_notification_option)
@@ -131,9 +127,8 @@ class UsersController < ApplicationController
     @membership ||= Member.new
   end
 
-  verify method: :put, only: :update, render: { nothing: true, status: :method_not_allowed }
   def update
-    @user.attributes = permitted_params.user_update_as_admin(@user.uses_external_authentication?,
+    @user.attributes = permitted_params.user_create_as_admin(@user.uses_external_authentication?,
                                                              @user.change_password_allowed?)
 
     if @user.change_password_allowed?
@@ -176,7 +171,7 @@ class UsersController < ApplicationController
         end
 
         if @user.active? && send_information
-          UserMailer.account_information(@user, @user.password).deliver_now
+          UserMailer.account_information(@user, @user.password).deliver_later
         end
       end
 
@@ -238,7 +233,7 @@ class UsersController < ApplicationController
     elsif @user.save
       flash[:notice] = I18n.t(:notice_successful_update)
       if was_activated
-        UserMailer.account_activated(@user).deliver_now
+        UserMailer.account_activated(@user).deliver_later
       end
     else
       flash[:error] = I18n.t(:error_status_change_failed,

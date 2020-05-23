@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -29,6 +29,8 @@
 require 'spec_helper'
 
 describe 'OpenProject work package button macros' do
+  using_shared_fixtures :admin
+
   include ActionView::Helpers::UrlHelper
   include OpenProject::StaticRouting::UrlHelpers
   include OpenProject::TextFormatting
@@ -39,13 +41,12 @@ describe 'OpenProject work package button macros' do
 
   let(:type) { FactoryBot.create :type, name: 'MyTaskName' }
   let(:project) { FactoryBot.create :valid_project, identifier: 'my-project', name: 'My project name', types: [type] }
-  let(:user) { FactoryBot.create :admin }
 
   let(:input) { }
   subject { format_text(input, project: project) }
 
   before do
-    login_as user
+    login_as admin
   end
 
   def error_html(exception_msg)

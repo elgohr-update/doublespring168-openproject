@@ -1,20 +1,13 @@
 #-- copyright
-# OpenProject Backlogs Plugin
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
-# Copyright (C)2013-2014 the OpenProject Foundation (OPF)
-# Copyright (C)2011 Stephan Eckardt, Tim Felgentreff, Marnen Laibow-Koser, Sandro Munda
-# Copyright (C)2010-2011 friflaj
-# Copyright (C)2010 Maxime Guilbot, Andrew Vit, Joakim Kolsjö, ibussieres, Daniel Passos, Jason Vasquez, jpic, Emiliano Heyns
-# Copyright (C)2009-2010 Mark Maglana
-# Copyright (C)2009 Joe Heck, Nate Lowrie
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License version 3.
 #
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of the GNU General Public License version 3.
-#
-# OpenProject Backlogs is a derivative work based on ChiliProject Backlogs.
-# The copyright follows:
-# Copyright (C) 2010-2011 - Emiliano Heyns, Mark Maglana, friflaj
-# Copyright (C) 2011 - Jens Ulferts, Gregor Schmidt - Finn GmbH - Berlin, Germany
+# OpenProject is a fork of ChiliProject, which is a fork of Redmine. The copyright follows:
+# Copyright (C) 2006-2017 Jean-Philippe Lang
+# Copyright (C) 2010-2013 the ChiliProject Team
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -30,12 +23,12 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
-# See doc/COPYRIGHT.rdoc for more details.
+# See docs/COPYRIGHT.rdoc for more details.
 #++
 
 Then /^(.+) should be in the (\d+)(?:st|nd|rd|th) position of the sprint named (.+)$/ do |story_subject, position, sprint_name|
   position = position.to_i
-  story = Story.where(subject: story_subject, versions: { name: sprint_name }).joins(:fixed_version).first
+  story = Story.where(subject: story_subject, versions: { name: sprint_name }).joins(:version).first
   story_position(story).should == position.to_i
 end
 
@@ -97,7 +90,7 @@ Then /^show me the list of stories$/ do
   puts "\n"
   puts "\t| #{'id'.ljust(5)} | #{'position'.ljust(8)} | #{'status'.ljust(12)} | #{'rank'.ljust(4)} | #{'subject'.ljust(subject_max)} | #{'sprint'.ljust(sprint_max)} |"
   stories.each do |story|
-    puts "\t| #{story.id.to_s.ljust(5)} | #{story.position.to_s.ljust(8)} | #{story.status.name[0, 12].ljust(12)} | #{story.rank.to_s.ljust(4)} | #{story.subject.ljust(subject_max)} | #{(story.fixed_version_id.nil? ? Sprint.new : Sprint.find(story.fixed_version_id)).name.ljust(sprint_max)} |"
+    puts "\t| #{story.id.to_s.ljust(5)} | #{story.position.to_s.ljust(8)} | #{story.status.name[0, 12].ljust(12)} | #{story.rank.to_s.ljust(4)} | #{story.subject.ljust(subject_max)} | #{(story.version_id.nil? ? Sprint.new : Sprint.find(story.version_id)).name.ljust(sprint_max)} |"
   end
   puts "\n\n"
 end
@@ -140,12 +133,12 @@ end
 
 Then /^the (\d+)(?:st|nd|rd|th) story in (?:the )?"(.+?)" should have the ID of "(.+?)"$/ do |position, version_name, subject|
   version = Version.find_by(name: version_name)
-  actual_story = WorkPackage.find_by(subject: subject, fixed_version_id: version.id)
+  actual_story = WorkPackage.find_by(subject: subject, version_id: version.id)
   step %%I should see "#{actual_story.id}" within "#backlog_#{version.id} .story:nth-child(#{position}) .id div.t"%
 end
 
 Then /^all positions should be unique for each version$/ do
-  Story.find_by_sql("select project_id, fixed_version_id, position, count(*) as dups from #{WorkPackage.table_name} where not position is NULL group by project_id, fixed_version_id, position having count(*) > 1").length.should == 0
+  Story.find_by_sql("select project_id, version_id, position, count(*) as dups from #{WorkPackage.table_name} where not position is NULL group by project_id, version_id, position having count(*) > 1").length.should == 0
 end
 
 Then /^the (\d+)(?:st|nd|rd|th) task for (.+) should be (.+)$/ do |position, story_subject, task_subject|
@@ -253,7 +246,7 @@ Then /^the (?:work_package|task|story) "(.+?)" should have "(.+?)" as its target
   work_package = WorkPackage.find_by(subject: task_name)
   version = Version.find_by(name: version_name)
 
-  work_package.fixed_version.should eql version
+  work_package.version.should eql version
 end
 
 Then /^there should not be a saving error on task "(.+?)"$/ do |task_name|

@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -35,8 +35,9 @@ module Pages
                 :project,
                 :parent_work_package
 
-    def initialize(original_work_package: nil, parent_work_package: nil)
+    def initialize(original_work_package: nil, parent_work_package: nil, project: nil)
       # in case of copy, the original work package can be provided
+      @project = project
       @original_work_package = original_work_package
       @parent_work_package = parent_work_package
     end
@@ -48,7 +49,7 @@ module Pages
     end
 
     def select_attribute(property, value)
-      element = page.first(".wp-edit-field.#{property.downcase} select")
+      element = page.first(".inline-edit--container.#{property.downcase} select")
 
       element.select(value)
       element

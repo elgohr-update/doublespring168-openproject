@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -54,14 +54,41 @@ describe 'Projects custom fields', type: :feature do
     end
   end
 
+  describe 'with long text CF' do
+    let!(:custom_field) do
+      FactoryBot.create(:text_project_custom_field)
+    end
+    let(:editor) { ::Components::WysiwygEditor.new ".form--field.custom_field_#{custom_field.id}" }
+
+    scenario 'allows settings the project boolean CF (regression #26313)', js: true do
+      visit settings_generic_project_path(project.id)
+
+      # expect CF, description and status description ckeditor
+      expect(page).to have_selector('.op-ckeditor--wrapper', count: 3)
+
+      # single hash autocomplete
+      editor.insert_link 'http://example.org/link with spaces'
+
+      # Save project settings
+      click_on 'Save'
+
+      expect(page).to have_selector('.flash.notice')
+
+      project.reload
+      cv = project.custom_values.find_by(custom_field_id: custom_field.id).value
+
+      expect(cv).to include '[http://example.org/link with spaces](http://example.org/link%20with%20spaces)'
+      expect(page).to have_selector('a[href="http://example.org/link%20with%20spaces"]')
+    end
+  end
+
   describe 'with boolean CF' do
     let!(:custom_field) do
       FactoryBot.create(:bool_project_custom_field)
     end
 
-
     scenario 'allows settings the project boolean CF (regression #26313)', js: true do
-      visit settings_project_path(id: project.id)
+      visit settings_generic_project_path(project.id)
       expect(page).to have_no_checked_field identifier
       check identifier
 

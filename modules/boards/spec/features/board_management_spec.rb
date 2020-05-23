@@ -1,6 +1,6 @@
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -65,6 +65,45 @@ describe 'Board management spec', type: :feature, js: true do
     end
     let(:board_view) { FactoryBot.create :board_grid_with_query, project: project }
 
+    it 'allows parallel creation of cards (Regression #30842)' do
+      board_view
+      board_index.visit!
+
+      board_page = board_index.open_board board_view
+
+      board_page.add_list
+      board_page.rename_list 'Unnamed list', 'List 2'
+
+      # Open in list 1
+      board_page.within_list('List 1') do
+        page.find('.board-list--add-button ').click
+      end
+
+      page.find('.menu-item', text: 'Add new card').click
+
+      # Open in list 2
+      board_page.within_list('List 2') do
+        page.find('.board-list--add-button ').click
+      end
+
+      page.find('.menu-item', text: 'Add new card').click
+
+      board_page.within_list('List 2') do
+        subject = page.find('#wp-new-inline-edit--field-subject')
+        subject.set 'New card 1'
+        subject.send_keys :enter
+      end
+
+      board_page.within_list('List 1') do
+        subject = page.find('#wp-new-inline-edit--field-subject')
+        subject.set 'New card 2'
+        subject.send_keys :enter
+      end
+
+      board_page.expect_card('List 1', 'New card 2')
+      board_page.expect_card('List 2', 'New card 1')
+    end
+
     it 'allows management of boards' do
       board_view
       board_index.visit!
@@ -107,7 +146,7 @@ describe 'Board management spec', type: :feature, js: true do
       expect(second.ordered_work_packages).to be_empty
 
       # Expect work package to be saved in query first
-      subjects = WorkPackage.where(id: first.ordered_work_packages).pluck(:subject)
+      subjects = WorkPackage.where(id: first.ordered_work_packages.pluck(:work_package_id)).pluck(:subject)
       expect(subjects).to match_array ['Task 1']
 
       # Move item to Second list
@@ -122,7 +161,7 @@ describe 'Board management spec', type: :feature, js: true do
         expect(second.reload.ordered_work_packages.count).to eq(1)
       end
 
-      subjects = WorkPackage.where(id: second.ordered_work_packages).pluck(:subject)
+      subjects = WorkPackage.where(id: second.ordered_work_packages.pluck(:work_package_id)).pluck(:subject)
       expect(subjects).to match_array ['Task 1']
 
       # Reference an existing work package
@@ -130,7 +169,7 @@ describe 'Board management spec', type: :feature, js: true do
       sleep 2
       board_page.expect_card('Second', work_package.subject)
 
-      subjects = WorkPackage.where(id: second.ordered_work_packages).pluck(:subject)
+      subjects = WorkPackage.where(id: second.ordered_work_packages.pluck(:work_package_id)).pluck(:subject)
       expect(subjects).to match_array [work_package.subject, 'Task 1']
 
       # Filter for Task
@@ -155,7 +194,7 @@ describe 'Board management spec', type: :feature, js: true do
       queries = board_page.board(reload: true).contained_queries
       expect(queries.count).to eq(1)
       expect(queries.first.name).to eq 'First'
-      expect(queries.first.ordered_work_packages).to be_empty
+      expect(queries.first.ordered_work_packages.to_a).to be_empty
 
       # Remove first list
       board_page.remove_list 'First'
@@ -216,7 +255,7 @@ describe 'Board management spec', type: :feature, js: true do
       expect(second.ordered_work_packages.count).to eq(1)
 
       # Expect work package to be saved in query first
-      subjects = WorkPackage.where(id: second.ordered_work_packages).pluck(:subject)
+      subjects = WorkPackage.where(id: second.ordered_work_packages.pluck(:work_package_id)).pluck(:subject)
       expect(subjects).to match_array ['Task 1']
 
       board_page.back_to_index

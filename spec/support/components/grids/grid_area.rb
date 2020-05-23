@@ -11,7 +11,9 @@ module Components
       end
 
       def resize_to(row, column)
-        area.find('.resizer').drag_to self.class.of(row, column).area
+        area.hover
+
+        area.find('.grid--resizer').drag_to self.class.of(row * 2, column * 2).area
       end
 
       def open_menu
@@ -20,6 +22,9 @@ module Components
       end
 
       def click_menu_item(text)
+        # Ensure there are no active notifications
+        dismiss_notification!
+
         open_menu
 
         find('a.menu-item', text: text).click
@@ -34,19 +39,21 @@ module Components
       end
 
       def drag_to(row, column)
-        handle = area.find('.cdk-drag-handle')
-        drop_area = self.class.of(row, column).area
+        handle = drag_handle
+        drop_area = self.class.of(row * 2, column * 2).area
 
-        # This weird combination of events is what works for no discernible reason
-        page.driver.browser.action.click_and_hold(handle.native).perform
-        sleep(0.3)
+        scroll_to_element(handle)
+
+        move_to(handle) do |action|
+          action.click_and_hold(handle.native)
+        end
+
+        scroll_to_element(drop_area)
         drop_area.hover
-        page.driver.browser.send(:bridge).mouse_move_to(drop_area)
-        sleep(0.3)
-        page.driver.browser.action.release(drop_area.native).perform
-      rescue Selenium::WebDriver::Error::StaleElementReferenceError
-        sleep(0.3)
-        page.driver.browser.action.release(drop_area.native).perform
+
+        sleep(1)
+
+        move_to(drop_area, &:release)
       end
 
       def expect_to_exist
@@ -55,13 +62,47 @@ module Components
       end
 
       def expect_to_span(startRow, startColumn, endRow, endColumn)
-        [['grid-row-start', startRow],
-         ['grid-column-start', startColumn],
-         ['grid-row-end', endRow],
-         ['grid-column-end', endColumn]].each do |style, expected_value|
+        [['grid-row-start', startRow * 2],
+         ['grid-column-start', startColumn * 2],
+         ['grid-row-end', endRow * 2 - 1],
+         ['grid-column-end', endColumn * 2 - 1]].each do |style, expected|
 
-          expect(area.native.style(style))
-            .to eql(expected_value.to_s)
+          actual = area.native.style(style)
+
+          expect(actual)
+            .to eql(expected.to_s), "expected #{style} to be #{expected} but it is #{actual}"
+        end
+      end
+
+      def expect_not_resizable
+        within area do
+          expect(page)
+            .to have_no_selector('.grid--area.-widgeted resizer')
+        end
+      end
+
+      def expect_not_draggable
+        area.hover
+
+        within area do
+          expect(page)
+            .to have_no_selector(".grid--area-drag-handle")
+        end
+      end
+
+      def expect_not_renameable
+        within area do
+          expect(page)
+            .to have_selector(".editable-toolbar-title--fixed")
+        end
+      end
+
+      def expect_no_menu
+        area.hover
+
+        within area do
+          expect(page)
+            .to have_no_selector(".icon-show-more-horizontal")
         end
       end
 
@@ -69,10 +110,35 @@ module Components
         page.find(*area_selector)
       end
 
+      def drag_handle
+        area.hover
+        area.find('.cdk-drag-handle')
+      end
+
       def self.of(row_number, column_number)
         area_style = "grid-area: #{row_number} / #{column_number} / #{row_number + 1} / #{column_number + 1}"
 
-        new(".grid--area:not(-widgeted)[style*='#{area_style}']")
+        new(".grid--area:not(.-widgeted)[style*='#{area_style}']")
+      end
+
+      def move_to(element)
+        action = page
+                 .driver
+                 .browser
+                 .action
+                 .move_to(element.native)
+
+        yield action
+
+        action.perform
+      end
+
+      def dismiss_notification!
+        if page.has_selector?('.notification-box--close')
+          page.find('.notification-box--close').click
+        end
+
+        expect(page).to have_no_selector('.notification-box')
       end
     end
   end

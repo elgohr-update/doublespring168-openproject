@@ -1,29 +1,30 @@
 import {Injector} from '@angular/core';
-import {WorkPackageTableFocusService} from 'core-components/wp-fast-table/state/wp-table-focus.service';
+import {WorkPackageViewFocusService} from 'core-app/modules/work_packages/routing/wp-view-base/view-services/wp-view-focus.service';
 import {takeUntil} from 'rxjs/operators';
 import {tableRowClassName} from '../../builders/rows/single-row-builder';
 import {checkedClassName} from '../../builders/ui-state-link-builder';
 import {locateTableRow, scrollTableRowIntoView} from '../../helpers/wp-table-row-helpers';
-import {WorkPackageTableSelection} from '../../state/wp-table-selection.service';
 import {WorkPackageTable} from '../../wp-fast-table';
-import {WPTableRowSelectionState} from '../../wp-table.interfaces';
-import {OPContextMenuService} from "core-components/op-context-menu/op-context-menu.service";
 import {IsolatedQuerySpace} from "core-app/modules/work_packages/query-space/isolated-query-space";
 import {FocusHelperService} from 'core-app/modules/common/focus/focus-helper';
+import {
+  WorkPackageViewSelectionService,
+  WorkPackageViewSelectionState
+} from "core-app/modules/work_packages/routing/wp-view-base/view-services/wp-view-selection.service";
+import {InjectField} from "core-app/helpers/angular/inject-field.decorator";
 
 export class SelectionTransformer {
 
-  public wpTableSelection:WorkPackageTableSelection = this.injector.get(WorkPackageTableSelection);
-  public wpTableFocus:WorkPackageTableFocusService = this.injector.get(WorkPackageTableFocusService);
-  public querySpace:IsolatedQuerySpace = this.injector.get(IsolatedQuerySpace);
-  public FocusHelper:FocusHelperService = this.injector.get(FocusHelperService);
-  public opContextMenu:OPContextMenuService = this.injector.get(OPContextMenuService);
+  @InjectField() public wpTableSelection:WorkPackageViewSelectionService;
+  @InjectField() public wpTableFocus:WorkPackageViewFocusService;
+  @InjectField() public querySpace:IsolatedQuerySpace;
+  @InjectField() public FocusHelper:FocusHelperService;
 
   constructor(public readonly injector:Injector,
               public readonly table:WorkPackageTable) {
 
     // Focus a single selection when active
-    this.querySpace.rendered.values$()
+    this.querySpace.tableRendered.values$()
       .pipe(
         takeUntil(this.querySpace.stopAllSubscriptions)
       )
@@ -40,37 +41,26 @@ export class SelectionTransformer {
 
 
     // Update selection state
-    this.wpTableSelection.selection$()
+    this.wpTableSelection.live$()
       .pipe(
         takeUntil(this.querySpace.stopAllSubscriptions)
       )
-      .subscribe((state:WPTableRowSelectionState) => {
+      .subscribe((state:WorkPackageViewSelectionState) => {
         this.renderSelectionState(state);
       });
 
-    // Bind CTRL+A to select all work packages
-    Mousetrap.bind(['command+a', 'ctrl+a'], (e) => {
-      this.wpTableSelection.selectAll(table.renderedRows);
 
-      e.preventDefault();
-      this.opContextMenu.close();
-      return false;
+    this.wpTableSelection.registerSelectAllListener(() => {
+      return table.renderedRows;
     });
-
-    // Bind CTRL+D to deselect all work packages
-    Mousetrap.bind(['command+d', 'ctrl+d'], (e) => {
-      this.wpTableSelection.reset();
-      this.opContextMenu.close();
-      e.preventDefault();
-      return false;
-    });
+    this.wpTableSelection.registerDeselectAllListener();
   }
 
   /**
    * Update all currently visible rows to match the selection state.
    */
-  private renderSelectionState(state:WPTableRowSelectionState) {
-    const context = jQuery(this.table.container);
+  private renderSelectionState(state:WorkPackageViewSelectionState) {
+    const context = jQuery(this.table.tableAndTimelineContainer);
 
     context.find(`.${tableRowClassName}.${checkedClassName}`).removeClass(checkedClassName);
 

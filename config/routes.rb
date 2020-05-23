@@ -1,7 +1,8 @@
 #-- encoding: UTF-8
+
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -91,7 +92,7 @@ OpenProject::Application.routes.draw do
   # returned for all routes for which the v3 has also resources. Grape does
   # remove the prefix (v3) before checking whether the method is supported. I
   # don't understand why that should make sense.
-  mount API::Root => '/'
+  mount API::Root => '/api'
 
   # OAuth authorization routes
   use_doorkeeper do
@@ -140,8 +141,6 @@ OpenProject::Application.routes.draw do
     end
   end
 
-  mount Dashboards::Engine, at: 'projects/:project_id/dashboards', as: :project_dashboards
-
   get '(projects/:project_id)/search' => 'search#index', as: 'search'
 
   # only providing routes for journals when there are multiple subclasses of journals
@@ -163,17 +162,12 @@ OpenProject::Application.routes.draw do
     match '/unwatch' => 'watchers#unwatch', via: :delete
   end
 
-  resources :projects, except: [:edit] do
+  resources :projects, except: %i[show edit] do
     member do
-      # this route let's you access the project specific settings (by tab)
-      #
-      #   settings_project_path(@project)
-      #     => "/projects/1/settings"
-      #
-      #   settings_project_path(@project, tab: 'members')
-      #     => "/projects/1/settings/members"
-      #
-      get 'settings(/:tab)', controller: 'project_settings', action: 'show', as: :settings
+      ProjectSettingsHelper.project_settings_tabs.each do |tab|
+        get "settings/#{tab[:name]}", controller: "project_settings/#{tab[:name]}", action: 'show', as: "settings_#{tab[:name]}"
+      end
+      get "settings", controller: "project_settings/generic", action: 'show', as: "project_settings"
 
       get 'identifier', action: 'identifier'
       patch 'identifier', action: 'update_identifier'
@@ -182,6 +176,7 @@ OpenProject::Application.routes.draw do
             constraints: { coming_from: /(admin|settings)/ }
       match 'copy_from_(:coming_from)' => 'copy_projects#copy', via: :post, as: :copy,
             constraints: { coming_from: /(admin|settings)/ }
+
       put :modules
       put :custom_fields
       put :archive
@@ -198,7 +193,7 @@ OpenProject::Application.routes.draw do
       get :level_list
     end
 
-    resource :enumerations, controller: 'project_enumerations', only: %i[update destroy]
+    resource :time_entry_activities, controller: 'projects/time_entry_activities', only: %i[update]
 
     resources :versions, only: %i[new create] do
       collection do
@@ -345,6 +340,9 @@ OpenProject::Application.routes.draw do
     resource :announcements, only: %i[edit update]
     constraints(Enterprise) do
       resource :enterprise, only: %i[show create destroy]
+      scope controller: 'enterprises' do
+        post 'enterprise/save_trial_key' => 'enterprises#save_trial_key'
+      end
     end
     resources :enumerations
 
@@ -353,13 +351,13 @@ OpenProject::Application.routes.draw do
     delete 'design/touch_icon' => 'custom_styles#touch_icon_delete', as: 'custom_style_touch_icon_delete'
     get 'design/upsale' => 'custom_styles#upsale', as: 'custom_style_upsale'
     post 'design/colors' => 'custom_styles#update_colors', as: 'update_design_colors'
+    post 'design/themes' => 'custom_styles#update_themes', as: 'update_design_themes'
     resource :custom_style, only: %i[update show create], path: 'design'
 
     resources :attribute_help_texts, only: %i(index new create edit update destroy)
 
     resources :groups do
       member do
-        get :autocomplete_for_user
         # this should be put into it's own resource
         match '/members' => 'groups#add_users', via: :post, as: 'members_of'
         match '/members/:user_id' => 'groups#remove_user', via: :delete, as: 'member_of'
@@ -390,22 +388,30 @@ OpenProject::Application.routes.draw do
     end
   end
 
-  # We should fix this crappy routing (split up and rename controller methods)
-  get '/settings' => 'settings#index'
-  scope 'settings', controller: 'settings' do
-    match 'edit', action: 'edit', via: %i[get post]
-    match 'plugin/:id', action: 'plugin', via: %i[get post]
+  namespace :admin do
+    resource :incoming_mails, only: %i[show update]
+    resource :mail_notifications, only: %i[show update]
   end
 
-  # We should fix this crappy routing (split up and rename controller methods)
-  get '/workflows' => 'workflows#index'
-  scope 'workflows', controller: 'workflows' do
-    match 'edit', action: 'edit', via: %i[get post]
-    match 'copy', action: 'copy', via: %i[get post]
+  resource :settings, as: :general_settings, only: %i(update show) do
+    # We should fix this crappy routing (split up and rename controller methods)
+    collection do
+      match 'plugin/:id', action: 'plugin', via: %i[get post]
+    end
+  end
+
+  resource :workflows, only: %i[edit update show] do
+    member do
+      # We should fix this crappy routing (split up and rename controller methods)
+      match 'copy', action: 'copy', via: %i[get post]
+    end
   end
 
   namespace :work_packages do
     match 'auto_complete' => 'auto_completes#index', via: %i[get post]
+    resources :exports, only: [:show] do
+      get 'status', action: :status, on: :member
+    end
     resources :calendar, controller: 'calendars', only: [:index]
     resource :bulk, controller: 'bulk', only: %i[edit update destroy]
     # FIXME: this is kind of evil!! We need to remove this soonest and
@@ -419,8 +425,6 @@ OpenProject::Application.routes.draw do
   end
 
   resources :work_packages, only: [:index] do
-    get :column_data, on: :collection # TODO move to API
-
     # move bulk of wps
     get 'move/new' => 'work_packages/moves#new', on: :collection, as: 'new_move'
     post 'move' => 'work_packages/moves#create', on: :collection, as: 'move'
@@ -440,7 +444,8 @@ OpenProject::Application.routes.draw do
     get '/' => 'work_packages#index', on: :collection, as: 'index'
     get '/create_new' => 'work_packages#index', on: :collection, as: 'new_split'
     get '/new' => 'work_packages#index', on: :collection, as: 'new', state: 'new'
-    get '(/*state)' => 'work_packages#show', on: :member, as: ''
+    # We do not want to match the work package export routes
+    get '(/*state)' => 'work_packages#show', on: :member, as: '', constraints: { id: /\d+/ }
     get '/edit' => 'work_packages#show', on: :member, as: 'edit'
   end
 
@@ -528,8 +533,6 @@ OpenProject::Application.routes.draw do
     match '/oauth/revoke_application/:application_id' => 'oauth/grants#revoke_application', via: :post, as: 'revoke_my_oauth_application'
   end
 
-  mount MyPage::Engine, at: "/my/page"
-
   scope controller: 'my' do
     get '/my/password', action: 'password'
     post '/my/change_password', action: 'change_password'
@@ -550,7 +553,6 @@ OpenProject::Application.routes.draw do
   scope controller: 'onboarding' do
     patch 'user_settings', action: 'user_settings'
   end
-
 
   scope controller: 'authentication' do
     get 'authentication' => 'authentication#index'

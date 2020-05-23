@@ -1,6 +1,6 @@
 // -- copyright
-// OpenProject is a project management system.
-// Copyright (C) 2012-2015 the OpenProject Foundation (OPF)
+// OpenProject is an open source project management software.
+// Copyright (C) 2012-2020 the OpenProject GmbH
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License version 3.
@@ -23,30 +23,27 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //
-// See doc/COPYRIGHT.rdoc for more details.
+// See docs/COPYRIGHT.rdoc for more details.
 // ++
 
-import {AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, Input, OnDestroy} from '@angular/core';
+import {AfterViewInit, ChangeDetectorRef, Component, ElementRef, Input} from '@angular/core';
 import {I18nService} from 'core-app/modules/common/i18n/i18n.service';
 import {RelationQueryColumn, TypeRelationQueryColumn} from 'core-components/wp-query/query-column';
-import {componentDestroyed, untilComponentDestroyed} from 'ng2-rx-componentdestroyed';
-import {takeUntil} from 'rxjs/operators';
-import {WorkPackageTableHierarchiesService} from '../../wp-fast-table/state/wp-table-hierarchy.service';
-import {WorkPackageTableRelationColumnsService} from '../../wp-fast-table/state/wp-table-relation-columns.service';
-import {WorkPackageTableSortByService} from '../../wp-fast-table/state/wp-table-sort-by.service';
-import {WorkPackageTableGroupByService} from './../../wp-fast-table/state/wp-table-group-by.service';
 import {WorkPackageTable} from 'core-components/wp-fast-table/wp-fast-table';
-import {
-  QUERY_SORT_BY_ASC,
-  QUERY_SORT_BY_DESC
-} from 'core-app/modules/hal/resources/query-sort-by-resource';
+import {QUERY_SORT_BY_ASC, QUERY_SORT_BY_DESC} from 'core-app/modules/hal/resources/query-sort-by-resource';
+import {WorkPackageViewHierarchiesService} from "core-app/modules/work_packages/routing/wp-view-base/view-services/wp-view-hierarchy.service";
+import {WorkPackageViewSortByService} from "core-app/modules/work_packages/routing/wp-view-base/view-services/wp-view-sort-by.service";
+import {WorkPackageViewGroupByService} from "core-app/modules/work_packages/routing/wp-view-base/view-services/wp-view-group-by.service";
+import {WorkPackageViewRelationColumnsService} from "core-app/modules/work_packages/routing/wp-view-base/view-services/wp-view-relation-columns.service";
+import {combineLatest} from "rxjs";
+import {UntilDestroyedMixin} from "core-app/helpers/angular/until-destroyed.mixin";
 
 
 @Component({
   selector: 'sortHeader',
   templateUrl: './sort-header.directive.html'
 })
-export class SortHeaderDirective implements OnDestroy, AfterViewInit {
+export class SortHeaderDirective extends UntilDestroyedMixin implements AfterViewInit {
 
   @Input() headerColumn:any;
 
@@ -66,7 +63,7 @@ export class SortHeaderDirective implements OnDestroy, AfterViewInit {
 
   isHierarchyColumn:boolean;
 
-  columnType:'hierarchy' | 'relation' | 'sort';
+  columnType:'hierarchy'|'relation'|'sort';
 
   columnName:string;
 
@@ -78,18 +75,14 @@ export class SortHeaderDirective implements OnDestroy, AfterViewInit {
 
   private currentSortDirection:any;
 
-  constructor(private wpTableHierarchies:WorkPackageTableHierarchiesService,
-              private wpTableSortBy:WorkPackageTableSortByService,
-              private wpTableGroupBy:WorkPackageTableGroupByService,
-              private wpTableRelationColumns:WorkPackageTableRelationColumnsService,
+  constructor(private wpTableHierarchies:WorkPackageViewHierarchiesService,
+              private wpTableSortBy:WorkPackageViewSortByService,
+              private wpTableGroupBy:WorkPackageViewGroupByService,
+              private wpTableRelationColumns:WorkPackageViewRelationColumnsService,
               private elementRef:ElementRef,
               private cdRef:ChangeDetectorRef,
               private I18n:I18nService) {
-  }
-
-  // noinspection TsLint
-  ngOnDestroy():void {
-    console.warn("DESTROY");
+    super();
   }
 
   ngAfterViewInit() {
@@ -99,9 +92,12 @@ export class SortHeaderDirective implements OnDestroy, AfterViewInit {
   private initialize():void {
     this.element = jQuery(this.elementRef.nativeElement);
 
-    this.wpTableSortBy.onReadyWithAvailable()
+    combineLatest([
+      this.wpTableSortBy.onReadyWithAvailable(),
+      this.wpTableSortBy.live$()
+    ])
       .pipe(
-        untilComponentDestroyed(this)
+        this.untilDestroyed()
       )
       .subscribe(() => {
         let latestSortElement = this.wpTableSortBy.current[0];
@@ -145,7 +141,7 @@ export class SortHeaderDirective implements OnDestroy, AfterViewInit {
       this.wpTableGroupBy
         .live$()
         .pipe(
-          untilComponentDestroyed(this)
+          this.untilDestroyed()
         )
         .subscribe(() => {
           this.isHierarchyDisabled = this.wpTableGroupBy.isEnabled;
@@ -156,7 +152,7 @@ export class SortHeaderDirective implements OnDestroy, AfterViewInit {
       this.wpTableHierarchies
         .live$()
         .pipe(
-          untilComponentDestroyed(this)
+          this.untilDestroyed()
         )
         .subscribe(() => {
           this.setHierarchyIcon();
@@ -178,7 +174,7 @@ export class SortHeaderDirective implements OnDestroy, AfterViewInit {
     return this.table && this.table.configuration.hierarchyToggleEnabled;
   }
 
-  toggleHierarchy(evt:JQueryEventObject) {
+  toggleHierarchy(evt:JQuery.TriggeredEvent) {
     if (this.wpTableHierarchies.toggleState()) {
       this.wpTableGroupBy.disable();
     }
@@ -193,8 +189,7 @@ export class SortHeaderDirective implements OnDestroy, AfterViewInit {
     if (this.wpTableHierarchies.isEnabled) {
       this.text.toggleHierarchy = I18n.t('js.work_packages.hierarchy.hide');
       this.hierarchyIcon = 'icon-hierarchy';
-    }
-    else {
+    } else {
       this.text.toggleHierarchy = I18n.t('js.work_packages.hierarchy.show');
       this.hierarchyIcon = 'icon-no-hierarchy';
     }

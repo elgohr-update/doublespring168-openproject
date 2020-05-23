@@ -1,8 +1,8 @@
 #-- encoding: UTF-8
 
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -30,7 +30,7 @@
 
 require 'spec_helper'
 
-describe WorkPackages::UpdateService, 'integration tests', type: :model do
+describe WorkPackages::UpdateService, 'integration tests', type: :model, with_mail: false do
   let(:user) do
     FactoryBot.create(:user,
                       member_in_project: project,
@@ -218,7 +218,7 @@ describe WorkPackages::UpdateService, 'integration tests', type: :model do
           end
           let(:work_package) do
             FactoryBot.create(:work_package,
-                              fixed_version: version,
+                              version: version,
                               project: project)
           end
 
@@ -227,7 +227,7 @@ describe WorkPackages::UpdateService, 'integration tests', type: :model do
               expect(subject)
                 .to be_success
 
-              expect(subject.result.fixed_version)
+              expect(subject.result.version)
                 .to be_nil
             end
           end
@@ -239,7 +239,7 @@ describe WorkPackages::UpdateService, 'integration tests', type: :model do
               expect(subject)
                 .to be_success
 
-              expect(subject.result.fixed_version)
+              expect(subject.result.version)
                 .to eql version
             end
           end
@@ -254,7 +254,7 @@ describe WorkPackages::UpdateService, 'integration tests', type: :model do
                 expect(subject)
                   .to be_success
 
-                expect(subject.result.fixed_version)
+                expect(subject.result.version)
                   .to be_nil
               end
             end
@@ -266,7 +266,7 @@ describe WorkPackages::UpdateService, 'integration tests', type: :model do
                 expect(subject)
                   .to be_success
 
-                expect(subject.result.fixed_version)
+                expect(subject.result.version)
                   .to eql version
               end
             end
@@ -464,12 +464,17 @@ describe WorkPackages::UpdateService, 'integration tests', type: :model do
         work_package_attributes.merge(estimated_hours: 5,
                                       parent: parent_work_package)
       end
+      let(:child_attributes) do
+        work_package_attributes.merge(estimated_hours: 10,
+                                      parent: work_package)
+      end
 
       before do
         parent_work_package
         grandparent_work_package
         sibling1_work_package
         sibling2_work_package
+        child_work_package
       end
 
       it 'works and inherits' do
@@ -485,12 +490,13 @@ describe WorkPackages::UpdateService, 'integration tests', type: :model do
          grandparent_work_package].each do |wp|
           sum = sibling1_attributes[:estimated_hours].to_f +
                 sibling2_attributes[:estimated_hours].to_f +
-                attributes[:estimated_hours].to_f
+                attributes[:estimated_hours].to_f +
+                child_attributes[:estimated_hours].to_f
 
           wp.reload
 
-          expect(wp.estimated_hours)
-            .to eql(sum)
+          expect(wp.estimated_hours).to eql(nil)
+          expect(wp.derived_estimated_hours).to eql(sum)
         end
 
         # sibling hours are unchanged
@@ -501,6 +507,11 @@ describe WorkPackages::UpdateService, 'integration tests', type: :model do
         sibling2_work_package.reload
         expect(sibling2_work_package.estimated_hours)
           .to eql(sibling2_attributes[:estimated_hours].to_f)
+
+        # child hours are unchanged
+        child_work_package.reload
+        expect(child_work_package.estimated_hours)
+          .to eql(child_attributes[:estimated_hours].to_f)
       end
     end
 
@@ -1186,12 +1197,14 @@ describe WorkPackages::UpdateService, 'integration tests', type: :model do
   #
   # Trying to set parent of C to B failed because parent relation is requested before change is saved.
   describe 'Changing parent to a new one that has the same parent as the current element (Regression #27746)' do
+    using_shared_fixtures :admin
+    let(:user) { admin }
+
     let(:project) { FactoryBot.create :project }
     let!(:wp_a) { FactoryBot.create :work_package }
     let!(:wp_b) { FactoryBot.create :work_package, parent: wp_a }
     let!(:wp_c) { FactoryBot.create :work_package, parent: wp_a }
 
-    let(:user) { FactoryBot.create :admin }
     let(:work_package) { wp_c }
 
     let(:attributes) { { parent: wp_b } }

@@ -1,8 +1,8 @@
 #-- encoding: UTF-8
 
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -50,6 +50,11 @@ describe WorkPackages::UpdateService, type: :model do
                         model: work_package)
   end
 
+  before do
+    # Stub update_ancestors because it messes with the JournalManager expect
+    allow(instance).to receive(:update_ancestors).and_return []
+  end
+
   describe 'call' do
     let(:set_attributes_service) do
       service = double("WorkPackages::SetAttributesService",
@@ -82,8 +87,8 @@ describe WorkPackages::UpdateService, type: :model do
     let(:send_notifications) { true }
 
     before do
-      expect(JournalManager)
-        .to receive(:with_send_notifications)
+      expect(Journal::NotificationConfiguration)
+        .to receive(:with)
         .with(send_notifications)
         .and_yield
 

@@ -1,7 +1,7 @@
 #-- encoding: UTF-8
 #-- copyright
-# OpenProject is a project management system.
-# Copyright (C) 2012-2018 the OpenProject Foundation (OPF)
+# OpenProject is an open source project management software.
+# Copyright (C) 2012-2020 the OpenProject GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License version 3.
@@ -30,9 +30,7 @@
 class Redmine::MenuManager::MenuItem < Redmine::MenuManager::TreeNode
   include Redmine::I18n
   attr_reader :name,
-              :url,
               :param,
-              :icon,
               :icon_after,
               :context,
               :condition,
@@ -40,7 +38,6 @@ class Redmine::MenuManager::MenuItem < Redmine::MenuManager::TreeNode
               :child_menus,
               :last,
               :partial,
-              :badge,
               :engine
 
   def initialize(name, url, options)
@@ -67,6 +64,7 @@ class Redmine::MenuManager::MenuItem < Redmine::MenuManager::TreeNode
     @partial = options[:partial]
     @badge = options[:badge]
     @engine = options[:engine]
+    @allow_deeplink = options[:allow_deeplink]
     super @name.to_sym
   end
 
@@ -88,6 +86,53 @@ class Redmine::MenuManager::MenuItem < Redmine::MenuManager::TreeNode
     @caption = new_caption
   end
 
+  def icon(project = nil)
+    if @icon.is_a?(Proc)
+      @icon.call(project).to_s
+    else
+      @icon
+    end
+  end
+
+  def icon=(new_icon)
+    @icon = new_icon
+  end
+
+  def badge(project = nil)
+    if @badge.is_a?(Proc)
+      @badge.call(project).to_s
+    else
+      @badge
+    end
+  end
+
+  def badge=(new_badge)
+    @badge = new_badge
+  end
+
+  def url(project = nil)
+    if @url.is_a?(Proc)
+      @url.call(project)
+    else
+      @url
+    end
+  end
+
+  def url=(new_url)
+    @url = new_url
+  end
+
+  # Allow special case that the user is not allowed to see the parent node but at least one children.
+  # In that case, parent and the children are shown.
+  # The parent's url is then changed to the children's url.
+  def allow_deeplink?
+    @allow_deeplink
+  end
+
+  def allow_deeplink=(allow_deeplink)
+    @allow_deeplink = allow_deeplink
+  end
+
   def html_options(options = {})
     if options[:selected]
       o = @html_options.dup
@@ -101,6 +146,10 @@ class Redmine::MenuManager::MenuItem < Redmine::MenuManager::TreeNode
   def add_condition(new_condition)
     raise ArgumentError, 'Condition needs to be callable' unless new_condition.respond_to?(:call)
     old_condition = @condition
-    @condition = -> (project) { old_condition.call(project) && new_condition.call(project) }
+    if old_condition.respond_to?(:call)
+      @condition = -> (project) { old_condition.call(project) && new_condition.call(project) }
+    else
+      @condition = -> (project) { new_condition.call(project) }
+    end
   end
 end
