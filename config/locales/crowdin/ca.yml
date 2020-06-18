@@ -414,6 +414,7 @@ ca:
         types: "Tipus"
         versions: "Versions"
         work_packages: "Paquets de treball"
+        templated: 'Template project'
       projects/status:
         code: 'Estat'
         explanation: 'Status description'
@@ -883,6 +884,7 @@ ca:
       - "Oct"
       - "Nov"
       - "Des"
+    abbr_week: 'Wk'
     day_names:
       - "Diumenge"
       - "Dilluns"
@@ -1072,6 +1074,7 @@ ca:
   error_cookie_missing: 'La cookie d''OpenProject no s''ha trobat. Assegureu-vos que les cookies estan habilitades, ja que aquesta aplicació no pot funcionar correctament sense.'
   error_custom_option_not_found: "Option does not exist."
   error_enterprise_activation_user_limit: "Your account could not be activated (user limit reached). Please contact your administrator to gain access."
+  error_enterprise_token_invalid_domain: "The Enterprise Edition is not active. Your Enterprise token's domain (%{actual}) does not match the system's host name (%{expected})."
   error_failed_to_delete_entry: 'Failed to delete this entry.'
   error_in_dependent: "Error attempting to alter dependent object: %{dependent_class} #%{related_id} - %{related_subject}: %{error}"
   error_invalid_selected_value: "Invalid selected value."
@@ -1909,7 +1912,7 @@ ca:
   permission_manage_project_activities: "Gestionar les activitats del projecte"
   permission_manage_public_queries: "Manage public views"
   permission_manage_repository: "Gestionar el repositori"
-  permission_manage_subtasks: "Gestionar subtasques"
+  permission_manage_subtasks: "Manage work package hierarchies"
   permission_manage_versions: "Gestionar les versions"
   permission_manage_wiki: "Gestionar la wiki"
   permission_manage_wiki_menu: "Gestionar el menú wiki"
@@ -1944,6 +1947,12 @@ ca:
       warning_one: Els membres del projecte hauran de reubicar els repositoris del projecte.
       warning_two: Els vncles existents al projecte ja no funcionaran.
       title: Canviar l'identificador del projecte
+    template:
+      copying: >
+        Your project is being created from the selected template project. You will be notified by mail as soon as the project is available.
+      use_template: 'Use template'
+      make_template: 'Set as template'
+      remove_from_templates: 'Remove from templates'
     archive:
       are_you_sure: "Esteu segur que voleu arxivar el projecte \"%{name}\"?"
       archived: "Archived"

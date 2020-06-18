@@ -167,7 +167,8 @@ tr:
       enterprise:
         trial:
           confirmation: "E-posta adresi doğrulama"
-          confirmation_info: "Size bir e-posta gönderdik. Lütfen e-postalarınızı kontrol edin ve 14 günlük denemenize başlamak için verilen onay bağlantısını tıklayın."
+          confirmation_info: >
+            %{email} adresine %{date} tarihinde bir e-posta gönderdik. Lütfen gelen kutunuzu kontrol edin ve 14 günlük denemenize başlamak için verilen onay bağlantısını tıklayın.
           form:
             general_consent: >
               Katılıyorum  <a target="_blank" href="%{link_terms}">terms of service</a> and the <a target="_blank" href="%{link_privacy}">privacy policy</a>.
@@ -264,13 +265,13 @@ tr:
           text_new_features: "Yeni özellikler ve ürün güncellemeleri hakkında bilgi edinin."
           learn_about: "Yeni özellikler hakkında daha fazla bilgi edinin"
           standard:
-            learn_about_link: https://www.openproject.org/openproject-10-5
+            learn_about_link: https://www.openproject.org/openproject-10-6
             current_new_feature_html: >
-              Sürüm çeşitli yeni özellikler ve geliştirmeler içeriyor: <br> <br> <ul> <li> <b> Atanan kişiler için eylem panosu </b>: kartları listeler arasında taşırken atananı otomatik olarak güncelleyecek eylem panoları oluşturun. </ li> <li> Sürümleri listeden sürüm seçmeyi çok daha kolay hale getiren tarihe göre değil, ada göre sıralayın. </li> <li> <b> Zamanlı izleme için 24 saatlik kısıtlamayı kaldırın </b>. </ li> <li> Proje özeti widget'ında haber özetini göster. </li> <li> Çeşitli hata düzeltmeleri ve <b> kullanılabilirlik geliştirmeleri </b>. </li> </ul>
+              Sürüm çeşitli yeni özellikler ve geliştirmeler içeriyor: <br> <br> <ul class = "%{list_styling_class}"> <li> <b> Ayrıntılar veya liste görünümünden iş paketlerinde daha hızlı zaman kaydı </b>. / li> <li> <b> Metin düzenleyicide tabloları daha iyi yapılandırmak için iyileştirilmiş tablo biçimlendirme </b>, ör. genişlik, renk, hizalama veya dolgu için. </li> <li> İş paketleri için kart görünümü artık proje adını da içeriyor. </li> <li> OpenProject <b>% 100 Slovence'ye çevrildi </ b>. Zabavaj se! </li> </ul><ul 
           bim:
             learn_about_link: https://www.openproject.org/openproject-bim-10-5
             current_new_feature_html: >
-              OpenProject 10.5 artık BIM modelleri için açık sorun izleme standardı olan <b> BIM İşbirliği Formatını (BCF) </b> desteklemektedir. <br> <br> <ul> <li> BIM sorunlarını kolayca oluşturun ve <b> yönetin < / b> gibi etkileşimli 3D IFC modelindeki çakışmalar, istekler ve sorular ve <b> proje ekibiyle paylaşın. </b> </li> <li> Güçlü <a kullanarak OpenProject'i favori BIM yazılımınızla entegre edin target = "_ blank" href = "% {bcf_api_link}"> BCF REST API'sı. </a> </li> <li> BCF XML dosyalarını içe ve dışa aktarın. </li> </ul>
+              OpenProject 10.5 artık BIM modelleri için açık sorun izleme standardı olan <b> BIM İşbirliği Formatını (BCF) </b> desteklemektedir. <br> <br> <ul class = "%{list_styling_class}">"> <li> Kolayca oluşturun ve etkileşimli 3D IFC modelindeki çakışmalar, istekler ve sorular gibi <b> BIM sorunlarını yönetin </b> ve <b> proje ekibiyle paylaşın. </b> </li> <li> OpenProject'i güçlü <a target="_blank" href="%{bcf_api_link}"> BCF REST API'sini kullanarak favori BIM yazılımı. </a> </li> <li> BCF XML dosyalarını içe ve dışa aktarın. </li> </ ul>
     label_activate: "Etkinleştir"
     label_add_column_after: "Sonrasına sütun ekle"
     label_add_column_before: "Öncesine sütun ekle"
@@ -583,6 +584,9 @@ tr:
       select_branch: 'Branş seç'
     field_value_enter_prompt: "'%{field}' için bir değer girin"
     project_menu_details: "Detaylar"
+    scheduling:
+      manual: 'Manual scheduling'
+      automatic: 'Automatic scheduling'
     sort:
       sorted_asc: 'Artan sıralama, uygulandı, '
       sorted_dsc: 'Azalan sırılama uygulandı, '
@@ -870,6 +874,7 @@ tr:
       label_delete_page: "Şu anki sayfayı sil"
       button_apply: "Uygula"
       button_save: "Kaydet"
+      button_clear_all: "Clear all"
       button_submit: "Gönder"
       button_cancel: "İptal"
       form_submit:
@@ -881,6 +886,9 @@ tr:
         has_children: "İş paketi %{childUnits} alt paketlerine sahip:"
         confirm_deletion_children: "Listelenen iş paketlerinin TÜM soylarının tekrar tekrar kaldırılacağını kabul ediyorum."
         deletes_children: "Tüm çocuk iş paketleri ve torunları da tekrar tekrar silinir."
+      destroy_time_entry:
+        title: "Zaman girişinin silinmesini onaylayın"
+        text: "Aşağıdaki zaman girişini silmek istediğinizden emin misiniz?"
     notice_no_results_to_display: "Gösterilecek görünür bir sonuç yok."
     notice_successful_create: "Oluşturma başarılı."
     notice_successful_delete: "Silme başarılı."

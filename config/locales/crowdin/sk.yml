@@ -416,6 +416,7 @@ sk:
         types: "Typy"
         versions: "Verzie"
         work_packages: "Pracovné balíčky"
+        templated: 'Template project'
       projects/status:
         code: 'Stav'
         explanation: 'Status description'
@@ -891,6 +892,7 @@ sk:
       - "Okt"
       - "Nov"
       - "Dec"
+    abbr_week: 'Wk'
     day_names:
       - "Nedeľa"
       - "Pondelok"
@@ -1104,6 +1106,7 @@ sk:
   error_cookie_missing: 'Chýbajú súbory cookie pre OpenProject. Skontrolujte, či sú povolené súbory cookie, nakoľko bez nich táto aplikácia nebude správne fungovať.'
   error_custom_option_not_found: "Nastavenie neexistuje."
   error_enterprise_activation_user_limit: "Váš účet nemôže byť aktivovaný (dosiahnutý limit počtu užívateľov). Prosím kontaktujte vášho správcu pre získanie prístupu."
+  error_enterprise_token_invalid_domain: "The Enterprise Edition is not active. Your Enterprise token's domain (%{actual}) does not match the system's host name (%{expected})."
   error_failed_to_delete_entry: 'Chyba pri odstraňovaní tejto položky.'
   error_in_dependent: "Error attempting to alter dependent object: %{dependent_class} #%{related_id} - %{related_subject}: %{error}"
   error_invalid_selected_value: "Vybratá neplatná hodnota."
@@ -1950,7 +1953,7 @@ sk:
   permission_manage_project_activities: "Správa aktivít projektu"
   permission_manage_public_queries: "Spravovať verejné zobrazenia"
   permission_manage_repository: "Spravovať repozitár"
-  permission_manage_subtasks: "Spravovať podúlohy"
+  permission_manage_subtasks: "Manage work package hierarchies"
   permission_manage_versions: "Spravovať verzie"
   permission_manage_wiki: "Spravovať Wiki"
   permission_manage_wiki_menu: "Správa wiki menu"
@@ -1985,6 +1988,12 @@ sk:
       warning_one: Členovia projektu musia presunúť projektové archívy projektu.
       warning_two: Existujúce prepojenia na projekt už nebudú fungovať.
       title: Zmeniť identifikátor projektu
+    template:
+      copying: >
+        Your project is being created from the selected template project. You will be notified by mail as soon as the project is available.
+      use_template: 'Use template'
+      make_template: 'Set as template'
+      remove_from_templates: 'Remove from templates'
     archive:
       are_you_sure: "Naozaj chcete archivovať projekt \"%{name}\"?"
       archived: "Archived"

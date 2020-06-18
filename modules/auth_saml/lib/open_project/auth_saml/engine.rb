@@ -8,6 +8,11 @@ module OpenProject
       end
     end
 
+    def self.reload_configuration!
+      @saml_settings = nil
+      RequestStore.delete :openproject_omniauth_saml_provider
+    end
+
     ##
     # Loads the settings once to avoid accessing the file in each request
     def self.load_global_settings!
@@ -69,11 +74,24 @@ module OpenProject
       register_auth_providers do
         strategy :saml do
           OpenProject::AuthSaml.configuration.values.map do |h|
+            # Remember saml session values when logging in user
+            h[:retain_from_session] = %w[saml_uid saml_session_index]
+
+            h[:single_sign_out_callback] = Proc.new do |prev_session, _prev_user|
+              next unless h[:idp_slo_target_url]
+              next unless prev_session[:saml_uid] && prev_session[:saml_session_index]
+
+              # Set the uid and index for the logout in this session again
+              session.merge! prev_session.slice(*h[:retain_from_session])
+
+              redirect_to omniauth_start_path(h[:name]) + "/spslo"
+            end
+
             h[:openproject_attribute_map] = Proc.new do |auth|
-              {
-                login: auth[:uid],
-                admin: (auth.info['admin'].to_s.downcase == "true")
-              }
+              {}.tap do |additional|
+                additional[:login] = auth.info[:login] if auth.info.key? :login
+                additional[:admin] = auth.info[:admin] if auth.info.key? :admin
+              end
             end
             h.symbolize_keys
           end

@@ -415,6 +415,7 @@ hr:
         types: "Tipovi"
         versions: "Verzije"
         work_packages: "Radni paketi"
+        templated: 'Template project'
       projects/status:
         code: 'Status'
         explanation: 'Status description'
@@ -887,6 +888,7 @@ hr:
       - "List"
       - "Stud"
       - "Pro"
+    abbr_week: 'Wk'
     day_names:
       - "Nedjelja"
       - "Ponedjeljak"
@@ -1088,6 +1090,7 @@ hr:
   error_cookie_missing: 'The OpenProject cookie is missing. Please ensure that cookies are enabled, as this application will not properly function without.'
   error_custom_option_not_found: "Opcija ne postoji."
   error_enterprise_activation_user_limit: "Your account could not be activated (user limit reached). Please contact your administrator to gain access."
+  error_enterprise_token_invalid_domain: "The Enterprise Edition is not active. Your Enterprise token's domain (%{actual}) does not match the system's host name (%{expected})."
   error_failed_to_delete_entry: 'Failed to delete this entry.'
   error_in_dependent: "Error attempting to alter dependent object: %{dependent_class} #%{related_id} - %{related_subject}: %{error}"
   error_invalid_selected_value: "Invalid selected value."
@@ -1930,7 +1933,7 @@ hr:
   permission_manage_project_activities: "Upravljanje aktivnosima projekta"
   permission_manage_public_queries: "Manage public views"
   permission_manage_repository: "Upravljanje repozitorijem"
-  permission_manage_subtasks: "Upravljanje podzadacima"
+  permission_manage_subtasks: "Manage work package hierarchies"
   permission_manage_versions: "Upravljanje verzijama"
   permission_manage_wiki: "Uredi wiki"
   permission_manage_wiki_menu: "Upravljanje wiki izbornikom"
@@ -1965,6 +1968,12 @@ hr:
       warning_one: Članovi projekta morati će relocirati repozitorije projketa.
       warning_two: Postojeće poveznice na projektu neće više funkcionirati.
       title: Promjeni identifikator projekta
+    template:
+      copying: >
+        Your project is being created from the selected template project. You will be notified by mail as soon as the project is available.
+      use_template: 'Use template'
+      make_template: 'Set as template'
+      remove_from_templates: 'Remove from templates'
     archive:
       are_you_sure: "Are you sure you want to archive the project '%{name}'?"
       archived: "Archived"

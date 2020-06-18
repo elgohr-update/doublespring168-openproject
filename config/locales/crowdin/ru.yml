@@ -415,6 +415,7 @@ ru:
         types: "Типы"
         versions: "Этапы"
         work_packages: "Задачи"
+        templated: 'Template project'
       projects/status:
         code: 'Состояние'
         explanation: 'Описание статуса'
@@ -890,6 +891,7 @@ ru:
       - "Окт"
       - "Ноя"
       - "Дек"
+    abbr_week: 'Wk'
     day_names:
       - "Воскресенье"
       - "Понедельник"
@@ -1103,6 +1105,7 @@ ru:
   error_cookie_missing: 'Отсутствуют cookie OpenProject. Пожалуйста, убедитесь, что Cookie разрешены. Без них приложение не будет функционировать должным образом.'
   error_custom_option_not_found: "Параметр не существует."
   error_enterprise_activation_user_limit: "Ваша учетная запись не может быть активирована (достигнут предел пользователя). Обратитесь к администратору для получения доступа."
+  error_enterprise_token_invalid_domain: "Корпоративная версия не активна. Домен вашего корпоративного токена (%{actual}) не совпадает с системным именем (%{expected})."
   error_failed_to_delete_entry: 'Не удалось удалить эту запись.'
   error_in_dependent: "Ошибка при попытке изменить зависимый объект: %{dependent_class} #%{related_id} - %{related_subject}: %{error}"
   error_invalid_selected_value: "Выбранное значение недопустимо."
@@ -1343,7 +1346,7 @@ ru:
   label_delete_project: "Удалить проект"
   label_deleted: "﻿Удалено"
   label_deleted_custom_field: "(удалено настраиваемое поле)"
-  label_deleted_custom_option: "(deleted option)"
+  label_deleted_custom_option: "(удалённая опция)"
   label_descending: "По убыванию"
   label_details: "Детали"
   label_development_roadmap: "Дорожная карта разработки"
@@ -1949,7 +1952,7 @@ ru:
   permission_manage_project_activities: "Управление проектной деятельностью"
   permission_manage_public_queries: "Управление общими представлениями"
   permission_manage_repository: "Управление репозиторием"
-  permission_manage_subtasks: "Управление подзадачами"
+  permission_manage_subtasks: "Управление иерархиями пакетов работ"
   permission_manage_versions: "Управление этапами"
   permission_manage_wiki: "Управление wiki"
   permission_manage_wiki_menu: "Управление меню wiki"
@@ -1984,6 +1987,12 @@ ru:
       warning_one: Участникам проекта нужно будет переместить репозитории проекта.
       warning_two: Существующие ссылки на проект больше работать не будут.
       title: Измените идентификатор проекта
+    template:
+      copying: >
+        Your project is being created from the selected template project. You will be notified by mail as soon as the project is available.
+      use_template: 'Use template'
+      make_template: 'Set as template'
+      remove_from_templates: 'Remove from templates'
     archive:
       are_you_sure: "Уверены, что хотите архивизировать проект %{name}%?"
       archived: "Архивирован"

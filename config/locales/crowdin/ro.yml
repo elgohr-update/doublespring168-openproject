@@ -415,6 +415,7 @@ ro:
         types: "Tipuri"
         versions: "Versiuni"
         work_packages: "Pachete de lucru"
+        templated: 'Template project'
       projects/status:
         code: 'Stare'
         explanation: 'Status description'
@@ -887,6 +888,7 @@ ro:
       - "oct"
       - "noi"
       - "dec"
+    abbr_week: 'Wk'
     day_names:
       - "Duminică"
       - "Luni"
@@ -1088,6 +1090,7 @@ ro:
   error_cookie_missing: 'Cookie-ul OpenProject lipseşte. Vă rugăm să verificați setările referitoare la cookies, această aplicație nu va funcţiona corespunzător fără acestea.'
   error_custom_option_not_found: "Option does not exist."
   error_enterprise_activation_user_limit: "Contul dvs. nu a putut fi activat (limita utilizatorilor a fost atinsă). Contactați administratorul dvs. pentru a avea acces."
+  error_enterprise_token_invalid_domain: "The Enterprise Edition is not active. Your Enterprise token's domain (%{actual}) does not match the system's host name (%{expected})."
   error_failed_to_delete_entry: 'Failed to delete this entry.'
   error_in_dependent: "Error attempting to alter dependent object: %{dependent_class} #%{related_id} - %{related_subject}: %{error}"
   error_invalid_selected_value: "Invalid selected value."
@@ -1929,7 +1932,7 @@ ro:
   permission_manage_project_activities: "Gestionare activități proiect"
   permission_manage_public_queries: "Manage public views"
   permission_manage_repository: "Gestionare arhivă"
-  permission_manage_subtasks: "Gestionare subactivități"
+  permission_manage_subtasks: "Manage work package hierarchies"
   permission_manage_versions: "Gestionare versiuni"
   permission_manage_wiki: "Gestionare wiki"
   permission_manage_wiki_menu: "Gestionare meniu wiki"
@@ -1964,6 +1967,12 @@ ro:
       warning_one: Participanții la proiect vor trebui să mute arhivele proiectului.
       warning_two: Legăturile existente la acest proiect nu vor mai funcționa.
       title: Modificare identificator proiect
+    template:
+      copying: >
+        Your project is being created from the selected template project. You will be notified by mail as soon as the project is available.
+      use_template: 'Use template'
+      make_template: 'Set as template'
+      remove_from_templates: 'Remove from templates'
     archive:
       are_you_sure: "Sunteţi sigur că doriţi să arhivaţi proiectul '%{name}'?"
       archived: "Archived"

@@ -411,6 +411,7 @@ ja:
         types: "作業項目の型"
         versions: "バージョン"
         work_packages: "作業項目"
+        templated: 'Template project'
       projects/status:
         code: 'ステータス'
         explanation: '状況の説明'
@@ -877,6 +878,7 @@ ja:
       - "10月"
       - "11月"
       - "12月"
+    abbr_week: 'Wk'
     day_names:
       - "日曜日"
       - "月曜日"
@@ -1054,6 +1056,7 @@ ja:
   error_cookie_missing: 'OpenProject のcookieが見つかりません。cookieが有効であることを確認してください。そうしないとこのアプリケーションは正しく動作しません。'
   error_custom_option_not_found: "オプションが存在しません。"
   error_enterprise_activation_user_limit: "あなたのアカウントを有効にすることができませんでした（ユーザー制限に達しました）。アクセスするには管理者に連絡してください。"
+  error_enterprise_token_invalid_domain: "The Enterprise Edition is not active. Your Enterprise token's domain (%{actual}) does not match the system's host name (%{expected})."
   error_failed_to_delete_entry: 'このエントリを削除できませんでした。'
   error_in_dependent: "依存オブジェクトを変更しようとしてエラーが発生しました: %{dependent_class} #%{related_id} - %{related_subject}: %{error}"
   error_invalid_selected_value: "選択された値が無効です。"
@@ -1886,7 +1889,7 @@ ja:
   permission_manage_project_activities: "プロジェクト活動の管理"
   permission_manage_public_queries: "公開ビューの管理"
   permission_manage_repository: "リポジトリの管理"
-  permission_manage_subtasks: "子タスクの管理"
+  permission_manage_subtasks: "Manage work package hierarchies"
   permission_manage_versions: "バージョンの管理"
   permission_manage_wiki: "Wiki の管理"
   permission_manage_wiki_menu: "Wikiメニューの管理"
@@ -1921,6 +1924,12 @@ ja:
       warning_one: プロジェクトのメンバーは、プロジェクトのリポジトリを再配置する必要があります。
       warning_two: プロジェクトへの既存のリンクは機能しなくなります。
       title: プロジェクトの識別子を変更
+    template:
+      copying: >
+        Your project is being created from the selected template project. You will be notified by mail as soon as the project is available.
+      use_template: 'Use template'
+      make_template: 'Set as template'
+      remove_from_templates: 'Remove from templates'
     archive:
       are_you_sure: "プロジェクト '%{name}' をアーカイブしてもよろしいですか？"
       archived: "Archived"

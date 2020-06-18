@@ -464,6 +464,7 @@ en:
         types: "Types"
         versions: "Versions"
         work_packages: "Work Packages"
+        templated: 'Template project'
       projects/status:
         code: 'Status'
         explanation: 'Status description'
@@ -924,6 +925,7 @@ en:
   date:
     abbr_day_names: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
     abbr_month_names: [~, "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    abbr_week: 'Wk'
     day_names: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
     formats:
       # Use the strftime parameters for formats.
@@ -1103,6 +1105,7 @@ en:
   error_cookie_missing: 'The OpenProject cookie is missing. Please ensure that cookies are enabled, as this application will not properly function without.'
   error_custom_option_not_found: "Option does not exist."
   error_enterprise_activation_user_limit: "Your account could not be activated (user limit reached). Please contact your administrator to gain access."
+  error_enterprise_token_invalid_domain: "The Enterprise Edition is not active. Your Enterprise token's domain (%{actual}) does not match the system's host name (%{expected})."
   error_failed_to_delete_entry: 'Failed to delete this entry.'
   error_in_dependent: "Error attempting to alter dependent object: %{dependent_class} #%{related_id} - %{related_subject}: %{error}"
   error_invalid_selected_value: "Invalid selected value."
@@ -1966,7 +1969,7 @@ en:
   permission_manage_project_activities: "Manage project activities"
   permission_manage_public_queries: "Manage public views"
   permission_manage_repository: "Manage repository"
-  permission_manage_subtasks: "Manage subtasks"
+  permission_manage_subtasks: "Manage work package hierarchies"
   permission_manage_versions: "Manage versions"
   permission_manage_wiki: "Manage wiki"
   permission_manage_wiki_menu: "Manage wiki menu"
@@ -2003,6 +2006,13 @@ en:
       warning_one: Members of the project will have to relocate the project's repositories.
       warning_two: Existing links to the project will no longer work.
       title: Change the project's identifier
+    template:
+      copying: >
+        Your project is being created from the selected template project.
+        You will be notified by mail as soon as the project is available.
+      use_template: 'Use template'
+      make_template: 'Set as template'
+      remove_from_templates: 'Remove from templates'
     archive:
       are_you_sure: "Are you sure you want to archive the project '%{name}'?"
       archived: "Archived"

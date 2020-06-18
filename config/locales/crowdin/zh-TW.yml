@@ -413,6 +413,7 @@ zh-TW:
         types: "類型"
         versions: "版本"
         work_packages: "工作項目"
+        templated: 'Template project'
       projects/status:
         code: '狀態'
         explanation: 'Status description'
@@ -879,6 +880,7 @@ zh-TW:
       - "十月"
       - "十一月"
       - "十二月"
+    abbr_week: 'Wk'
     day_names:
       - "星期天"
       - "星期一"
@@ -1052,10 +1054,11 @@ zh-TW:
   error_can_not_find_all_resources: "Could not find all related resources to this request."
   error_can_not_unarchive_project: "This project cannot be unarchived: %{errors}"
   error_check_user_and_role: "請選擇一個使用者與一個角色。"
-  error_code: "Error %{code}"
+  error_code: "錯誤碼 %{code}"
   error_cookie_missing: 'OpenProject的Cookie遺失了。請確保瀏覽器的Cookie已經啟用，否則本應用程式將無法正常做用。'
   error_custom_option_not_found: "選項不存在。"
   error_enterprise_activation_user_limit: "無法啟動您的帳戶 (已達到使用者限制)。請與管理員聯繫以獲取存取權限。"
+  error_enterprise_token_invalid_domain: "The Enterprise Edition is not active. Your Enterprise token's domain (%{actual}) does not match the system's host name (%{expected})."
   error_failed_to_delete_entry: '刪除此項目失敗。'
   error_in_dependent: "Error attempting to alter dependent object: %{dependent_class} #%{related_id} - %{related_subject}: %{error}"
   error_invalid_selected_value: "不合法的項目數值。"
@@ -1887,7 +1890,7 @@ zh-TW:
   permission_manage_project_activities: "管理專案活動"
   permission_manage_public_queries: "管理公開查詢"
   permission_manage_repository: "管理版本庫"
-  permission_manage_subtasks: "管理子任務"
+  permission_manage_subtasks: "Manage work package hierarchies"
   permission_manage_versions: "管理版本"
   permission_manage_wiki: "管理維基"
   permission_manage_wiki_menu: "管理維基選單"
@@ -1922,6 +1925,12 @@ zh-TW:
       warning_one: 這個專案的成員將必須搬移專案的版本庫
       warning_two: 專案現有的連結將不再有效
       title: 修改專案的識別
+    template:
+      copying: >
+        Your project is being created from the selected template project. You will be notified by mail as soon as the project is available.
+      use_template: 'Use template'
+      make_template: 'Set as template'
+      remove_from_templates: 'Remove from templates'
     archive:
       are_you_sure: "是否確定要 archive 專案 '%{name}'？"
       archived: "Archived"
