@@ -414,6 +414,7 @@ nl:
         types: "Typen"
         versions: "Versies"
         work_packages: "Werkpakketten"
+        templated: 'Template project'
       projects/status:
         code: 'Status'
         explanation: 'Status description'
@@ -883,6 +884,7 @@ nl:
       - "Okt"
       - "Nov"
       - "Dec"
+    abbr_week: 'Wk'
     day_names:
       - "Zondag"
       - "Maandag"
@@ -1072,6 +1074,7 @@ nl:
   error_cookie_missing: 'De cookie voor OpenProject ontbreekt. Zorg ervoor dat cookies zijn ingeschakeld aangezien deze toepassing anders niet goed zal functioneren.'
   error_custom_option_not_found: "Optie bestaat niet."
   error_enterprise_activation_user_limit: "Uw account kon niet worden geactiveerd (gebruikerslimiet bereikt). Neem contact op met uw beheerder om toegang te krijgen."
+  error_enterprise_token_invalid_domain: "The Enterprise Edition is not active. Your Enterprise token's domain (%{actual}) does not match the system's host name (%{expected})."
   error_failed_to_delete_entry: 'Fout bij het verwijderen van deze ingave.'
   error_in_dependent: "Error attempting to alter dependent object: %{dependent_class} #%{related_id} - %{related_subject}: %{error}"
   error_invalid_selected_value: "De geselecteerde waarde is ongeldig."
@@ -1908,7 +1911,7 @@ nl:
   permission_manage_project_activities: "Projectactiviteiten beheren"
   permission_manage_public_queries: "Openbare overzichten beheren"
   permission_manage_repository: "Repository beheren"
-  permission_manage_subtasks: "Beheren van subtaken"
+  permission_manage_subtasks: "Manage work package hierarchies"
   permission_manage_versions: "Versies beheren"
   permission_manage_wiki: "Wiki beheren"
   permission_manage_wiki_menu: "Wiki menu beheren"
@@ -1943,6 +1946,12 @@ nl:
       warning_one: Leden van het project zullen de opslagplaatsen van het project moeten verplaatsen.
       warning_two: Bestaande koppelingen naar het project zullen niet langer werken.
       title: Wijzig het identificatienummer van het project
+    template:
+      copying: >
+        Your project is being created from the selected template project. You will be notified by mail as soon as the project is available.
+      use_template: 'Use template'
+      make_template: 'Set as template'
+      remove_from_templates: 'Remove from templates'
     archive:
       are_you_sure: "Weet u zeker dat u dit project '%{name}' wilt archiveren?"
       archived: "Archived"

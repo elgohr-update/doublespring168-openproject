@@ -414,6 +414,7 @@ fi:
         types: "Tyypit"
         versions: "Versiot"
         work_packages: "Työpaketit"
+        templated: 'Template project'
       projects/status:
         code: 'Tila'
         explanation: 'Status description'
@@ -883,6 +884,7 @@ fi:
       - "Loka"
       - "Marras"
       - "Joulu"
+    abbr_week: 'Wk'
     day_names:
       - "Sunnuntai"
       - "Maanantai"
@@ -1072,6 +1074,7 @@ fi:
   error_cookie_missing: 'OpenProject evästeen puuttuu. Varmista, että evästeet ovat käytössä, koska tämä sovellus ei toimi oikein ilman evästeitä.'
   error_custom_option_not_found: "Vaihtoehtoa ei ole olemassa."
   error_enterprise_activation_user_limit: "Your account could not be activated (user limit reached). Please contact your administrator to gain access."
+  error_enterprise_token_invalid_domain: "The Enterprise Edition is not active. Your Enterprise token's domain (%{actual}) does not match the system's host name (%{expected})."
   error_failed_to_delete_entry: 'Tämän merkinnän poisto ei onnistunut.'
   error_in_dependent: "Error attempting to alter dependent object: %{dependent_class} #%{related_id} - %{related_subject}: %{error}"
   error_invalid_selected_value: "Invalid selected value."
@@ -1909,7 +1912,7 @@ fi:
   permission_manage_project_activities: "Hallinnoi projektin tehtäviä"
   permission_manage_public_queries: "Manage public views"
   permission_manage_repository: "Hallinnoi tietovarastoa"
-  permission_manage_subtasks: "Hallinnoi alitehtäviä"
+  permission_manage_subtasks: "Manage work package hierarchies"
   permission_manage_versions: "Hallinnoi versioita"
   permission_manage_wiki: "Hallinnoi wikiä"
   permission_manage_wiki_menu: "Hallinnoi Wiki-valikkoa"
@@ -1944,6 +1947,12 @@ fi:
       warning_one: Members of the project will have to relocate the project's repositories.
       warning_two: Projektin nykyiset linkit eivät enää toimi.
       title: Muuta projektin tunnistetta
+    template:
+      copying: >
+        Your project is being created from the selected template project. You will be notified by mail as soon as the project is available.
+      use_template: 'Use template'
+      make_template: 'Set as template'
+      remove_from_templates: 'Remove from templates'
     archive:
       are_you_sure: "Oletko varma, että haluat arkistoida projektin \"%{name}\"?"
       archived: "Archived"

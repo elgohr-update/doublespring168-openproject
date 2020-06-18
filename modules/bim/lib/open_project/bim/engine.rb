@@ -57,8 +57,15 @@ module OpenProject::Bim
                    { 'bim/bcf/issues': %i[index] },
                    dependencies: %i[view_work_packages]
         permission :manage_bcf,
-                   { 'bim/bcf/issues': %i[index upload prepare_import perform_import] },
+                   { 'bim/bcf/issues': %i[index upload prepare_import configure_import perform_import] },
                    dependencies: %i[view_linked_issues
+                                    view_work_packages
+                                    add_work_packages
+                                    edit_work_packages]
+        permission :delete_bcf,
+                   {},
+                   dependencies: %i[view_linked_issues
+                                    manage_bcf
                                     view_work_packages
                                     add_work_packages
                                     edit_work_packages

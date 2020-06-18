@@ -33,7 +33,7 @@ import { ProjectResource } from "core-app/modules/hal/resources/project-resource
 import { InjectField } from "core-app/helpers/angular/inject-field.decorator";
 import * as URI from 'urijs';
 import { TimeEntryCreateService } from 'core-app/modules/time_entries/create/create.service';
-import {WorkPackageResource} from "core-app/modules/hal/resources/work-package-resource";
+import { WorkPackageResource } from "core-app/modules/hal/resources/work-package-resource";
 
 export class WorkPackageSpentTimeDisplayField extends DurationDisplayField {
   public text = {
@@ -77,8 +77,9 @@ export class WorkPackageSpentTimeDisplayField extends DurationDisplayField {
   private appendTimelogLink(element:HTMLElement) {
     if (this.resource.logTime) {
       const timelogElement = document.createElement('a');
-      timelogElement.setAttribute('class','icon icon-time');
-      timelogElement.textContent = this.text.logTime;
+      timelogElement.setAttribute('class', 'icon icon-time');
+      timelogElement.setAttribute('href', '');
+      timelogElement.setAttribute('title', this.text.logTime);
 
       element.appendChild(timelogElement);
 

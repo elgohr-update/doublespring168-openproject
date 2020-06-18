@@ -38,11 +38,10 @@ module Bim
       before_action :import_canceled?
 
       before_action :check_file_param, only: %i[prepare_import]
-      before_action :get_persisted_file, only: %i[perform_import]
+      before_action :get_persisted_file, only: %i[perform_import configure_import]
       before_action :persist_file, only: %i[prepare_import]
-      before_action :set_import_options, only: %i[perform_import]
 
-      before_action :build_importer, only: %i[prepare_import perform_import]
+      before_action :build_importer, only: %i[prepare_import configure_import perform_import]
       before_action :check_bcf_version, only: %i[prepare_import]
 
       menu_item :ifc_models
@@ -61,7 +60,16 @@ module Bim
         redirect_to action: :upload
       end
 
+      def configure_import
+        render_next
+      rescue StandardError => e
+        flash[:error] = I18n.t('bcf.bcf_xml.import_failed', error: e.message)
+        redirect_to action: :upload
+      end
+
       def perform_import
+        set_import_options
+
         results = @importer.import!(@import_options).flatten
         @issues = { successful: [], failed: [] }
         results.each do |issue|
@@ -102,12 +110,12 @@ module Bim
           unknown_priorities_action: params.dig(:import_options, :unknown_priorities_action).presence || "use_default",
           invalid_people_action: params.dig(:import_options, :invalid_people_action).presence || "anonymize",
           unknown_mails_action: params.dig(:import_options, :unknown_mails_action).presence || 'invite',
-          non_members_action: params.dig(:import_options, :non_members_action).presence || 'add',
+          non_members_action: params.dig(:import_options, :non_members_action).presence || 'chose',
           unknown_types_chose_ids: params.dig(:import_options, :unknown_types_chose_ids) || [],
           unknown_statuses_chose_ids: params.dig(:import_options, :unknown_statuses_chose_ids) || [],
           unknown_priorities_chose_ids: params.dig(:import_options, :unknown_priorities_chose_ids) || [],
           unknown_mails_invite_role_ids: params.dig(:import_options, :unknown_mails_invite_role_ids) || [],
-          non_members_add_role_ids: params.dig(:import_options, :non_members_add_role_ids) || []
+          non_members_chose_role_ids: params.dig(:import_options, :non_members_chose_role_ids) || []
         }
       end
 
@@ -126,6 +134,7 @@ module Bim
           render_config_non_members
         else
           perform_import
+          render :perform_import
         end
       end
 

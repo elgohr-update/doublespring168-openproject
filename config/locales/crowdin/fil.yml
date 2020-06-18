@@ -414,6 +414,7 @@ fil:
         types: "Mga uri"
         versions: "Mga bersyon"
         work_packages: "Ang mga pakete na ginawa"
+        templated: 'Template project'
       projects/status:
         code: 'Estado'
         explanation: 'Status description'
@@ -883,6 +884,7 @@ fil:
       - "Oktubre"
       - "Nobyembre"
       - "Disyembre"
+    abbr_week: 'Wk'
     day_names:
       - "Linggo"
       - "Lunes"
@@ -1072,6 +1074,7 @@ fil:
   error_cookie_missing: 'Ang OpenProject cookie ay nawawala. Mangyaring siguraduhin na ang mga cookie ay pinagana, bilang aplikasyon na ito ay hindi gumagana ng maayos na hindi kasama ang.'
   error_custom_option_not_found: "Ang opsyon ay hindi umiiral."
   error_enterprise_activation_user_limit: "Your account could not be activated (user limit reached). Please contact your administrator to gain access."
+  error_enterprise_token_invalid_domain: "The Enterprise Edition is not active. Your Enterprise token's domain (%{actual}) does not match the system's host name (%{expected})."
   error_failed_to_delete_entry: 'Nabigong burahin ang entry na ito.'
   error_in_dependent: "Error attempting to alter dependent object: %{dependent_class} #%{related_id} - %{related_subject}: %{error}"
   error_invalid_selected_value: "Invalid selected value."
@@ -1909,7 +1912,7 @@ fil:
   permission_manage_project_activities: "Ang mga aktibidad ng pamahalaing proyekto"
   permission_manage_public_queries: "Manage public views"
   permission_manage_repository: "Pamahalain ang repositoryo"
-  permission_manage_subtasks: "Pamahalain ang mga subtask"
+  permission_manage_subtasks: "Manage work package hierarchies"
   permission_manage_versions: "Pamahalain ang mga bersyon"
   permission_manage_wiki: "Pamahalain ang wiki"
   permission_manage_wiki_menu: "Pagpipilian ng pamahalaing wiki"
@@ -1944,6 +1947,12 @@ fil:
       warning_one: Ang mga miyembro ng proyekto ay kinakailangang ilipat ang mga repository ng proyekto.
       warning_two: Ang mga umiiral na mga link sa proyekto ay hindi na maaring magamit.
       title: Baguhin ang mga pagkakilanlan ng proyekto
+    template:
+      copying: >
+        Your project is being created from the selected template project. You will be notified by mail as soon as the project is available.
+      use_template: 'Use template'
+      make_template: 'Set as template'
+      remove_from_templates: 'Remove from templates'
     archive:
       are_you_sure: "Sigurado ka bang na gusto mong i-archive ang proyekto'%{name}'?"
       archived: "Archived"

@@ -654,7 +654,8 @@ GEM
       validate_email
       validate_url
       webfinger (>= 1.0.1)
-    openproject-token (1.0.2)
+    openproject-token (2.0)
+      activemodel
     parallel (1.19.1)
     parallel_tests (2.32.0)
       parallel
@@ -710,9 +711,9 @@ GEM
       eventmachine_httpserver
       http_parser.rb (~> 0.6.0)
       multi_json
-    puma (4.3.3)
+    puma (4.3.5)
       nio4r (~> 2.0)
-    rack (2.2.2)
+    rack (2.2.3)
     rack-accept (0.4.5)
       rack (>= 0.4)
     rack-attack (6.2.2)
@@ -960,7 +961,7 @@ GEM
       hashdiff (>= 0.4.0, < 2.0.0)
     websocket-driver (0.7.1)
       websocket-extensions (>= 0.1.0)
-    websocket-extensions (0.1.4)
+    websocket-extensions (0.1.5)
     will_paginate (3.3.0)
     with_advisory_lock (4.6.0)
       activerecord (>= 4.2)
@@ -1061,7 +1062,7 @@ DEPENDENCIES
   openproject-pdf_export!
   openproject-recaptcha!
   openproject-reporting!
-  openproject-token (~> 1.0.2)
+  openproject-token (~> 2.0)
   openproject-translations!
   openproject-two_factor_authentication!
   openproject-webhooks!

@@ -414,6 +414,7 @@ bg:
         types: "Видове"
         versions: "Версии"
         work_packages: "Работен пакет"
+        templated: 'Template project'
       projects/status:
         code: 'Състояние'
         explanation: 'Status description'
@@ -883,6 +884,7 @@ bg:
       - "окт"
       - "ное"
       - "Декември"
+    abbr_week: 'Wk'
     day_names:
       - "Неделя"
       - "Понеделник"
@@ -1072,6 +1074,7 @@ bg:
   error_cookie_missing: '"Бисквитката" на OpenProject липсва. Моля уверете се че cookies са активирани, тъй като това приложение не функционира правилно без тях.'
   error_custom_option_not_found: "Опцията не съществува."
   error_enterprise_activation_user_limit: "Your account could not be activated (user limit reached). Please contact your administrator to gain access."
+  error_enterprise_token_invalid_domain: "The Enterprise Edition is not active. Your Enterprise token's domain (%{actual}) does not match the system's host name (%{expected})."
   error_failed_to_delete_entry: 'Failed to delete this entry.'
   error_in_dependent: "Error attempting to alter dependent object: %{dependent_class} #%{related_id} - %{related_subject}: %{error}"
   error_invalid_selected_value: "Invalid selected value."
@@ -1909,7 +1912,7 @@ bg:
   permission_manage_project_activities: "Manage project activities"
   permission_manage_public_queries: "Manage public views"
   permission_manage_repository: "Manage repository"
-  permission_manage_subtasks: "Manage subtasks"
+  permission_manage_subtasks: "Manage work package hierarchies"
   permission_manage_versions: "Manage versions"
   permission_manage_wiki: "Manage wiki"
   permission_manage_wiki_menu: "Manage wiki menu"
@@ -1944,6 +1947,12 @@ bg:
       warning_one: Members of the project will have to relocate the project's repositories.
       warning_two: Existing links to the project will no longer work.
       title: Change the project's identifier
+    template:
+      copying: >
+        Your project is being created from the selected template project. You will be notified by mail as soon as the project is available.
+      use_template: 'Use template'
+      make_template: 'Set as template'
+      remove_from_templates: 'Remove from templates'
     archive:
       are_you_sure: "Наистина ли искате да архивирате на проекта \"%{name}\"?"
       archived: "Archived"
